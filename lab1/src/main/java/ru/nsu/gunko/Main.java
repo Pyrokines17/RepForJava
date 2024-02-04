@@ -1,6 +1,7 @@
 package ru.nsu.gunko;
 
 import java.io.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,13 +33,14 @@ public class Main {
             System.err.println("Error while reading file: " + e.getLocalizedMessage());
         }
 
-        //ToDo: sort of hashmap
+        Sorter.sortByValue(quantity);
 
         try (Writer writer = new FileWriter("result.csv")) {
             for (Map.Entry<String, Integer> word : quantity.entrySet()) {
                 double percent = (double)word.getValue() / countOfWords * 100;
                 String result = word.getKey() + ";" + word.getValue() + ";" + percent + "\n";
-                //ToDo: maybe remake create of string
+                //StringBuilder result = new StringBuilder(word.getKey());
+                //result.append(";").append(word.getValue()).append(";").append(percent).append("\n");
                 writer.write(result);
             }
         } catch (IOException e) {

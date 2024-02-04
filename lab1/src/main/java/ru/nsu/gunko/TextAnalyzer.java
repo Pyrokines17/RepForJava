@@ -24,7 +24,6 @@ public class TextAnalyzer {
         while (sym != -1 && Character.isLetterOrDigit(sym)) {
             //ByteBuffer byteBuffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(sym).flip().position(2);
             //String charBuffer = StandardCharsets.UTF_16.decode(byteBuffer).toString();
-
             String charBuffer = Character.toString(sym);
             string.append(charBuffer);
             sym = reader.read();
