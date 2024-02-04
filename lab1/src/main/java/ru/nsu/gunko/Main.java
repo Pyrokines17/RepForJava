@@ -3,11 +3,11 @@ package ru.nsu.gunko;
 import java.io.*;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        Map<String, Integer> quantity = new HashMap<>();
+        HashMap<String, Integer> quantity = new HashMap<>();
         int countOfWords = 0;
 
         try (Reader reader = new InputStreamReader(new FileInputStream(args[0]))) {
@@ -33,10 +33,10 @@ public class Main {
             System.err.println("Error while reading file: " + e.getLocalizedMessage());
         }
 
-        Sorter.sortByValue(quantity);
+        ArrayList<HashMap.Entry<String, Integer>> list = Sorter.sortByValue(quantity);
 
         try (Writer writer = new FileWriter("result.csv")) {
-            for (Map.Entry<String, Integer> word : quantity.entrySet()) {
+            for (HashMap.Entry<String, Integer> word : list) {
                 double percent = (double)word.getValue() / countOfWords * 100;
                 String result = word.getKey() + ";" + word.getValue() + ";" + percent + "\n";
                 //StringBuilder result = new StringBuilder(word.getKey());

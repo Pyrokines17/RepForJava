@@ -1,16 +1,13 @@
 package ru.nsu.gunko;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Sorter {
-    public static void sortByValue(Map<String, Integer> map) {
-        List<Map.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
-        list.sort(Map.Entry.comparingByValue());
-
-        map.clear();
-
-        for (Map.Entry<String, Integer> entry : list) {
-            map.put(entry.getKey(), entry.getValue());
-        }
+    public static ArrayList<HashMap.Entry<String, Integer>> sortByValue(HashMap<String, Integer> map) {
+        ArrayList<HashMap.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
+        list.sort(HashMap.Entry.comparingByValue(Comparator.reverseOrder()));
+        return list;
     }
 }
