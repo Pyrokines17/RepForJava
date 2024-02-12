@@ -1,0 +1,10 @@
+DEFINE ru.nsu.gunko.fabric.commands.Define
+PRINT ru.nsu.gunko.fabric.commands.Print
++ ru.nsu.gunko.fabric.commands.arithmetic.Sum
+- ru.nsu.gunko.fabric.commands.arithmetic.Sub
+* ru.nsu.gunko.fabric.commands.arithmetic.Mul
+/ ru.nsu.gunko.fabric.commands.arithmetic.Div
+SQRT ru.nsu.gunko.fabric.commands.arithmetic.Sqrt
+POP ru.nsu.gunko.fabric.commands.Pop
+PUSH ru.nsu.gunko.fabric.commands.Push
+# ru.nsu.gunko.fabric.commands.Comm
