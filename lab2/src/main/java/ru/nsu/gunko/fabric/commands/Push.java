@@ -10,7 +10,9 @@ public class Push implements Operation {
         if (str.matches("-?\\d+(\\.\\d+)?")) {
             context.stack.push(Double.valueOf(str));
         } else {
-            context.stack.push(context.map.get(str));
+            if (context.map.containsKey(str)) {
+                context.stack.push(context.map.get(str));
+            }
         }
     }
 }

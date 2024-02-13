@@ -17,7 +17,13 @@ public class Fabric {
 
     public void process(List<String[]> commands) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         for (String[] command : commands) {
-            String nameOfClass = arrOfClass.get(command[0]);
+            String nameOfClass;
+
+            if (arrOfClass.containsKey(command[0])) {
+                nameOfClass = arrOfClass.get(command[0]);
+            } else {
+                continue;
+            }
 
             if (command.length > 1) {
                 context.arguments.addAll(Arrays.asList(command).subList(1, command.length));
