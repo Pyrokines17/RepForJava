@@ -5,6 +5,8 @@ import ru.nsu.gunko.Context;
 public class Print implements Operation {
     @Override
     public void perform(Context context) {
-        System.out.println(context.stack.peek());
+        if (!context.stack.isEmpty()) {
+            System.out.println(context.stack.peek());
+        } // empty stack
     }
 }

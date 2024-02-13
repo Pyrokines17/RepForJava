@@ -12,7 +12,7 @@ public class Push implements Operation {
         } else {
             if (context.map.containsKey(str)) {
                 context.stack.push(context.map.get(str));
-            }
+            } //parameter not found
         }
     }
 }
