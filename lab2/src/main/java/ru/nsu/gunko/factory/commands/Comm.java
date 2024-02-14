@@ -1,4 +1,4 @@
-package ru.nsu.gunko.fabric.commands;
+package ru.nsu.gunko.factory.commands;
 
 import ru.nsu.gunko.Context;
 

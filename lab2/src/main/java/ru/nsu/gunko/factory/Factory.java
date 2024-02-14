@@ -1,16 +1,16 @@
-package ru.nsu.gunko.fabric;
+package ru.nsu.gunko.factory;
 
 import ru.nsu.gunko.Context;
-import ru.nsu.gunko.fabric.commands.Operation;
+import ru.nsu.gunko.factory.commands.Operation;
 
 import java.io.*;
 import java.util.*;
 
-public class Fabric {
-    Map<String, String> arrOfClass;
-    Context context;
+public class Factory {
+    private final Map<String, String> arrOfClass;
+    private final Context context;
 
-    public Fabric(Context newContext) throws IOException {
+    public Factory(Context newContext) throws IOException {
         context = newContext;
         arrOfClass = this.getMap();
     }
@@ -26,12 +26,12 @@ public class Fabric {
             } //command not found
 
             if (command.length > 1) {
-                context.arguments.addAll(Arrays.asList(command).subList(1, command.length));
+                context.getArguments().addAll(Arrays.asList(command).subList(1, command.length));
             }
 
             Operation operation = (Operation) Class.forName(nameOfClass).newInstance();
             operation.perform(context);
-            context.arguments.clear();
+            context.getArguments().clear();
         }
     }
 

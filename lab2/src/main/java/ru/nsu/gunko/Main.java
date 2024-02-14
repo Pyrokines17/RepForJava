@@ -1,6 +1,6 @@
 package ru.nsu.gunko;
 
-import ru.nsu.gunko.fabric.*;
+import ru.nsu.gunko.factory.*;
 
 import java.io.*;
 import java.util.*;
@@ -29,10 +29,10 @@ public class Main {
         }
 
         try {
-            Fabric fabric = new Fabric(context);
-            fabric.process(commands);
+            Factory factory = new Factory(context);
+            factory.process(commands);
         } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            System.out.println("Error while fabric work: " + e.getLocalizedMessage());
+            System.out.println("Error while factory work: " + e.getLocalizedMessage());
         }
     }
 }
