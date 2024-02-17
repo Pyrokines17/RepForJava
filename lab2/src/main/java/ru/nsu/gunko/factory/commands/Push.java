@@ -1,10 +1,16 @@
 package ru.nsu.gunko.factory.commands;
 
 import ru.nsu.gunko.Context;
+import ru.nsu.gunko.factory.exceptions.DefineNotFoundException;
+import ru.nsu.gunko.factory.exceptions.NotEnoughParamException;
 
 public class Push implements Operation {
     @Override
     public void perform(Context context) {
+        if (context.getArguments().isEmpty()) {
+            throw new NotEnoughParamException("in Push not enough param");
+        }
+
         String str = context.getArguments().get(0);
 
         if (str.matches("-?\\d+(\\.\\d+)?")) {
@@ -12,7 +18,9 @@ public class Push implements Operation {
         } else {
             if (context.getMap().containsKey(str)) {
                 context.getStack().push(context.getMap().get(str));
-            } //parameter not found
+            } else {
+                throw new DefineNotFoundException("in Push unknown param");
+            }
         }
     }
 }

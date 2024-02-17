@@ -10,13 +10,13 @@ public class CommandReader {
         bufReader = newReader;
     }
 
-    public List<String[]> getCommands() throws IOException {
+    public List<List<String>> getCommands() throws IOException {
         String line;
-        List<String[]> res = new ArrayList<>();
+        List<List<String>> res = new ArrayList<>();
 
         while ((line = bufReader.readLine()) != null) {
             String[] sepStr = line.split("\\s+");
-            res.add(sepStr);
+            res.add(new ArrayList<>(Arrays.asList(sepStr)));
         }
 
         return res;
