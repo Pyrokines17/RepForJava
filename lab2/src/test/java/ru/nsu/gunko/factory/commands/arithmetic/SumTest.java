@@ -15,6 +15,6 @@ class SumTest {
         context.getStack().push(23.0);
         sum.perform(context);
 
-        Assertions.assertEquals(context.getStack().peek(), 35);
+        Assertions.assertEquals(35, context.getStack().peek());
     }
 }

@@ -15,6 +15,6 @@ class SubTest {
         context.getStack().push(3.0);
         sub.perform(context);
 
-        Assertions.assertEquals(context.getStack().peek(), 9);
+        Assertions.assertEquals(9, context.getStack().peek());
     }
 }

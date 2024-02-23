@@ -26,6 +26,6 @@ class PushTest {
         stack.push(12.0);
         stack.push(23.0);
 
-        Assertions.assertEquals(context.getStack(), stack);
+        Assertions.assertEquals(stack, context.getStack());
     }
 }

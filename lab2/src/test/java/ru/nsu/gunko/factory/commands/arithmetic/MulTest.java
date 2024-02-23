@@ -15,6 +15,6 @@ class MulTest {
         context.getStack().push(3.0);
         mul.perform(context);
 
-        Assertions.assertEquals(context.getStack().peek(), 36);
+        Assertions.assertEquals(36, context.getStack().peek());
     }
 }

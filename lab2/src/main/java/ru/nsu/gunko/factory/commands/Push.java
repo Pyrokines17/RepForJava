@@ -1,8 +1,7 @@
 package ru.nsu.gunko.factory.commands;
 
 import ru.nsu.gunko.Context;
-import ru.nsu.gunko.factory.exceptions.DefineNotFoundException;
-import ru.nsu.gunko.factory.exceptions.NotEnoughParamException;
+import ru.nsu.gunko.factory.exceptions.*;
 
 public class Push implements Operation {
     @Override

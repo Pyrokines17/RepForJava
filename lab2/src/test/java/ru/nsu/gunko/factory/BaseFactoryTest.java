@@ -2,15 +2,15 @@ package ru.nsu.gunko.factory;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.nsu.gunko.CommandReader;
 import ru.nsu.gunko.Context;
-import ru.nsu.gunko.factory.commands.*;
-import ru.nsu.gunko.factory.commands.arithmetic.*;
+import ru.nsu.gunko.factory.commands.Operation;
+import ru.nsu.gunko.factory.commands.arithmetic.Div;
+import ru.nsu.gunko.factory.exceptions.BadCreatingException;
 
 import java.io.*;
 import java.util.*;
 
-class FactoryTest {
+class BaseFactoryTest {
 
     @Test
     void getOperation() {
@@ -25,12 +25,12 @@ class FactoryTest {
         list.add("/");
 
         try {
-            Factory factory = new Factory();
+            BaseFactory baseFactory = new BaseFactory();
 
             try {
-                Operation operation = factory.getOperation(list);
+                Operation operation = baseFactory.getOperation(list);
                 operation.perform(context1);
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            } catch (BadCreatingException e) {
                 System.err.println("Error while creating operation: " + e.getLocalizedMessage());
             }
         } catch (IOException e) {
@@ -40,6 +40,6 @@ class FactoryTest {
         Div div = new Div();
         div.perform(context2);
 
-        Assertions.assertEquals(context1.getStack(), context2.getStack());
+        Assertions.assertEquals(context2.getStack(), context1.getStack());
     }
 }

@@ -15,6 +15,6 @@ class DivTest {
         context.getStack().push(3.0);
         div.perform(context);
 
-        Assertions.assertEquals(context.getStack().peek(), 4);
+        Assertions.assertEquals(4, context.getStack().peek());
     }
 }

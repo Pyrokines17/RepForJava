@@ -15,6 +15,6 @@ class PopTest {
         context.getStack().push(23.0);
         pop.perform(context);
 
-        Assertions.assertEquals(context.getStack().peek(), 12.0);
+        Assertions.assertEquals(12.0, context.getStack().peek());
     }
 }

@@ -29,6 +29,6 @@ class CommandReaderTest {
         command2.add("123");
         commands.add(command2);
 
-        Assertions.assertEquals(result, commands);
+        Assertions.assertEquals(commands, result);
     }
 }

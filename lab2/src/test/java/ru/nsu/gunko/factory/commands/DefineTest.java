@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.nsu.gunko.Context;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 class DefineTest {
 
@@ -21,6 +20,6 @@ class DefineTest {
 
         map.put("a", 12.0);
 
-        Assertions.assertEquals(context.getMap(), map);
+        Assertions.assertEquals(map, context.getMap());
     }
 }

@@ -37,6 +37,6 @@ class ContextTest {
         context.getArguments().add("abc");
         list.add("abc");
 
-        Assertions.assertEquals(context.getArguments(), list);
+        Assertions.assertEquals(list, context.getArguments());
     }
 }

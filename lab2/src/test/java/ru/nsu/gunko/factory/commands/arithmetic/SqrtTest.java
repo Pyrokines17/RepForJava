@@ -14,6 +14,6 @@ class SqrtTest {
         context.getStack().push(9.0);
         sqrt.perform(context);
 
-        Assertions.assertEquals(context.getStack().peek(), 3);
+        Assertions.assertEquals(3, context.getStack().peek());
     }
 }
