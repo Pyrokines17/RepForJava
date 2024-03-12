@@ -10,17 +10,17 @@ public class HeroP implements Person {
     private final ImageView hero;
 
     public HeroP(StackPane stackPane) {
-        InputStream inputStream = getClass().getResourceAsStream("hero.png");
-        InputStream inputStream1 = getClass().getResourceAsStream("hero1.png");
-        InputStream inputStreamAlt = getClass().getResourceAsStream("heroAlt.png");
-
-        assert inputStream != null;
-        assert inputStream1 != null;
-        assert inputStreamAlt != null;
-
         list = new ArrayList<>();
+        InputStream inputStream = getClass().getResourceAsStream("hero/hero.png");
+        assert inputStream != null;
         Image image = new Image(inputStream);
+
+        InputStream inputStream1 = getClass().getResourceAsStream("hero/hero1.png");
+        assert inputStream1 != null;
         Image image1 = new Image(inputStream1);
+
+        InputStream inputStreamAlt = getClass().getResourceAsStream("hero/heroAlt.png");
+        assert inputStreamAlt != null;
         Image imageAlt = new Image(inputStreamAlt);
         list.add(image); list.add(image1); list.add(imageAlt);
 
@@ -30,23 +30,8 @@ public class HeroP implements Person {
         stackPane.getChildren().add(hero);
     }
 
-    public void listener(int signal, List<Integer> params) {
-        switch (signal) {
-            case 0 : {
-                move(params.get(0), params.get(1));
-                break;}
-            case 1 : {
-                changeImage(params.get(2));
-                break;}
-        }
-    }
-
-    private void move(int x, int y) {
+    public void move(int x, int y) {
         hero.setTranslateX(x);
         hero.setTranslateY(y);
-    }
-
-    private void changeImage(int side) {
-        hero.setImage(list.get(side));
     }
 }

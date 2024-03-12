@@ -1,45 +1,45 @@
 package ru.nsu.gunko.lab3.model;
 
-import ru.nsu.gunko.lab3.view.HeroP;
 import java.util.*;
 
 public class HeroL implements Logic {
-    private final HeroP heroP;
-    private final List<Integer> params;
+    private final List<Integer> coordinates;
+    private final String side;
+    private final Model model;
 
-    public HeroL(HeroP newHeroP) {
-        heroP = newHeroP;
-        params = new ArrayList<>();
-        params.add(0); params.add(0);
-        params.add(0);
-        //x, y, side//
+    public HeroL(Model newModel) {
+        coordinates = new ArrayList<>();
+        coordinates.add(0); coordinates.add(0);
+        side = "right";
+        model = newModel;
     }
 
-    public void move(String side) { //maybe ToDo: remake signal's
+    public void move(String side) {
         switch (side) {
             case "up" : {
-                params.set(1, params.get(1)-10);
-                params.set(2, params.get(2)==1 ? 0 : 1);
+                coordinates.set(1, coordinates.get(1)-10);
+                model.signal();
                 break;}
             case "down" : {
-                params.set(1, params.get(1)+10);
-                params.set(2, params.get(2)==1 ? 0 : 1);
+                coordinates.set(1, coordinates.get(1)+10);
+                model.signal();
                 break;}
             case "left" : {
-                params.set(0, params.getFirst()-10);
-                params.set(2, 1);
+                coordinates.set(0, coordinates.getFirst()-10);
+                model.signal();
                 break;}
             case "right" : {
-                params.set(0, params.getFirst()+10);
-                params.set(2, 0);
+                coordinates.set(0, coordinates.getFirst()+10);
+                model.signal();
                 break;}
         }
-
-        heroP.listener(0, params);
-        heroP.listener(1, params);
     }
 
-    public void shoot(String side) {
+    public void action(String parameter) {
+        //ToDo: shooting
+    }
 
+    public List<Integer> getCoordinates() {
+        return coordinates;
     }
 }

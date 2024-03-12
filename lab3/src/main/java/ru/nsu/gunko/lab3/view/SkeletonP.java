@@ -3,23 +3,32 @@ package ru.nsu.gunko.lab3.view;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SkeletonP implements Person {
+    private final List<Image> list;
     private final ImageView skeleton;
 
     public SkeletonP(StackPane stackPane) {
-        InputStream inputStream = getClass().getResourceAsStream("skeleton.png");
+        list = new ArrayList<>();
+        InputStream inputStream = getClass().getResourceAsStream("skeleton/skeleton.png");
         assert inputStream != null;
         Image image = new Image(inputStream);
 
-        skeleton = new ImageView(image);
+        InputStream inputStream1 = getClass().getResourceAsStream("skeleton/skeleton1.png");
+        assert inputStream1 != null;
+        Image image1 = new Image(inputStream1);
+        list.add(image); list.add(image1);
+
+        skeleton = new ImageView(list.getFirst());
         skeleton.setFitHeight(156);
         skeleton.setFitWidth(130);
         stackPane.getChildren().add(skeleton);
     }
 
-    public void listener(int signal, List<Integer> params) {
-
+    public void move(int x, int y) {
+        skeleton.setTranslateX(x);
+        skeleton.setTranslateY(y);
     }
 }

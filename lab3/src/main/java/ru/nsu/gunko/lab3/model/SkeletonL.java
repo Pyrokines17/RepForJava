@@ -1,21 +1,24 @@
 package ru.nsu.gunko.lab3.model;
 
-import ru.nsu.gunko.lab3.view.SkeletonP;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SkeletonL implements Logic{
-    private final SkeletonP skeletonP;
-    List<Integer> params;
+    private final List<Integer> coordinates;
+    private final String side;
+    private final Model model;
 
-    public SkeletonL(SkeletonP newSkeletonP) {
-        skeletonP = newSkeletonP;
-        params = new ArrayList<>();
-        params.add(0); params.add(0);
-        params.add(0);
-        //x, y, side//
+    public SkeletonL(Model newModel) {
+        coordinates = new ArrayList<>();
+        coordinates.add(0); coordinates.add(0);
+        side = "right";
+        model = newModel;
     }
 
+    public void move(String side) {
+        //ToDo: moving
+    }
 
+    public void action(String parameter) {
+        //ToDo: action
+    }
 }
