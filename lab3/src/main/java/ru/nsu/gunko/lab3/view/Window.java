@@ -8,15 +8,18 @@ import java.io.InputStream;
 public class Window {
     private final StackPane stackPane;
     private final HeroP heroP;
+    private final SkeletonP skeletonP;
 
     public Window() {
         stackPane = new StackPane();
         heroP = new HeroP(stackPane);
+        skeletonP = new SkeletonP(stackPane);
     }
 
     public void init(Stage stage) {
         stage.setTitle("New Game!");
         stage.setResizable(false);
+
         InputStream iconStream = getClass().getResourceAsStream("icon.png");
         assert iconStream != null;
         Image imageOfIcon = new Image(iconStream);
@@ -37,5 +40,9 @@ public class Window {
 
     public HeroP getHeroP() {
         return heroP;
+    }
+
+    public SkeletonP getSkeletonP() {
+        return skeletonP;
     }
 }

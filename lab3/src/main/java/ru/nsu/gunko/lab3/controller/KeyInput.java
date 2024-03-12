@@ -20,6 +20,7 @@ public class KeyInput {
             case KeyCode.S : {context.getHero().move("down"); break;}
             case KeyCode.A : {context.getHero().move("left"); break;}
             case KeyCode.D : {context.getHero().move("right"); break;}
+
             case KeyCode.UP: {context.getHero().shoot("up"); break;}
             case KeyCode.DOWN: {context.getHero().shoot("down"); break;}
             case KeyCode.LEFT: {context.getHero().shoot("left"); break;}
