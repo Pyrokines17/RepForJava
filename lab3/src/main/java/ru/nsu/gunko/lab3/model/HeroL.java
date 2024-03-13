@@ -4,7 +4,7 @@ import java.util.*;
 
 public class HeroL implements Logic {
     private final List<Integer> coordinates;
-    private final String side;
+    private String side;
     private final Model model;
 
     public HeroL(Model newModel) {
@@ -14,24 +14,42 @@ public class HeroL implements Logic {
         model = newModel;
     }
 
-    public void move(String side) {
-        switch (side) {
+    public void move(String side1) {
+        int flagCI = 0;
+
+        switch (side1) {
             case "up" : {
                 coordinates.set(1, coordinates.get(1)-10);
-                model.signal();
+                side = side.equals("right") ? "left" : "right";
+                flagCI = 1;
                 break;}
             case "down" : {
                 coordinates.set(1, coordinates.get(1)+10);
-                model.signal();
+                side = side.equals("right") ? "left" : "right";
+                flagCI = 1;
                 break;}
             case "left" : {
                 coordinates.set(0, coordinates.getFirst()-10);
-                model.signal();
+                if (side.equals("right")) {
+                    side = "left";
+                    flagCI = 1;
+                }
                 break;}
             case "right" : {
                 coordinates.set(0, coordinates.getFirst()+10);
-                model.signal();
+                if (side.equals("left")) {
+                    side = "right";
+                    flagCI = 1;
+                }
                 break;}
+        }
+
+        model.setState(State.MOVE);
+        model.signal();
+
+        if (flagCI == 1) {
+            model.setState(State.CHANGE_IMAGE);
+            model.signal();
         }
     }
 
@@ -41,5 +59,9 @@ public class HeroL implements Logic {
 
     public List<Integer> getCoordinates() {
         return coordinates;
+    }
+
+    public String getSide() {
+        return side;
     }
 }

@@ -3,8 +3,7 @@ package ru.nsu.gunko.lab3.view;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SkeletonP implements Person {
     private final List<Image> list;
@@ -27,8 +26,23 @@ public class SkeletonP implements Person {
         stackPane.getChildren().add(skeleton);
     }
 
+    @Override
     public void move(int x, int y) {
         skeleton.setTranslateX(x);
         skeleton.setTranslateY(y);
+    }
+
+    @Override
+    public void action() {
+        //ToDo: action
+    }
+
+    @Override
+    public void changeImage(String side) {
+        if (side.equals("right")) {
+            skeleton.setImage(list.getFirst());
+        } else {
+            skeleton.setImage(list.get(1));
+        }
     }
 }

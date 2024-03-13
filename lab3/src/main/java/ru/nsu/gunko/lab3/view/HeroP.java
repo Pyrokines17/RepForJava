@@ -30,8 +30,23 @@ public class HeroP implements Person {
         stackPane.getChildren().add(hero);
     }
 
+    @Override
     public void move(int x, int y) {
         hero.setTranslateX(x);
         hero.setTranslateY(y);
+    }
+
+    @Override
+    public void action() {
+        //ToDo: action
+    }
+
+    @Override
+    public void changeImage(String side) {
+        if (side.equals("right")) {
+            hero.setImage(list.getFirst());
+        } else {
+            hero.setImage(list.get(1));
+        }
     }
 }

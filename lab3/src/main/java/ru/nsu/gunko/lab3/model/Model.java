@@ -1,20 +1,28 @@
 package ru.nsu.gunko.lab3.model;
 
+import java.util.*;
+
 public class Model {
     private ModelListener modelListener;
-
-    private final HeroL heroL;
-//-----------------------------//
-    private final SkeletonL skeletonL;
+    private State state = State.NOTHING;
+    private final List<Logic> gameObj;
 
     public Model() {
-        heroL = new HeroL(this);
-//-----------------------------//
-        skeletonL = new SkeletonL(this);
+        gameObj = new ArrayList<>();
+        gameObj.add(new HeroL(this));
+        gameObj.add(new SkeletonL(this));
     }
 
-    public HeroL getHero() {
-        return heroL;
+    public List<Logic> getObj() {
+        return gameObj;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State newState) {
+        state = newState;
     }
 
     public void setListener(ModelListener newListener) {
