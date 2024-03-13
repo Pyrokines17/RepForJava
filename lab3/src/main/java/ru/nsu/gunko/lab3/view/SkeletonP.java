@@ -14,11 +14,12 @@ public class SkeletonP implements Person {
         InputStream inputStream = getClass().getResourceAsStream("skeleton/skeleton.png");
         assert inputStream != null;
         Image image = new Image(inputStream);
+        list.add(image);
 
         InputStream inputStream1 = getClass().getResourceAsStream("skeleton/skeleton1.png");
         assert inputStream1 != null;
         Image image1 = new Image(inputStream1);
-        list.add(image); list.add(image1);
+        list.add(image1);
 
         skeleton = new ImageView(list.getFirst());
         skeleton.setFitHeight(156);

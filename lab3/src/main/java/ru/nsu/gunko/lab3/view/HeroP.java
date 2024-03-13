@@ -14,15 +14,17 @@ public class HeroP implements Person {
         InputStream inputStream = getClass().getResourceAsStream("hero/hero.png");
         assert inputStream != null;
         Image image = new Image(inputStream);
+        list.add(image);
 
         InputStream inputStream1 = getClass().getResourceAsStream("hero/hero1.png");
         assert inputStream1 != null;
         Image image1 = new Image(inputStream1);
+        list.add(image1);
 
         InputStream inputStreamAlt = getClass().getResourceAsStream("hero/heroAlt.png");
         assert inputStreamAlt != null;
         Image imageAlt = new Image(inputStreamAlt);
-        list.add(image); list.add(image1); list.add(imageAlt);
+        list.add(imageAlt);
 
         hero = new ImageView(list.getFirst());
         hero.setFitHeight(156);

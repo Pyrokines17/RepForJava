@@ -6,14 +6,19 @@ public class HeroL implements Logic {
     private final List<Integer> coordinates;
     private String side;
     private final Model model;
+    private final String name;
+    private final int id;
 
     public HeroL(Model newModel) {
         coordinates = new ArrayList<>();
         coordinates.add(0); coordinates.add(0);
         side = "right";
+        name = "hero";
         model = newModel;
+        id = model.getCount();
     }
 
+    @Override
     public void move(String side1) {
         int flagCI = 0;
 
@@ -45,23 +50,31 @@ public class HeroL implements Logic {
         }
 
         model.setState(State.MOVE);
-        model.signal();
+        model.signal(id);
 
         if (flagCI == 1) {
             model.setState(State.CHANGE_IMAGE);
-            model.signal();
+            model.signal(id);
         }
     }
 
+    @Override
     public void action(String parameter) {
         //ToDo: shooting
     }
 
+    @Override
     public List<Integer> getCoordinates() {
         return coordinates;
     }
 
+    @Override
     public String getSide() {
         return side;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

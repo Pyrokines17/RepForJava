@@ -10,4 +10,6 @@ public interface Logic {
     String getSide();
 
     List<Integer> getCoordinates();
+
+    String getName();
 }

@@ -13,27 +13,41 @@ public class View implements ModelListener {
         gameObj = new ArrayList<>();
         stackPane = new StackPane();
         model = newModel;
-        initImages();
+        initImages(model);
     }
 
     @Override
-    public void reaction() {
+    public void reaction(int id) {
         switch (model.getState()) {
             case MOVE: {
-                List<Integer> coordinates = model.getObj().getFirst().getCoordinates();
-                gameObj.getFirst().move(coordinates.getFirst(), coordinates.getLast());
+                List<Integer> coordinates = model.getObj().get(id).getCoordinates();
+                gameObj.get(id).move(coordinates.getFirst(), coordinates.getLast());
                 break;
             }
-            case ACTION: {}
+            case ACTION: {
+                //ToDo: action
+            }
             case CHANGE_IMAGE: {
-                gameObj.getFirst().changeImage(model.getObj().getFirst().getSide());
+                gameObj.get(id).changeImage(model.getObj().get(id).getSide());
             }
         }
     }
 
-    private void initImages() {
-        gameObj.add(new HeroP(stackPane));
-        gameObj.add(new SkeletonP(stackPane));
+    private void initImages(Model model) {
+        for (int i = 0; i < model.getCount(); ++i) {
+            Person person;
+            switch (model.getObj().get(i).getName()) {
+                case ("hero") : {
+                    person = new HeroP(stackPane);
+                    break; }
+                case ("skeleton") : {
+                    person = new SkeletonP(stackPane);
+                    break; }
+                default:
+                    throw new IllegalStateException("Unexpected value: " + model.getObj().get(i).getName());
+            }
+            gameObj.add(person);
+        }
     }
 
     public StackPane getStackPane() {

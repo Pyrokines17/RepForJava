@@ -6,11 +6,15 @@ public class Model {
     private ModelListener modelListener;
     private State state = State.NOTHING;
     private final List<Logic> gameObj;
+    private int count;
 
     public Model() {
+        count = 0;
         gameObj = new ArrayList<>();
         gameObj.add(new HeroL(this));
+        ++count;
         gameObj.add(new SkeletonL(this));
+        ++count;
     }
 
     public List<Logic> getObj() {
@@ -21,6 +25,10 @@ public class Model {
         return state;
     }
 
+    public int getCount() {
+        return count;
+    }
+
     public void setState(State newState) {
         state = newState;
     }
@@ -29,9 +37,9 @@ public class Model {
         modelListener = newListener;
     }
 
-    public void signal() {
+    public void signal(int id) {
         if (modelListener != null) {
-            modelListener.reaction();
+            modelListener.reaction(id);
         }
     }
 }

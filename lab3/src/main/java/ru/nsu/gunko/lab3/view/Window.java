@@ -3,7 +3,6 @@ package ru.nsu.gunko.lab3.view;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
 import java.io.InputStream;
 
 public class Window {
