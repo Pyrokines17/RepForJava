@@ -34,8 +34,9 @@ public class View implements ModelListener {
     }
 
     private void initImages(Model model) {
-        for (int i = 0; i < model.getCount(); ++i) {
-            Person person;
+        Person person;
+        List<Integer> coordinates;
+        for (int i = 0; i < model.getObj().size(); ++i) {
             switch (model.getObj().get(i).getName()) {
                 case ("hero") : {
                     person = new HeroP(stackPane);
@@ -46,6 +47,8 @@ public class View implements ModelListener {
                 default:
                     throw new IllegalStateException("Unexpected value: " + model.getObj().get(i).getName());
             }
+            coordinates = model.getObj().get(i).getCoordinates();
+            person.move(coordinates.getFirst(), coordinates.getLast());
             gameObj.add(person);
         }
     }

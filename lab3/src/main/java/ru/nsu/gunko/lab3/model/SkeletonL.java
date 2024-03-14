@@ -1,27 +1,73 @@
 package ru.nsu.gunko.lab3.model;
 
 import java.util.*;
+import java.util.Random;
 
 public class SkeletonL implements Logic{
     private final List<Integer> coordinates;
-    private final String side;
+    private String side;
     private final Model model;
     private final String name;
     private final int id;
 
     public SkeletonL(Model newModel) {
-        Random r = new Random();
+        Random rand = new Random();
         coordinates = new ArrayList<>();
-        coordinates.add(r.nextInt()); coordinates.add(r.nextInt());
+        coordinates.add(rand.nextInt() % 680);
+        coordinates.add(rand.nextInt() % 333);
         side = "right";
         name = "skeleton";
         model = newModel;
-        id = model.getCount();
+        id = model.getObj().size();
     }
 
     @Override
-    public void move(String side) {
-        //ToDo: moving
+    public void move(String side1) {
+        List<Integer> coordinatesH = model.getObj().getFirst().getCoordinates();
+        int step = 5,
+                flagMove = 0,
+                flagCI = 0;
+
+
+        int temp = coordinatesH.getFirst() - coordinates.getFirst();
+        if (temp > 0) {
+            coordinates.set(0, Math.min(coordinates.getFirst()+step, 680));
+            if (side.equals("left")) {
+                side = "right";
+                flagCI = 1;
+            }
+            flagMove = 1;
+        } else if (temp < 0) {
+            coordinates.set(0, Math.max(coordinates.getFirst()-step, -680));
+            if (side.equals("right")) {
+                side = "left";
+                flagCI = 1;
+            }
+            flagMove = 1;
+        }
+
+        int temp1 = coordinatesH.getLast() - coordinates.getLast();
+        if (temp1 > 0) {
+            coordinates.set(1, Math.min(coordinates.getLast()+step, 333));
+            //side = side.equals("right") ? "left" : "right";
+            flagMove = 1;
+            //flagCI = 1;
+        } else if (temp1 < 0) {
+            coordinates.set(1, Math.max(coordinates.getLast()-step, -400));
+            //side = side.equals("right") ? "left" : "right";
+            flagMove = 1;
+            //flagCI = 1;
+        }
+
+        if (flagMove == 1) {
+            model.setState(State.MOVE);
+            model.signal(id);
+        }
+
+        if (flagCI == 1) {
+            model.setState(State.CHANGE_IMAGE);
+            model.signal(id);
+        }
     }
 
     @Override

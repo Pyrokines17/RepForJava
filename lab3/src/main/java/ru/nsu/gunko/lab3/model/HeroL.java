@@ -11,37 +11,38 @@ public class HeroL implements Logic {
 
     public HeroL(Model newModel) {
         coordinates = new ArrayList<>();
-        coordinates.add(0); coordinates.add(0);
+        coordinates.add(0); coordinates.add(333);
         side = "right";
         name = "hero";
         model = newModel;
-        id = model.getCount();
+        id = model.getObj().size();
     }
 
     @Override
     public void move(String side1) {
-        int flagCI = 0;
+        int flagCI = 0,
+                step = 15;
 
         switch (side1) {
             case "up" : {
-                coordinates.set(1, coordinates.get(1)-10);
-                side = side.equals("right") ? "left" : "right";
-                flagCI = 1;
+                coordinates.set(1, Math.max(coordinates.get(1)-step, -400));
+                //side = side.equals("right") ? "left" : "right";
+                //flagCI = 1;
                 break;}
             case "down" : {
-                coordinates.set(1, coordinates.get(1)+10);
-                side = side.equals("right") ? "left" : "right";
-                flagCI = 1;
+                coordinates.set(1, Math.min(coordinates.get(1)+step, 333));
+                //side = side.equals("right") ? "left" : "right";
+                //flagCI = 1;
                 break;}
             case "left" : {
-                coordinates.set(0, coordinates.getFirst()-10);
+                coordinates.set(0, Math.max(coordinates.getFirst()-step, -680));
                 if (side.equals("right")) {
                     side = "left";
                     flagCI = 1;
                 }
                 break;}
             case "right" : {
-                coordinates.set(0, coordinates.getFirst()+10);
+                coordinates.set(0, Math.min(coordinates.getFirst()+step, 680));
                 if (side.equals("left")) {
                     side = "right";
                     flagCI = 1;
