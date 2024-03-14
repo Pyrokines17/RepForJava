@@ -39,6 +39,17 @@ public class Model {
         setGameLoop(timeline);
     }
 
+
+    public void signal(int id) {
+        if (modelListener != null) {
+            modelListener.reaction(id);
+        }
+    }
+
+    public void start() {
+        gameLoop.play();
+    }
+
     public List<Logic> getObj() {
         return gameObj;
     }
@@ -61,15 +72,5 @@ public class Model {
 
     public void setGameLoop(Timeline newGameLoop) {
         gameLoop = newGameLoop;
-    }
-
-    public void signal(int id) {
-        if (modelListener != null) {
-            modelListener.reaction(id);
-        }
-    }
-
-    public void start() {
-        gameLoop.play();
     }
 }
