@@ -17,22 +17,18 @@ public class Controller {
 
         switch (code) {
             case KeyCode.W : {
-                model.getObj().getFirst().move("up"); break;}
+                model.getHero().move("up"); break;}
             case KeyCode.S : {
-                model.getObj().getFirst().move("down"); break;}
+                model.getHero().move("down"); break;}
             case KeyCode.A : {
-                model.getObj().getFirst().move("left"); break;}
+                model.getHero().move("left"); break;}
             case KeyCode.D : {
-                model.getObj().getFirst().move("right"); break;}
+                model.getHero().move("right"); break;}
 
-            case KeyCode.UP: {
-                model.getObj().getFirst().action("up"); break;}
-            case KeyCode.DOWN: {
-                model.getObj().getFirst().action("down"); break;}
-            case KeyCode.LEFT: {
-                model.getObj().getFirst().action("left"); break;}
-            case KeyCode.RIGHT: {
-                model.getObj().getFirst().action("right"); break;}
+            case KeyCode.J: {
+                model.getHero().action("left"); break;}
+            case KeyCode.K: {
+                model.getHero().action("right"); break;}
         }
     }
 }

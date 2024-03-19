@@ -1,8 +1,11 @@
 package ru.nsu.gunko.lab3.model;
 
+//ToDo: remove javafx
+
 import javafx.animation.*;
 import javafx.event.*;
-import javafx.util.Duration;
+import javafx.util.*;
+
 import java.util.*;
 
 public class Model {
@@ -13,19 +16,30 @@ public class Model {
     private int countOfEnemy;
 
     public Model() {
+        int randCount = 10;
         buildAndSetLoop();
         Random rand = new Random();
-        countOfEnemy = 1 + rand.nextInt(10);
+
         gameObj = new ArrayList<>();
         gameObj.add(new HeroL(this));
-        int countOfRock = 1 + rand.nextInt(10);
+        gameObj.getFirst().setId(getObj().size()-1);
 
+        countOfEnemy = 1;
         for (int i = 0; i < countOfEnemy; ++i) {
             gameObj.add(new SkeletonL(this));
+            gameObj.getLast().setId(getObj().size()-1);
         }
 
+        int countOfHeal = 1 + rand.nextInt(randCount);
+        for (int i = 0; i < countOfHeal; ++i) {
+            gameObj.add(new HealL(this));
+            gameObj.getLast().setId(getObj().size()-1);
+        }
+
+        int countOfRock = 1 + rand.nextInt(randCount);
         for (int i = 0; i < countOfRock; ++i) {
-            //ToDo: init rock's
+            gameObj.add(new RockL(this));
+            gameObj.getLast().setId(getObj().size()-1);
         }
     }
 
@@ -33,10 +47,16 @@ public class Model {
         Duration oneFrameAmt = Duration.millis((double) 1000 /getFPS());
 
         KeyFrame oneFrame = new KeyFrame(oneFrameAmt, (EventHandler) event -> {
-            for (int i = 1; i < gameObj.size(); ++i) {
-                gameObj.get(i).move("non");
-                gameObj.get(i).action("unknown");
-                gameObj.get(i).delete(countOfEnemy);
+            for (int i = 0; i < gameObj.size(); ++i) {
+                if (i != 0) {
+                    gameObj.get(i).move("non");
+                    gameObj.get(i).action("unknown");
+                }
+                if (gameObj.get(i).delete() == 1) {
+                    for (int j = i; j < gameObj.size(); ++j) {
+                        gameObj.get(j).setId(j);
+                    }
+                }
                 checkEnd();
             }
         });
@@ -47,6 +67,14 @@ public class Model {
         setGameLoop(timeline);
     }
 
+    private void checkEnd() {
+        if (!gameObj.getFirst().getName().equals("hero")) {
+            System.exit(1);
+        }
+        if (countOfEnemy == 0) {
+            System.exit(1);
+        }
+    }
 
     public void signal(int id) {
         if (modelListener != null) {
@@ -54,17 +82,12 @@ public class Model {
         }
     }
 
-    void checkEnd() {
-        if (!gameObj.getFirst().equals("hero")) {
-            //ToDo: fail
-        }
-        if (countOfEnemy == 0) {
-            //ToDo: win
-        }
-    }
-
     public void start() {
         gameLoop.play();
+    }
+
+    public Logic getHero() {
+        return gameObj.getFirst();
     }
 
     public List<Logic> getObj() {
@@ -89,5 +112,13 @@ public class Model {
 
     public void setGameLoop(Timeline newGameLoop) {
         gameLoop = newGameLoop;
+    }
+
+    public void removeHero() {
+        gameObj.removeFirst();
+    }
+
+    public void removeEnemy() {
+        countOfEnemy -= 1;
     }
 }

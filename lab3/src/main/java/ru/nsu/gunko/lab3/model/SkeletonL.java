@@ -1,58 +1,57 @@
 package ru.nsu.gunko.lab3.model;
 
 import java.util.*;
-import java.util.Random;
 
-public class SkeletonL implements Logic{
-    private final List<Integer> coordinates;
-    private String side;
+public class SkeletonL implements Logic {
     private final Model model;
-    private final String name;
-    private final int id;
-    private int hp;
+    private int hp = 30;
+    private int id;
+    private Side side;
+    private int x;
+    private int y;
+    private final int borderX = 680;
+    private final int borderY = 333;
 
     public SkeletonL(Model newModel) {
         Random rand = new Random();
-        coordinates = new ArrayList<>();
-        coordinates.add(rand.nextInt() % 680);
-        coordinates.add(rand.nextInt() % 333);
-        side = "right";
-        name = "skeleton";
+        x = rand.nextInt() % borderX;
+        y = rand.nextInt() % borderY;
+
+        side = Side.RIGHT;
         model = newModel;
-        id = model.getObj().size();
-        hp = 100;
     }
 
     @Override
     public void move(String side1) {
-        List<Integer> coordinatesH = model.getObj().getFirst().getCoordinates();
+        int heroX = model.getHero().getX(),
+                heroY = model.getHero().getY();
         int step = 5,
                 flagMove = 0,
                 flagCI = 0;
+        int temp = heroX - x;
 
-        int temp = coordinatesH.getFirst() - coordinates.getFirst();
         if (temp > 0) {
-            coordinates.set(0, Math.min(coordinates.getFirst()+step, 680));
-            if (side.equals("left")) {
-                side = "right";
+            x = Math.min(x+step, borderX);
+            if (side.equals(Side.LEFT)) {
+                side = Side.RIGHT;
                 flagCI = 1;
             }
             flagMove = 1;
         } else if (temp < 0) {
-            coordinates.set(0, Math.max(coordinates.getFirst()-step, -680));
-            if (side.equals("right")) {
-                side = "left";
+            x = Math.max(x-step, -borderX);
+            if (side.equals(Side.RIGHT)) {
+                side = Side.LEFT;
                 flagCI = 1;
             }
             flagMove = 1;
         }
 
-        int temp1 = coordinatesH.getLast() - coordinates.getLast();
+        int temp1 = heroY - y;
         if (temp1 > 0) {
-            coordinates.set(1, Math.min(coordinates.getLast()+step, 333));
+            y = Math.min(y+step, borderY);
             flagMove = 1;
         } else if (temp1 < 0) {
-            coordinates.set(1, Math.max(coordinates.getLast()-step, -400));
+            y = Math.max(y-step, -400);
             flagMove = 1;
         }
 
@@ -69,43 +68,58 @@ public class SkeletonL implements Logic{
 
     @Override
     public void action(String parameter) {
-        List<Integer> coordinatesH = model.getObj().getFirst().getCoordinates();
-        int difX = coordinatesH.getFirst() > coordinates.getFirst() ?
-                coordinatesH.getFirst()-coordinates.getFirst() : coordinates.getFirst()-coordinatesH.getFirst(),
-                difY = coordinatesH.getLast() > coordinates.getLast() ?
-                        coordinatesH.getLast()-coordinates.getLast() : coordinates.getLast()-coordinatesH.getLast();
+        int heroX = model.getHero().getX(),
+                heroY = model.getHero().getY();
+        int difX = heroX > x ? heroX-x : x-heroX,
+                difY = heroY > y ? heroY-y : y-heroY;
 
         if (difX < 20 && difY < 10) {
-            model.getObj().getFirst().changeHP(-15);
+            model.getHero().changeHP(-7);
             model.setState(State.ACTION);
             model.signal(id);
         }
     }
 
     @Override
-    public void delete(int countOfEnemy) {
-        if (hp == 0) {
-            //ToDo: del
+    public int delete() {
+        if (hp <= 0) {
+            model.setState(State.DELETE_IMAGE);
+            model.signal(id);
+            model.getObj().remove(id);
+            model.removeEnemy();
+            return 1;
+        } else {
+            return 0;
         }
     }
 
     @Override
-    public List<Integer> getCoordinates() {
-        return coordinates;
+    public int getX() {
+        return x;
     }
 
     @Override
-    public String getSide() {
+    public int getY() {
+        return y;
+    }
+
+    @Override
+    public Side getSide() {
         return side;
     }
 
     @Override
     public String getName() {
-        return name;
+        return "skeleton";
     }
 
     @Override
     public void changeHP(int number) {
         hp += number;
+    }
+
+    @Override
+    public void setId(int newId) {
+        id = newId;
     }
 }

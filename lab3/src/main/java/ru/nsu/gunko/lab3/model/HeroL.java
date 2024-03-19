@@ -1,23 +1,16 @@
 package ru.nsu.gunko.lab3.model;
 
-import java.util.*;
-
 public class HeroL implements Logic {
-    private final List<Integer> coordinates;
-    private String side;
     private final Model model;
-    private final String name;
-    private final int id;
-    private int hp;
+    private int hp = 150;
+    private int id;
+    private Side side;
+    private int x = 0;
+    private int y = 333;
 
     public HeroL(Model newModel) {
-        coordinates = new ArrayList<>();
-        coordinates.add(0); coordinates.add(333);
-        side = "right";
-        name = "hero";
+        side = Side.RIGHT;
         model = newModel;
-        id = model.getObj().size();
-        hp = 100;
     }
 
     @Override
@@ -25,24 +18,26 @@ public class HeroL implements Logic {
         int flagCI = 0,
                 step = 15;
 
+        int borderX = 680,
+                borderY = 333;
         switch (side1) {
             case "up" : {
-                coordinates.set(1, Math.max(coordinates.get(1)-step, -400));
+                y = Math.max(y-step, -400);
                 break;}
             case "down" : {
-                coordinates.set(1, Math.min(coordinates.get(1)+step, 333));
+                y = Math.min(y+step, borderY);
                 break;}
             case "left" : {
-                coordinates.set(0, Math.max(coordinates.getFirst()-step, -680));
-                if (side.equals("right")) {
-                    side = "left";
+                x = Math.max(x-step, -borderX);
+                if (side.equals(Side.RIGHT)) {
+                    side = Side.LEFT;
                     flagCI = 1;
                 }
                 break;}
             case "right" : {
-                coordinates.set(0, Math.min(coordinates.getFirst()+step, 680));
-                if (side.equals("left")) {
-                    side = "right";
+                x= Math.min(x+step, borderX);
+                if (side.equals(Side.LEFT)) {
+                    side = Side.RIGHT;
                     flagCI = 1;
                 }
                 break;}
@@ -59,33 +54,56 @@ public class HeroL implements Logic {
 
     @Override
     public void action(String parameter) {
-        //ToDo: init billet's
+        if (parameter.equals("left")) {
+            model.getObj().add(new BulletL(model, Side.LEFT, x, y));
+        } else {
+            model.getObj().add(new BulletL(model, Side.RIGHT, x, y));
+        }
+
+        model.getObj().getLast().setId(model.getObj().size()-1);
+        model.setState(State.INIT_IMAGE);
+        model.signal(model.getObj().size()-1);
     }
 
     @Override
-    public void delete(int countOfEnemy) {
-        if (hp == 0) {
-            //ToDo: del
+    public int delete() {
+        if (hp <= 0) {
+            model.setState(State.DELETE_IMAGE);
+            model.signal(id);
+            model.removeHero();
+            return 1;
+        } else {
+            return 0;
         }
     }
 
     @Override
-    public List<Integer> getCoordinates() {
-        return coordinates;
+    public int getX() {
+        return x;
     }
 
     @Override
-    public String getSide() {
+    public int getY() {
+        return y;
+    }
+
+    @Override
+    public Side getSide() {
         return side;
     }
 
     @Override
     public String getName() {
-        return name;
+        return "hero";
     }
 
     @Override
     public void changeHP(int number) {
         hp += number;
+    }
+
+    @Override
+    public void setId(int newId) {
+        id = newId;
     }
 }

@@ -4,7 +4,7 @@ import javafx.animation.PauseTransition;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-
+import ru.nsu.gunko.lab3.model.Side;
 import java.io.InputStream;
 import java.util.*;
 
@@ -15,6 +15,8 @@ public class SkeletonP implements Person {
 
     public SkeletonP(StackPane stackPane) {
         list = new ArrayList<>();
+        int height = 156,
+                width = 130;
 
         addImage("skeleton/skeleton.png");
         addImage("skeleton/skeleton1.png");
@@ -22,14 +24,14 @@ public class SkeletonP implements Person {
         addImage("skeleton/splash1.png");
 
         splash = new ImageView(list.get(2));
-        splash.setFitHeight(156);
-        splash.setFitWidth(130);
+        splash.setFitHeight(height);
+        splash.setFitWidth(width);
         stackPane.getChildren().add(splash);
         splash.setVisible(false);
 
         skeleton = new ImageView(list.getFirst());
-        skeleton.setFitHeight(156);
-        skeleton.setFitWidth(130);
+        skeleton.setFitHeight(height);
+        skeleton.setFitWidth(width);
         stackPane.getChildren().add(skeleton);
     }
 
@@ -47,8 +49,8 @@ public class SkeletonP implements Person {
     }
 
     @Override
-    public void action(int x, int y, String side) {
-        if (side.equals("right")) {
+    public void action(int x, int y, Side side) {
+        if (side.equals(Side.RIGHT)) {
             splash.setImage(list.get(2));
         } else {
             splash.setImage(list.get(3));
@@ -64,8 +66,8 @@ public class SkeletonP implements Person {
     }
 
     @Override
-    public void changeImage(String side) {
-        if (side.equals("right")) {
+    public void changeImage(Side side) {
+        if (side.equals(Side.RIGHT)) {
             skeleton.setImage(list.getFirst());
         } else {
             skeleton.setImage(list.get(1));

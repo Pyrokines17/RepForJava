@@ -18,33 +18,42 @@ public class View implements ModelListener {
 
     @Override
     public void reaction(int id) {
+        int shift = 10;
+
         switch (model.getState()) {
             case MOVE: {
-                List<Integer> coordinates = model.getObj().get(id).getCoordinates();
-                gameObj.get(id).move(coordinates.getFirst(), coordinates.getLast());
+                int x = model.getObj().get(id).getX(),
+                        y = model.getObj().get(id).getY();
+                gameObj.get(id).move(x, y);
                 break;
             }
             case ACTION: {
-                List<Integer> coordinates = model.getObj().get(id).getCoordinates();
-                if (model.getObj().get(id).getSide() == "right") {
-                    gameObj.get(id).action(coordinates.getFirst() + 10, coordinates.getLast(), "right");
+                int x = model.getObj().get(id).getX(),
+                        y = model.getObj().get(id).getY();
+                if (model.getObj().get(id).getSide().equals(Side.RIGHT)) {
+                    gameObj.get(id).action(x+shift, y, Side.RIGHT);
                 } else {
-                    gameObj.get(id).action(coordinates.getFirst() - 10, coordinates.getLast(), "left");
+                    gameObj.get(id).action(x-shift, y, Side.LEFT);
                 }
                 break;
             }
             case CHANGE_IMAGE: {
                 gameObj.get(id).changeImage(model.getObj().get(id).getSide());
+                break;
             }
             case DELETE_IMAGE: {
                 gameObj.get(id).deleteImage();
+                break;
+            }
+            case INIT_IMAGE: {
+                gameObj.add(new BulletP(stackPane, model.getObj().get(id).getSide()));
+                break;
             }
         }
     }
 
     private void initImages(Model model) {
         Person person;
-        List<Integer> coordinates;
         for (int i = 0; i < model.getObj().size(); ++i) {
             switch (model.getObj().get(i).getName()) {
                 case ("hero") : {
@@ -53,11 +62,18 @@ public class View implements ModelListener {
                 case ("skeleton") : {
                     person = new SkeletonP(stackPane);
                     break; }
+                case ("rock") : {
+                    person = new RockP(stackPane);
+                    break; }
+                case ("heal") : {
+                    person = new HealP(stackPane);
+                    break; }
                 default:
                     throw new IllegalStateException("Unexpected value: " + model.getObj().get(i).getName());
             }
-            coordinates = model.getObj().get(i).getCoordinates();
-            person.move(coordinates.getFirst(), coordinates.getLast());
+            int x = model.getObj().get(i).getX(),
+                    y = model.getObj().get(i).getY();
+            person.move(x, y);
             gameObj.add(person);
         }
     }

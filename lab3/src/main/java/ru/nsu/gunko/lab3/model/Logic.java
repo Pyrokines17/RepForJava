@@ -1,19 +1,21 @@
 package ru.nsu.gunko.lab3.model;
 
-import java.util.List;
-
 public interface Logic {
     void move(String side);
 
     void action(String parameter);
 
-    String getSide();
+    Side getSide();
 
-    List<Integer> getCoordinates();
+    int getX();
+
+    int getY();
 
     String getName();
 
-    void delete(int countOfEnemy);
+    int delete();
 
     void changeHP(int number);
+
+    void setId(int id);
 }
