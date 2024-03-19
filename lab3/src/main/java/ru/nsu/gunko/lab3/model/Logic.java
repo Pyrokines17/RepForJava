@@ -12,4 +12,8 @@ public interface Logic {
     List<Integer> getCoordinates();
 
     String getName();
+
+    void delete(int countOfEnemy);
+
+    void changeHP(int number);
 }

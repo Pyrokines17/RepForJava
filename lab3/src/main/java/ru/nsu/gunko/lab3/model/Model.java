@@ -10,16 +10,22 @@ public class Model {
     private ModelListener modelListener;
     private State state = State.NOTHING;
     private final List<Logic> gameObj;
+    private int countOfEnemy;
 
     public Model() {
         buildAndSetLoop();
         Random rand = new Random();
-        int countEnemy = rand.nextInt(6);
+        countOfEnemy = 1 + rand.nextInt(10);
         gameObj = new ArrayList<>();
         gameObj.add(new HeroL(this));
+        int countOfRock = 1 + rand.nextInt(10);
 
-        for (int i = 0; i < countEnemy; ++i) {
+        for (int i = 0; i < countOfEnemy; ++i) {
             gameObj.add(new SkeletonL(this));
+        }
+
+        for (int i = 0; i < countOfRock; ++i) {
+            //ToDo: init rock's
         }
     }
 
@@ -30,6 +36,8 @@ public class Model {
             for (int i = 1; i < gameObj.size(); ++i) {
                 gameObj.get(i).move("non");
                 gameObj.get(i).action("unknown");
+                gameObj.get(i).delete(countOfEnemy);
+                checkEnd();
             }
         });
 
@@ -43,6 +51,15 @@ public class Model {
     public void signal(int id) {
         if (modelListener != null) {
             modelListener.reaction(id);
+        }
+    }
+
+    void checkEnd() {
+        if (!gameObj.getFirst().equals("hero")) {
+            //ToDo: fail
+        }
+        if (countOfEnemy == 0) {
+            //ToDo: win
         }
     }
 

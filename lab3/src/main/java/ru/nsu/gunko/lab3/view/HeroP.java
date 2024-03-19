@@ -39,8 +39,7 @@ public class HeroP implements Person {
     }
 
     @Override
-    public void action() {
-        //ToDo: action
+    public void action(int x, int y, String side) {
     }
 
     @Override
@@ -50,5 +49,10 @@ public class HeroP implements Person {
         } else {
             hero.setImage(list.get(1));
         }
+    }
+
+    @Override
+    public void deleteImage() {
+        hero.setVisible(false);
     }
 }

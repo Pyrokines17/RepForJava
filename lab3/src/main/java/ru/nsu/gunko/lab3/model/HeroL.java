@@ -8,6 +8,7 @@ public class HeroL implements Logic {
     private final Model model;
     private final String name;
     private final int id;
+    private int hp;
 
     public HeroL(Model newModel) {
         coordinates = new ArrayList<>();
@@ -16,6 +17,7 @@ public class HeroL implements Logic {
         name = "hero";
         model = newModel;
         id = model.getObj().size();
+        hp = 100;
     }
 
     @Override
@@ -26,13 +28,9 @@ public class HeroL implements Logic {
         switch (side1) {
             case "up" : {
                 coordinates.set(1, Math.max(coordinates.get(1)-step, -400));
-                //side = side.equals("right") ? "left" : "right";
-                //flagCI = 1;
                 break;}
             case "down" : {
                 coordinates.set(1, Math.min(coordinates.get(1)+step, 333));
-                //side = side.equals("right") ? "left" : "right";
-                //flagCI = 1;
                 break;}
             case "left" : {
                 coordinates.set(0, Math.max(coordinates.getFirst()-step, -680));
@@ -61,7 +59,14 @@ public class HeroL implements Logic {
 
     @Override
     public void action(String parameter) {
-        //ToDo: shooting
+        //ToDo: init billet's
+    }
+
+    @Override
+    public void delete(int countOfEnemy) {
+        if (hp == 0) {
+            //ToDo: del
+        }
     }
 
     @Override
@@ -77,5 +82,10 @@ public class HeroL implements Logic {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void changeHP(int number) {
+        hp += number;
     }
 }

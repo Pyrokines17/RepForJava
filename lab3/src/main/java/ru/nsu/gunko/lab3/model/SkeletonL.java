@@ -9,6 +9,7 @@ public class SkeletonL implements Logic{
     private final Model model;
     private final String name;
     private final int id;
+    private int hp;
 
     public SkeletonL(Model newModel) {
         Random rand = new Random();
@@ -19,6 +20,7 @@ public class SkeletonL implements Logic{
         name = "skeleton";
         model = newModel;
         id = model.getObj().size();
+        hp = 100;
     }
 
     @Override
@@ -27,7 +29,6 @@ public class SkeletonL implements Logic{
         int step = 5,
                 flagMove = 0,
                 flagCI = 0;
-
 
         int temp = coordinatesH.getFirst() - coordinates.getFirst();
         if (temp > 0) {
@@ -49,14 +50,10 @@ public class SkeletonL implements Logic{
         int temp1 = coordinatesH.getLast() - coordinates.getLast();
         if (temp1 > 0) {
             coordinates.set(1, Math.min(coordinates.getLast()+step, 333));
-            //side = side.equals("right") ? "left" : "right";
             flagMove = 1;
-            //flagCI = 1;
         } else if (temp1 < 0) {
             coordinates.set(1, Math.max(coordinates.getLast()-step, -400));
-            //side = side.equals("right") ? "left" : "right";
             flagMove = 1;
-            //flagCI = 1;
         }
 
         if (flagMove == 1) {
@@ -72,7 +69,24 @@ public class SkeletonL implements Logic{
 
     @Override
     public void action(String parameter) {
-        //ToDo: action
+        List<Integer> coordinatesH = model.getObj().getFirst().getCoordinates();
+        int difX = coordinatesH.getFirst() > coordinates.getFirst() ?
+                coordinatesH.getFirst()-coordinates.getFirst() : coordinates.getFirst()-coordinatesH.getFirst(),
+                difY = coordinatesH.getLast() > coordinates.getLast() ?
+                        coordinatesH.getLast()-coordinates.getLast() : coordinates.getLast()-coordinatesH.getLast();
+
+        if (difX < 20 && difY < 10) {
+            model.getObj().getFirst().changeHP(-15);
+            model.setState(State.ACTION);
+            model.signal(id);
+        }
+    }
+
+    @Override
+    public void delete(int countOfEnemy) {
+        if (hp == 0) {
+            //ToDo: del
+        }
     }
 
     @Override
@@ -88,5 +102,10 @@ public class SkeletonL implements Logic{
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void changeHP(int number) {
+        hp += number;
     }
 }

@@ -4,5 +4,6 @@ public enum State {
     NOTHING,
     MOVE,
     ACTION,
-    CHANGE_IMAGE
+    CHANGE_IMAGE,
+    DELETE_IMAGE
 }

@@ -25,10 +25,19 @@ public class View implements ModelListener {
                 break;
             }
             case ACTION: {
-                //ToDo: action
+                List<Integer> coordinates = model.getObj().get(id).getCoordinates();
+                if (model.getObj().get(id).getSide() == "right") {
+                    gameObj.get(id).action(coordinates.getFirst() + 10, coordinates.getLast(), "right");
+                } else {
+                    gameObj.get(id).action(coordinates.getFirst() - 10, coordinates.getLast(), "left");
+                }
+                break;
             }
             case CHANGE_IMAGE: {
                 gameObj.get(id).changeImage(model.getObj().get(id).getSide());
+            }
+            case DELETE_IMAGE: {
+                gameObj.get(id).deleteImage();
             }
         }
     }
