@@ -1,7 +1,7 @@
 package ru.nsu.gunko.lab3.view;
 
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.image.*;
 import javafx.stage.Stage;
 import java.io.InputStream;
 

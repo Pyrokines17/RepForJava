@@ -1,13 +1,13 @@
 package ru.nsu.gunko.lab3;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.application.*;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ru.nsu.gunko.lab3.controller.Controller;
-import ru.nsu.gunko.lab3.model.Model;
 import ru.nsu.gunko.lab3.view.*;
+import ru.nsu.gunko.lab3.model.Model;
+import ru.nsu.gunko.lab3.controller.Controller;
 
 public class Main extends Application {
     @Override
@@ -26,8 +26,8 @@ public class Main extends Application {
 
         scene.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> controller.entry(keyEvent.getCode()));
 
-        stage.setScene(scene); //ToDo: showLater
-        model.start();
+        stage.setScene(scene);
+        controller.start();
         stage.show();
     }
 

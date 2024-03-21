@@ -75,7 +75,11 @@ public class SkeletonP implements Person {
     }
 
     @Override
-    public void deleteImage() {
+    public void deleteImage(StackPane stackPane) {
         skeleton.setVisible(false);
+    }
+
+    @Override
+    public void setId(int id) {
     }
 }

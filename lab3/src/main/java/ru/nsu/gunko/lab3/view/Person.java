@@ -1,5 +1,6 @@
 package ru.nsu.gunko.lab3.view;
 
+import javafx.scene.layout.StackPane;
 import ru.nsu.gunko.lab3.model.Side;
 
 public interface Person {
@@ -9,5 +10,7 @@ public interface Person {
 
     void changeImage(Side side);
 
-    void deleteImage();
+    void deleteImage(StackPane stackPane);
+
+    void setId(int id);
 }

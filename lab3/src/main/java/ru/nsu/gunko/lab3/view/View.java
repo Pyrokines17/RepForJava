@@ -1,8 +1,9 @@
 package ru.nsu.gunko.lab3.view;
 
+import java.util.*;
 import javafx.scene.layout.*;
 import ru.nsu.gunko.lab3.model.*;
-import java.util.*;
+import ru.nsu.gunko.lab3.controller.*;
 
 public class View implements ModelListener {
     private final StackPane stackPane;
@@ -18,35 +19,38 @@ public class View implements ModelListener {
 
     @Override
     public void reaction(int id) {
-        int shift = 10;
+        int shift = 0;
 
         switch (model.getState()) {
             case MOVE: {
                 int x = model.getObj().get(id).getX(),
                         y = model.getObj().get(id).getY();
-                gameObj.get(id).move(x, y);
+                PlatformHelper.run(() -> gameObj.get(id).move(x, y));
                 break;
             }
             case ACTION: {
                 int x = model.getObj().get(id).getX(),
                         y = model.getObj().get(id).getY();
-                if (model.getObj().get(id).getSide().equals(Side.RIGHT)) {
-                    gameObj.get(id).action(x+shift, y, Side.RIGHT);
-                } else {
-                    gameObj.get(id).action(x-shift, y, Side.LEFT);
-                }
+                PlatformHelper.run(() -> {
+                    if (model.getObj().get(id).getSide().equals(Side.RIGHT)) {
+                        gameObj.get(id).action(x+shift, y, Side.RIGHT);
+                    } else {
+                        gameObj.get(id).action(x-shift, y, Side.LEFT);
+                    }
+                });
                 break;
             }
             case CHANGE_IMAGE: {
-                gameObj.get(id).changeImage(model.getObj().get(id).getSide());
+                PlatformHelper.run(() -> gameObj.get(id).changeImage(model.getObj().get(id).getSide()));
                 break;
             }
             case DELETE_IMAGE: {
-                gameObj.get(id).deleteImage();
+                PlatformHelper.run(() -> gameObj.get(id).deleteImage(stackPane));
                 break;
             }
             case INIT_IMAGE: {
-                gameObj.add(new BulletP(stackPane, model.getObj().get(id).getSide()));
+                PlatformHelper.run(() -> {gameObj.add(new BulletP(stackPane, model.getObj().get(id).getSide()));
+                    gameObj.getLast().setId(stackPane.getChildren().size()-1);});
                 break;
             }
         }
@@ -54,6 +58,7 @@ public class View implements ModelListener {
 
     private void initImages(Model model) {
         Person person;
+
         for (int i = 0; i < model.getObj().size(); ++i) {
             switch (model.getObj().get(i).getName()) {
                 case ("hero") : {
@@ -71,8 +76,11 @@ public class View implements ModelListener {
                 default:
                     throw new IllegalStateException("Unexpected value: " + model.getObj().get(i).getName());
             }
+
             int x = model.getObj().get(i).getX(),
                     y = model.getObj().get(i).getY();
+
+            person.setId(stackPane.getChildren().size()-1);
             person.move(x, y);
             gameObj.add(person);
         }
@@ -80,5 +88,11 @@ public class View implements ModelListener {
 
     public StackPane getStackPane() {
         return stackPane;
+    }
+
+    private void updateId() {
+        for (int i = 0; i < gameObj.size(); ++i) {
+            gameObj.get(i).setId(i);
+        }
     }
 }

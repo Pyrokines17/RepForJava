@@ -18,10 +18,12 @@ public class BulletL implements Logic {
 
     @Override
     public void move(String side1) {
+        int step = 20;
+
         if (side.equals(Side.RIGHT)) {
-            x += 10;
+            x += step;
         } else {
-            x -= 10;
+            x -= step;
         }
 
         model.setState(State.MOVE);
@@ -29,29 +31,10 @@ public class BulletL implements Logic {
     }
 
     @Override
-    public void action(String parameter) { //ToDo: fix
+    public void action(String parameter) {
         int borderX = 680;
         if (x > borderX || x < -borderX) {
             hp -= 15;
-        }
-
-        int othX,
-                othY;
-        int difX,
-                difY;
-
-        int countOfObj = model.getObj().size();
-        for (int i = 1; i < countOfObj; ++i) {
-            othX = model.getObj().get(i).getX();
-            othY = model.getObj().get(i).getY();
-
-            difX = othX > x ? othX-x : x-othX;
-            difY = othY > y ? othY-y : y-othY;
-
-            if (difX < 5 && difY < 10) {
-                hp -= 15;
-                model.getObj().get(i).changeHP(-15);
-            }
         }
     }
 

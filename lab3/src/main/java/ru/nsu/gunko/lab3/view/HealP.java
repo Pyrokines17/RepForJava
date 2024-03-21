@@ -1,10 +1,9 @@
 package ru.nsu.gunko.lab3.view;
 
+import java.io.InputStream;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
 import ru.nsu.gunko.lab3.model.Side;
-
-import java.io.InputStream;
 
 public class HealP implements Person {
     private final ImageView heal;
@@ -38,7 +37,11 @@ public class HealP implements Person {
     }
 
     @Override
-    public void deleteImage() {
+    public void deleteImage(StackPane stackPane) {
         heal.setVisible(false);
+    }
+
+    @Override
+    public void setId(int id) {
     }
 }

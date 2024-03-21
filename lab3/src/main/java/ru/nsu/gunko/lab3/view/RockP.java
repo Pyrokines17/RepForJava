@@ -1,9 +1,9 @@
 package ru.nsu.gunko.lab3.view;
 
+import java.io.InputStream;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
 import ru.nsu.gunko.lab3.model.Side;
-import java.io.InputStream;
 
 public class RockP implements Person{
     private final ImageView rock;
@@ -37,7 +37,11 @@ public class RockP implements Person{
     }
 
     @Override
-    public void deleteImage() {
+    public void deleteImage(StackPane stackPane) {
         rock.setVisible(false);
+    }
+
+    @Override
+    public void setId(int id) {
     }
 }

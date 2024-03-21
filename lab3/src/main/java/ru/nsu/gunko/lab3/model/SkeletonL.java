@@ -25,7 +25,7 @@ public class SkeletonL implements Logic {
     public void move(String side1) {
         int heroX = model.getHero().getX(),
                 heroY = model.getHero().getY();
-        int step = 5,
+        int step = 3,
                 flagMove = 0,
                 flagCI = 0;
         int temp = heroX - x;
@@ -47,6 +47,7 @@ public class SkeletonL implements Logic {
         }
 
         int temp1 = heroY - y;
+
         if (temp1 > 0) {
             y = Math.min(y+step, borderY);
             flagMove = 1;
@@ -77,6 +78,8 @@ public class SkeletonL implements Logic {
             model.getHero().changeHP(-7);
             model.setState(State.ACTION);
             model.signal(id);
+            model.setState(State.ACTION);
+            model.signal(0);
         }
     }
 

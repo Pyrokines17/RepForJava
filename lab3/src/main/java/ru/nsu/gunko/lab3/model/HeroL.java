@@ -20,6 +20,7 @@ public class HeroL implements Logic {
 
         int borderX = 680,
                 borderY = 333;
+
         switch (side1) {
             case "up" : {
                 y = Math.max(y-step, -400);

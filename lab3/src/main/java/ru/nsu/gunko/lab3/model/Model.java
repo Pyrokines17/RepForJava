@@ -1,15 +1,8 @@
 package ru.nsu.gunko.lab3.model;
 
-//ToDo: remove javafx
-
-import javafx.animation.*;
-import javafx.event.*;
-import javafx.util.*;
-
 import java.util.*;
 
 public class Model {
-    private Timeline gameLoop;
     private ModelListener modelListener;
     private State state = State.NOTHING;
     private final List<Logic> gameObj;
@@ -17,7 +10,6 @@ public class Model {
 
     public Model() {
         int randCount = 10;
-        buildAndSetLoop();
         Random rand = new Random();
 
         gameObj = new ArrayList<>();
@@ -43,31 +35,7 @@ public class Model {
         }
     }
 
-    private void buildAndSetLoop() {
-        Duration oneFrameAmt = Duration.millis((double) 1000 /getFPS());
-
-        KeyFrame oneFrame = new KeyFrame(oneFrameAmt, (EventHandler) event -> {
-            for (int i = 0; i < gameObj.size(); ++i) {
-                if (i != 0) {
-                    gameObj.get(i).move("non");
-                    gameObj.get(i).action("unknown");
-                }
-                if (gameObj.get(i).delete() == 1) {
-                    for (int j = i; j < gameObj.size(); ++j) {
-                        gameObj.get(j).setId(j);
-                    }
-                }
-                checkEnd();
-            }
-        });
-
-        Timeline timeline = new Timeline();
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.getKeyFrames().add(oneFrame);
-        setGameLoop(timeline);
-    }
-
-    private void checkEnd() {
+    public void checkEnd() {
         if (!gameObj.getFirst().getName().equals("hero")) {
             System.exit(1);
         }
@@ -82,10 +50,6 @@ public class Model {
         }
     }
 
-    public void start() {
-        gameLoop.play();
-    }
-
     public Logic getHero() {
         return gameObj.getFirst();
     }
@@ -98,8 +62,8 @@ public class Model {
         return state;
     }
 
-    private int getFPS() {
-        return 30;
+    public int getFPS() {
+        return 45;
     }
 
     public void setState(State newState) {
@@ -108,10 +72,6 @@ public class Model {
 
     public void setListener(ModelListener newListener) {
         modelListener = newListener;
-    }
-
-    public void setGameLoop(Timeline newGameLoop) {
-        gameLoop = newGameLoop;
     }
 
     public void removeHero() {
