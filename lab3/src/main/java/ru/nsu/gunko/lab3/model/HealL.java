@@ -25,7 +25,7 @@ public class HealL implements Logic {
 
     @Override
     public void action(String parameter) {
-        int difBorder = 15;
+        int difBorder = 30;
         int heroX = model.getHero().getX(),
                 heroY = model.getHero().getY();
         int difX = heroX > x ? heroX-x : x-heroX,
@@ -38,15 +38,14 @@ public class HealL implements Logic {
     }
 
     @Override
-    public int delete() {
+    public boolean delete() {
         if (hp <= 0) {
             model.setState(State.DELETE_IMAGE);
             model.signal(id);
             model.getObj().remove(id);
-            return 1;
-        } else {
-            return 0;
+            return true;
         }
+        return false;
     }
 
     @Override

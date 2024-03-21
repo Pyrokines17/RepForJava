@@ -11,6 +11,4 @@ public interface Person {
     void changeImage(Side side);
 
     void deleteImage(StackPane stackPane);
-
-    void setId(int id);
 }

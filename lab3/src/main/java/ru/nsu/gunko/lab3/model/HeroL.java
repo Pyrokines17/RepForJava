@@ -67,15 +67,14 @@ public class HeroL implements Logic {
     }
 
     @Override
-    public int delete() {
+    public boolean delete() {
         if (hp <= 0) {
             model.setState(State.DELETE_IMAGE);
             model.signal(id);
             model.removeHero();
-            return 1;
-        } else {
-            return 0;
+            return true;
         }
+        return false;
     }
 
     @Override

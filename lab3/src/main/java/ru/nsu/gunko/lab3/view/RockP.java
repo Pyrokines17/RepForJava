@@ -40,8 +40,4 @@ public class RockP implements Person{
     public void deleteImage(StackPane stackPane) {
         rock.setVisible(false);
     }
-
-    @Override
-    public void setId(int id) {
-    }
 }

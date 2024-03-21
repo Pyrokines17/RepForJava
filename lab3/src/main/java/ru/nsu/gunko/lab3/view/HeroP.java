@@ -62,8 +62,4 @@ public class HeroP implements Person {
     public void deleteImage(StackPane stackPane) {
         hero.setVisible(false);
     }
-
-    @Override
-    public void setId(int id) {
-    }
 }

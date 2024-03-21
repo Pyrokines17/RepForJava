@@ -45,12 +45,12 @@ public class View implements ModelListener {
                 break;
             }
             case DELETE_IMAGE: {
-                PlatformHelper.run(() -> gameObj.get(id).deleteImage(stackPane));
+                PlatformHelper.run(() -> {gameObj.get(id).deleteImage(stackPane);
+                    gameObj.remove(id);});
                 break;
             }
             case INIT_IMAGE: {
-                PlatformHelper.run(() -> {gameObj.add(new BulletP(stackPane, model.getObj().get(id).getSide()));
-                    gameObj.getLast().setId(stackPane.getChildren().size()-1);});
+                PlatformHelper.run(() -> gameObj.add(new BulletP(stackPane, model.getObj().get(id).getSide())));
                 break;
             }
         }
@@ -80,7 +80,6 @@ public class View implements ModelListener {
             int x = model.getObj().get(i).getX(),
                     y = model.getObj().get(i).getY();
 
-            person.setId(stackPane.getChildren().size()-1);
             person.move(x, y);
             gameObj.add(person);
         }
@@ -88,11 +87,5 @@ public class View implements ModelListener {
 
     public StackPane getStackPane() {
         return stackPane;
-    }
-
-    private void updateId() {
-        for (int i = 0; i < gameObj.size(); ++i) {
-            gameObj.get(i).setId(i);
-        }
     }
 }

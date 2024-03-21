@@ -13,7 +13,7 @@ public interface Logic {
 
     String getName();
 
-    int delete();
+    boolean delete();
 
     void changeHP(int number);
 

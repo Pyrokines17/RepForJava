@@ -7,7 +7,6 @@ import ru.nsu.gunko.lab3.model.Side;
 
 public class BulletP implements Person {
     private final ImageView bullet;
-    private int id;
 
     public BulletP(StackPane stackPane, Side side) {
         int height = 60,
@@ -47,11 +46,5 @@ public class BulletP implements Person {
     @Override
     public void deleteImage(StackPane stackPane) {
         bullet.setVisible(false);
-        stackPane.getChildren().remove(id);
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
     }
 }

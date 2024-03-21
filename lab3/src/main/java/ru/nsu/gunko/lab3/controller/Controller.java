@@ -47,11 +47,15 @@ public class Controller {
                     gameObj.get(i).move("non");
                     gameObj.get(i).action("unknown");
                 }
-                if (gameObj.get(i).delete() == 1) {
+
+                if (gameObj.get(i).delete()) {
                     for (int j = i; j < gameObj.size(); ++j) {
                         gameObj.get(j).setId(j);
                     }
+
+                    i -= 1;
                 }
+
                 model.checkEnd();
             }
         });

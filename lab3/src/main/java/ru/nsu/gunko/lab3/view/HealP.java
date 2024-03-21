@@ -40,8 +40,4 @@ public class HealP implements Person {
     public void deleteImage(StackPane stackPane) {
         heal.setVisible(false);
     }
-
-    @Override
-    public void setId(int id) {
-    }
 }
