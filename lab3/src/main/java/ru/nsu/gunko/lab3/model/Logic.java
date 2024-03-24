@@ -18,4 +18,10 @@ public interface Logic {
     void changeHP(int number);
 
     void setId(int id);
+
+    void setX(int x);
+
+    void setY(int y);
+
+    int getHp();
 }

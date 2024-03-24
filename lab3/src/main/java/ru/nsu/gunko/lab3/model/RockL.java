@@ -25,7 +25,25 @@ public class RockL implements Logic {
 
     @Override
     public void action(String parameter) {
-        //ToDo: block moving
+        Logic per;
+        int difX, difY, newX, newY;
+        int border = 40;
+
+        for (int i = 0; i < model.getCountOfEnemy() + 1; ++i) {
+            per = model.getObj().get(i);
+
+            difX = x - per.getX();
+            difY = y - per.getY();
+
+            if ( ((difY > 0 && difY <= border) || (difY < 0 && difY >= -border)) &&
+                    ((difX > 0 && difX <= border) || (difX < 0 && difX >= -border)) ) {
+                newX = (difX > 0) ? (x-border) : (x+border);
+                model.getObj().get(i).setX(newX);
+                newY = (difY > 0) ? (y-border) : (y+border);
+                model.getObj().get(i).setY(newY);
+            }
+
+        }
     }
 
     @Override
@@ -34,6 +52,7 @@ public class RockL implements Logic {
             model.setState(State.DELETE_IMAGE);
             model.signal(id);
             model.getObj().remove(id);
+            model.removeRock();
             return true;
         }
         return false;
@@ -67,5 +86,18 @@ public class RockL implements Logic {
     @Override
     public void setId(int newId) {
         id = newId;
+    }
+
+    @Override
+    public void setX(int x) {
+    }
+
+    @Override
+    public void setY(int y) {
+    }
+
+    @Override
+    public int getHp() {
+        return hp;
     }
 }

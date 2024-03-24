@@ -24,6 +24,7 @@ public class Main extends Application {
 
         Scene scene = new Scene(view.getStackPane(), 1640, 1010);
         Controller controller = new Controller(model);
+        controller.playMusic();
 
         scene.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> controller.entry(keyEvent.getCode()));
 

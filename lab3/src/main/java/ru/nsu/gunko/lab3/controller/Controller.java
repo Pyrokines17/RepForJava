@@ -1,10 +1,16 @@
 package ru.nsu.gunko.lab3.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+
 import javafx.animation.*;
 import javafx.util.Duration;
 import javafx.scene.input.KeyCode;
 import ru.nsu.gunko.lab3.model.*;
+
+import javax.sound.sampled.*;
 
 public class Controller {
     private Timeline gameLoop;
@@ -57,6 +63,7 @@ public class Controller {
                 }
 
                 model.checkEnd();
+                model.printStat();
             }
         });
 
@@ -72,5 +79,20 @@ public class Controller {
 
     public void start() {
         gameLoop.play();
+    }
+
+    public void playMusic() {
+        try {
+            File soundFile = new File(Objects.requireNonNull(getClass().getResource("/ru/nsu/gunko/lab3/controller/sound.wav")).getPath());
+            AudioInputStream ais = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(ais);
+
+            clip.setFramePosition(0);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            clip.start();
+        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException exc) {
+            exc.getLocalizedMessage();
+        }
     }
 }

@@ -2,6 +2,11 @@ package ru.nsu.gunko.lab3.view;
 
 import java.util.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import ru.nsu.gunko.lab3.model.*;
 import ru.nsu.gunko.lab3.controller.*;
 
@@ -9,12 +14,18 @@ public class View implements ModelListener {
     private final StackPane stackPane;
     private final Model model;
     private final List<Person> gameObj;
+    private final Text count;
+    private final Text score;
+    private final Text hp;
 
     public View(Model newModel) {
+        count = new Text(); hp = new Text(); score = new Text();
         gameObj = new ArrayList<>();
         stackPane = new StackPane();
+
         model = newModel;
         initImages(model);
+        initText();
     }
 
     @Override
@@ -53,6 +64,10 @@ public class View implements ModelListener {
                 PlatformHelper.run(() -> gameObj.add(new BulletP(stackPane, model.getObj().get(id).getSide())));
                 break;
             }
+            case STAT: {
+                PlatformHelper.run(() -> printStat(model.getCountOfEnemy(), model.getHero().getHp(), model.getScore()));
+                break;
+            }
         }
     }
 
@@ -87,5 +102,37 @@ public class View implements ModelListener {
 
     public StackPane getStackPane() {
         return stackPane;
+    }
+
+    private void initText() {
+        count.setFill(Color.BROWN);
+        score.setFill(Color.BROWN);
+        hp.setFill(Color.BROWN);
+
+        int line1 = -450;
+        int line2 = -400;
+        int line3 = -350;
+
+        count.setTranslateX(0);
+        count.setTranslateY(line2);
+        count.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 55));
+
+        hp.setTranslateX(0);
+        hp.setTranslateY(line1);
+        hp.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 55));
+
+        score.setTranslateX(0);
+        score.setTranslateY(line3);
+        score.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 55));
+
+        stackPane.getChildren().add(count);
+        stackPane.getChildren().add(hp);
+        stackPane.getChildren().add(score);
+    }
+
+    public void printStat(int countOfEnemy, int countOfHP, int countOfScore) {
+        count.setText("Enemy:" + countOfEnemy);
+        hp.setText("HP:" + countOfHP);
+        score.setText("Score:" + countOfScore);
     }
 }

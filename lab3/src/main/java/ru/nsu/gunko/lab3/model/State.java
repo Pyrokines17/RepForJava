@@ -6,5 +6,6 @@ public enum State {
     ACTION,
     CHANGE_IMAGE,
     DELETE_IMAGE,
-    INIT_IMAGE
+    INIT_IMAGE,
+    STAT
 }

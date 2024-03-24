@@ -124,4 +124,19 @@ public class SkeletonL implements Logic {
     public void setId(int newId) {
         id = newId;
     }
+
+    @Override
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    @Override
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    @Override
+    public int getHp() {
+        return hp;
+    }
 }

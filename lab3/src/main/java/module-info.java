@@ -8,6 +8,8 @@ module ru.nsu.gunko.lab3 {
     requires org.kordamp.ikonli.javafx;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires javafx.media;
+    requires java.desktop;
 
     opens ru.nsu.gunko.lab3 to javafx.fxml;
     exports ru.nsu.gunko.lab3;

@@ -33,10 +33,28 @@ public class BulletL implements Logic {
     @Override
     public void action(String parameter) {
         int borderX = 680;
+        int damage = 15;
+
         if (x > borderX || x < -borderX) {
-            hp -= 15;
+            hp -= damage;
         }
-        //ToDo: change hp
+
+        Logic per;
+        int difX, difY;
+        int border = 15;
+        int count = model.getCountOfEnemy() + model.getCountOfRock() + 1;
+
+        for (int i = 1; i < count; ++i) {
+            per = model.getObj().get(i);
+
+            difX = (x > per.getX()) ? (x-per.getX()) : (per.getX()-x);
+            difY = (y > per.getY()) ? (y-per.getY()) : (per.getY()-y);
+
+            if (difX < border && difY < border) {
+                hp -= damage;
+                model.getObj().get(i).changeHP(-damage);
+            }
+        }
     }
 
     @Override
@@ -78,5 +96,19 @@ public class BulletL implements Logic {
     @Override
     public void setId(int newId) {
         id = newId;
+    }
+
+    @Override
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    @Override
+    public void setY(int y) {
+    }
+
+    @Override
+    public int getHp() {
+        return hp;
     }
 }
