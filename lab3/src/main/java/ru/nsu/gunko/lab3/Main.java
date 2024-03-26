@@ -5,6 +5,7 @@ import javafx.scene.layout.*;
 import javafx.application.*;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import ru.nsu.gunko.lab3.controller.PlatformHelper;
 import ru.nsu.gunko.lab3.view.*;
 import ru.nsu.gunko.lab3.model.Model;

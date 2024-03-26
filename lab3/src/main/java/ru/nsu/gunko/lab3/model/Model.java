@@ -42,11 +42,11 @@ public class Model {
 
     public void checkEnd() {
         if (!gameObj.getFirst().getName().equals("hero")) {
-            System.exit(1);
+            System.exit(12);
         }
 
         if (countOfEnemy == 0) {
-            System.exit(1);
+            System.exit(13);
         }
 
         if (count >= 1000 && score > 0) {

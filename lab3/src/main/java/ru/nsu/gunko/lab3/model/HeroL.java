@@ -62,7 +62,11 @@ public class HeroL implements Logic {
         }
 
         model.getObj().getLast().setId(model.getObj().size()-1);
+
         model.setState(State.INIT_IMAGE);
+        model.signal(model.getObj().size()-1);
+
+        model.setState(State.MOVE);
         model.signal(model.getObj().size()-1);
     }
 

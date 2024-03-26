@@ -1,52 +1,60 @@
-package ru.nsu.gunko.lab3.controller;
-
-import java.io.*;
-import java.util.*;
-
-import javafx.animation.*;
-import javafx.util.Duration;
-import javafx.scene.input.KeyCode;
+package ru.nsu.gunko.lab3.controllerSwing;
 
 import ru.nsu.gunko.lab3.model.*;
 
 import javax.sound.sampled.*;
+import javax.swing.Timer;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
 
-public class Controller {
-    private Timeline gameLoop;
+public class ControllerSwing {
+    private Timer gameLoop;
     private final Model model;
 
-    public Controller(Model newModel) {
+    public ControllerSwing(Model newModel) {
         model = newModel;
         buildAndSetLoop();
     }
 
-    public void entry(KeyCode code) {
-        if (code == KeyCode.ESCAPE || code == KeyCode.Q) {
+    public void entry(KeyEvent code) {
+        if (code.getKeyCode() == KeyEvent.VK_Q || code.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
 
-        switch (code) {
-            case KeyCode.W : {
-                model.getHero().move("up"); break;}
-            case KeyCode.S : {
-                model.getHero().move("down"); break;}
-            case KeyCode.A : {
-                model.getHero().move("left"); break;}
-            case KeyCode.D : {
-                model.getHero().move("right"); break;}
+        switch (code.getKeyCode()) {
+            case KeyEvent.VK_W: {
+                model.getHero().move("up");
+                break;
+            }
+            case KeyEvent.VK_S: {
+                model.getHero().move("down");
+                break;
+            }
+            case KeyEvent.VK_A: {
+                model.getHero().move("left");
+                break;
+            }
+            case KeyEvent.VK_D: {
+                model.getHero().move("right");
+                break;
+            }
 
-            case KeyCode.J: {
-                model.getHero().action("left"); break;}
-            case KeyCode.K: {
-                model.getHero().action("right"); break;}
+            case KeyEvent.VK_J: {
+                model.getHero().action("left");
+                break;
+            }
+            case KeyEvent.VK_K: {
+                model.getHero().action("right");
+                break;
+            }
         }
     }
 
     private void buildAndSetLoop() {
-        Duration oneFrameAmt = Duration.millis((double) 1000 /model.getFPS());
         List<Logic> gameObj =  model.getObj();
 
-        KeyFrame oneFrame = new KeyFrame(oneFrameAmt, event -> {
+        ActionListener oneFrame = evt -> {
             for (int i = 0; i < gameObj.size(); ++i) {
                 if (i != 0) {
                     gameObj.get(i).move("non");
@@ -64,20 +72,18 @@ public class Controller {
                 model.checkEnd();
                 model.printStat();
             }
-        });
+        };
 
-        Timeline timeline = new Timeline();
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.getKeyFrames().add(oneFrame);
+        Timer timeline = new Timer(100, oneFrame);
         setGameLoop(timeline);
     }
 
-    public void setGameLoop(Timeline newGameLoop) {
+    public void setGameLoop(javax.swing.Timer newGameLoop) {
         gameLoop = newGameLoop;
     }
 
     public void start() {
-        gameLoop.play();
+        gameLoop.start();
     }
 
     public void playMusic() {
