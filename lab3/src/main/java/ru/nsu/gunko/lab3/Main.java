@@ -30,7 +30,6 @@ public class Main extends Application {
         scene.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> controller.entry(keyEvent.getCode()));
 
         stage.setScene(scene);
-        controller.start();
 
         PlatformHelper.run(stage::show);
     }

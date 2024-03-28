@@ -7,5 +7,7 @@ public enum State {
     CHANGE_IMAGE,
     DELETE_IMAGE,
     INIT_IMAGE,
-    STAT
+    STAT,
+    DELETE_TEXT,
+    INIT_TEXT
 }

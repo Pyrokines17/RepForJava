@@ -24,8 +24,6 @@ public class MainSwing {
             }
         });
 
-        controllerSwing.start();
-
         SwingUtilities.invokeLater(() -> viewSwing.setVisible(true));
     }
 

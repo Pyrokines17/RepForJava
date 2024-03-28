@@ -16,6 +16,7 @@ public class ViewSwing extends JFrame implements ModelListener {
     private final JLabel count;
     private final JLabel score;
     private final JLabel hp;
+    private final JLabel desc;
 
     public ViewSwing(Model newModel) {
         super("New Game!");
@@ -24,7 +25,8 @@ public class ViewSwing extends JFrame implements ModelListener {
         setResizable(false);
         model = newModel;
 
-        count = new JLabel(); hp = new JLabel(); score = new JLabel();
+        count = new JLabel(); hp = new JLabel();
+        score = new JLabel(); desc = new JLabel();
         gameObj = new ArrayList<>(); stackPane = new JLayeredPane();
 
         initImages(model); initText();
@@ -41,8 +43,7 @@ public class ViewSwing extends JFrame implements ModelListener {
             case MOVE: {
                 int x = model.getObj().get(id).getX(),
                         y = model.getObj().get(id).getY();
-                PlatformHelperSwing.run(() -> {gameObj.get(id).move(x, y);
-
+                PlatformHelperSwing.run(() -> {gameObj.get(id).moveP(x, y);
                     repaint();});
                 break;
             }
@@ -62,7 +63,27 @@ public class ViewSwing extends JFrame implements ModelListener {
                     repaint();});
                 break;
             }
+            case INIT_TEXT: {
+                PlatformHelperSwing.run(() -> initEnd(id));
+                break;
+            }
+            case DELETE_TEXT: {
+                PlatformHelperSwing.run(() -> desc.setVisible(false));
+                break;
+            }
         }
+    }
+
+    private void initEnd(int id) {
+        String end = "Your score: " + model.getScore() + "<br/>" + "q/Esc -- exit";
+
+        if (id == 0) {
+            desc.setText("<html>You lose... <br/>" + end + "</html>");
+        } else {
+            desc.setText("<html>You win! <br/>" + end + "</html>");
+        }
+
+        desc.setVisible(true);
     }
 
     private void initImages(Model model) {
@@ -89,7 +110,7 @@ public class ViewSwing extends JFrame implements ModelListener {
             int x = model.getObj().get(i).getX(),
                     y = model.getObj().get(i).getY();
 
-            personSwing.move(x, y);
+            personSwing.moveP(x, y);
             gameObj.add(personSwing);
         }
     }
@@ -102,12 +123,26 @@ public class ViewSwing extends JFrame implements ModelListener {
         initStr(count);
         initStr(hp);
         initStr(score);
+        initStr(desc);
 
-        int line1 = -450, line2 = -400, line3 = -350;
+        int line1 = -450, line2 = -400,
+                line3 = -350, line4 = 0;
 
-        count.setLocation(getPreferredSize().width/2, line1);
-        hp.setLocation(getPreferredSize().width/2, line2);
-        score.setLocation(getPreferredSize().width/2, line3);
+        desc.setText("""
+                <html>
+                Begin of game -- 'Enter'<br/>
+                [w,a,s,d] -- move<br/>
+                [j,k] -- shoot<br/>
+                q/Esc -- exit<br/>
+                </html>
+                """);
+
+        int shift = 100;
+        int base = getPreferredSize().width / 2;
+        count.setLocation(base-shift, line1);
+        hp.setLocation(base-shift, line2);
+        score.setLocation(base-shift, line3);
+        desc.setLocation(base-shift, line4);
     }
 
     private void initStr(JLabel str) {
@@ -115,6 +150,7 @@ public class ViewSwing extends JFrame implements ModelListener {
         str.setSize(getPreferredSize());
         str.setForeground(Color.RED);
         stackPane.add(str);
+        stackPane.setLayer(str, stackPane.highestLayer()+1);
     }
 
     public void printStat(int countOfEnemy, int countOfHP, int countOfScore) {

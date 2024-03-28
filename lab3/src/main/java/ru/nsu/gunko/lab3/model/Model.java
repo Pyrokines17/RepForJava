@@ -40,13 +40,21 @@ public class Model {
         }
     }
 
-    public void checkEnd() {
+    public boolean checkEnd() {
         if (!gameObj.getFirst().getName().equals("hero")) {
-            System.exit(12);
+            setState(State.INIT_TEXT);
+            signal(0);
+            return true;
+
+            //System.exit(12);
         }
 
         if (countOfEnemy == 0) {
-            System.exit(13);
+            setState(State.INIT_TEXT);
+            signal(1);
+            return true;
+
+            //System.exit(13);
         }
 
         if (count >= 1000 && score > 0) {
@@ -55,6 +63,8 @@ public class Model {
         } else {
             ++count;
         }
+
+        return false;
     }
 
     public void printStat() {

@@ -14,9 +14,11 @@ import javax.sound.sampled.*;
 public class Controller {
     private Timeline gameLoop;
     private final Model model;
+    private boolean flagBeg;
 
     public Controller(Model newModel) {
         model = newModel;
+        flagBeg = true;
         buildAndSetLoop();
     }
 
@@ -25,20 +27,41 @@ public class Controller {
             System.exit(0);
         }
 
-        switch (code) {
-            case KeyCode.W : {
-                model.getHero().move("up"); break;}
-            case KeyCode.S : {
-                model.getHero().move("down"); break;}
-            case KeyCode.A : {
-                model.getHero().move("left"); break;}
-            case KeyCode.D : {
-                model.getHero().move("right"); break;}
+        if (code == KeyCode.ENTER && flagBeg) {
+            model.setState(State.DELETE_TEXT);
+            model.signal(0);
+            flagBeg = false;
+            start();
+        }
 
-            case KeyCode.J: {
-                model.getHero().action("left"); break;}
-            case KeyCode.K: {
-                model.getHero().action("right"); break;}
+        if (!flagBeg) {
+            switch (code) {
+                case KeyCode.W: {
+                    model.getHero().move("up");
+                    break;
+                }
+                case KeyCode.S: {
+                    model.getHero().move("down");
+                    break;
+                }
+                case KeyCode.A: {
+                    model.getHero().move("left");
+                    break;
+                }
+                case KeyCode.D: {
+                    model.getHero().move("right");
+                    break;
+                }
+
+                case KeyCode.J: {
+                    model.getHero().action("left");
+                    break;
+                }
+                case KeyCode.K: {
+                    model.getHero().action("right");
+                    break;
+                }
+            }
         }
     }
 
@@ -61,7 +84,10 @@ public class Controller {
                     i -= 1;
                 }
 
-                model.checkEnd();
+                if (model.checkEnd()) {
+                    gameLoop.stop();
+                }
+
                 model.printStat();
             }
         });

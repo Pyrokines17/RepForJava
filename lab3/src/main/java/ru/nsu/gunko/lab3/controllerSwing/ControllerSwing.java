@@ -2,18 +2,20 @@ package ru.nsu.gunko.lab3.controllerSwing;
 
 import ru.nsu.gunko.lab3.model.*;
 
+import java.io.*;
+import java.util.*;
 import javax.sound.sampled.*;
 import javax.swing.Timer;
 import java.awt.event.*;
-import java.io.*;
-import java.util.*;
 
 public class ControllerSwing {
     private Timer gameLoop;
     private final Model model;
+    private boolean flagBeg;
 
     public ControllerSwing(Model newModel) {
         model = newModel;
+        flagBeg = true;
         buildAndSetLoop();
     }
 
@@ -22,31 +24,40 @@ public class ControllerSwing {
             System.exit(0);
         }
 
-        switch (code.getKeyCode()) {
-            case KeyEvent.VK_W: {
-                model.getHero().move("up");
-                break;
-            }
-            case KeyEvent.VK_S: {
-                model.getHero().move("down");
-                break;
-            }
-            case KeyEvent.VK_A: {
-                model.getHero().move("left");
-                break;
-            }
-            case KeyEvent.VK_D: {
-                model.getHero().move("right");
-                break;
-            }
+        if (code.getKeyCode() == KeyEvent.VK_ENTER && flagBeg) {
+            model.setState(State.DELETE_TEXT);
+            model.signal(0);
+            flagBeg = false;
+            start();
+        }
 
-            case KeyEvent.VK_J: {
-                model.getHero().action("left");
-                break;
-            }
-            case KeyEvent.VK_K: {
-                model.getHero().action("right");
-                break;
+        if (!flagBeg) {
+            switch (code.getKeyCode()) {
+                case KeyEvent.VK_W: {
+                    model.getHero().move("up");
+                    break;
+                }
+                case KeyEvent.VK_S: {
+                    model.getHero().move("down");
+                    break;
+                }
+                case KeyEvent.VK_A: {
+                    model.getHero().move("left");
+                    break;
+                }
+                case KeyEvent.VK_D: {
+                    model.getHero().move("right");
+                    break;
+                }
+
+                case KeyEvent.VK_J: {
+                    model.getHero().action("left");
+                    break;
+                }
+                case KeyEvent.VK_K: {
+                    model.getHero().action("right");
+                    break;
+                }
             }
         }
     }
@@ -69,7 +80,10 @@ public class ControllerSwing {
                     i -= 1;
                 }
 
-                model.checkEnd();
+                if (model.checkEnd()) {
+                    gameLoop.stop();
+                }
+
                 model.printStat();
             }
         };

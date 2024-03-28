@@ -3,10 +3,7 @@ package ru.nsu.gunko.lab3.view;
 import java.util.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
+import javafx.scene.text.*;
 import ru.nsu.gunko.lab3.model.*;
 import ru.nsu.gunko.lab3.controller.*;
 
@@ -17,11 +14,15 @@ public class View implements ModelListener {
     private final Text count;
     private final Text score;
     private final Text hp;
+    private final Text desc;
+    private boolean flagEnd;
 
     public View(Model newModel) {
-        count = new Text(); hp = new Text(); score = new Text();
+        count = new Text(); hp = new Text();
+        score = new Text(); desc = new Text();
         gameObj = new ArrayList<>();
         stackPane = new StackPane();
+        flagEnd = false;
 
         model = newModel;
         initImages(model);
@@ -68,6 +69,26 @@ public class View implements ModelListener {
                 PlatformHelper.run(() -> printStat(model.getCountOfEnemy(), model.getHero().getHp(), model.getScore()));
                 break;
             }
+            case INIT_TEXT: {
+                PlatformHelper.run(() -> initEnd(id));
+                break;
+            }
+            case DELETE_TEXT: stackPane.getChildren().removeLast();
+        }
+    }
+
+    private void initEnd(int id) {
+        String end = "Your score: " + model.getScore() + "\n" + "q/Esc -- exit";
+
+        if (id == 0) {
+            desc.setText("You lose... \n" + end);
+        } else {
+            desc.setText("You win! \n" + end);
+        }
+
+        if (!flagEnd) {
+            stackPane.getChildren().add(desc);
+            flagEnd = true;
         }
     }
 
@@ -105,29 +126,35 @@ public class View implements ModelListener {
     }
 
     private void initText() {
-        count.setFill(Color.BROWN);
-        score.setFill(Color.BROWN);
-        hp.setFill(Color.BROWN);
-
         int line1 = -450;
         int line2 = -400;
         int line3 = -350;
+        int line4 = 0;
 
-        count.setTranslateX(0);
-        count.setTranslateY(line2);
-        count.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 55));
+        initStr(hp, line1);
+        initStr(count, line2);
+        initStr(score, line3);
+        initStr(desc, line4);
 
-        hp.setTranslateX(0);
-        hp.setTranslateY(line1);
-        hp.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 55));
-
-        score.setTranslateX(0);
-        score.setTranslateY(line3);
-        score.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 55));
+        desc.setFill(Color.AQUA);
+        desc.setText("""
+                Begin of game -- 'Enter'\s
+                [w,a,s,d] -- move\s
+                [j,k] -- shoot\s
+                q/Esc -- exit\s
+                """);
 
         stackPane.getChildren().add(count);
         stackPane.getChildren().add(hp);
         stackPane.getChildren().add(score);
+        stackPane.getChildren().add(desc);
+    }
+
+    private void initStr(Text str, int line) {
+        str.setFill(Color.BROWN);
+        str.setTranslateX(0);
+        str.setTranslateY(line);
+        str.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 55));
     }
 
     public void printStat(int countOfEnemy, int countOfHP, int countOfScore) {

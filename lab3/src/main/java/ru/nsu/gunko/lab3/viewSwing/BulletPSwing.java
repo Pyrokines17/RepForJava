@@ -19,7 +19,7 @@ public class BulletPSwing extends JComponent implements PersonSwing {
     }
 
     @Override
-    public void move(int x, int y) {
+    public void moveP(int x, int y) {
         if (flag) {
             this.x = x;
             this.y = y;
