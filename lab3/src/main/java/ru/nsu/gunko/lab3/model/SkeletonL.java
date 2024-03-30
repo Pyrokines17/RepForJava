@@ -4,7 +4,7 @@ import java.util.*;
 
 public class SkeletonL implements Logic {
     private final Model model;
-    private int hp = 30;
+    private int hp = 50;
     private int id;
     private Side side;
     private int x;
@@ -36,6 +36,7 @@ public class SkeletonL implements Logic {
                 side = Side.RIGHT;
                 flagCI = 1;
             }
+
             flagMove = 1;
         } else if (temp < 0) {
             x = Math.max(x-step, -borderX);
@@ -73,8 +74,9 @@ public class SkeletonL implements Logic {
                 heroY = model.getHero().getY();
         int difX = heroX > x ? heroX-x : x-heroX,
                 difY = heroY > y ? heroY-y : y-heroY;
+        int border = 40;
 
-        if (difX < 20 && difY < 10) {
+        if (difX < border && difY < border) {
             model.getHero().changeHP(-7);
             model.setState(State.ACTION);
             model.signal(id);

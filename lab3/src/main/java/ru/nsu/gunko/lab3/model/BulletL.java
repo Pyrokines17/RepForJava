@@ -41,7 +41,7 @@ public class BulletL implements Logic {
 
         Logic per;
         int difX, difY;
-        int border = 15;
+        int border = 40;
         int count = model.getCountOfEnemy() + model.getCountOfRock() + 1;
 
         for (int i = 1; i < count; ++i) {
