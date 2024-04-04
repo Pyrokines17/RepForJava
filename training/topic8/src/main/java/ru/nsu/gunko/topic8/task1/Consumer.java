@@ -4,15 +4,20 @@ import java.util.concurrent.BlockingDeque;
 
 public class Consumer implements Runnable {
     private final BlockingDeque<String> storage;
+    private final CommonRes commonRes;
 
-    Consumer(BlockingDeque<String> s) {
+    public Consumer(BlockingDeque<String> s, CommonRes resC) {
         storage = s;
+        commonRes = resC;
     }
 
     public void run() {
         try {
-            while (true) {
-                consume(storage.take());
+            while (commonRes.getFlag()) {
+                if (!storage.isEmpty()) {
+                    consume(storage.take());
+                }
+
                 synchronized (Thread.currentThread()) {
                     try {
                         Thread.currentThread().wait(75);
