@@ -1,7 +1,7 @@
 package ru.nsu.gunko.model.oth.controller;
 
 import ru.nsu.gunko.model.*;
-import ru.nsu.gunko.model.factory.Factory;
+import ru.nsu.gunko.model.factory.*;
 
 import java.util.Map;
 import java.util.concurrent.*;
@@ -10,16 +10,18 @@ public class Controller {
     private final Storages storages;
     private final Map<String, Integer> map;
     private final Request request;
+    private ExecutorService service;
+    private Future<?> future;
 
     public Controller(Factory factory, Storages storages, Map<String, Integer> map) {
         this.storages = storages;
         this.map = map;
-        request = new Request(factory);
+        request = new Request(factory, storages);
     }
 
     public void start() {
-        ExecutorService service = Executors.newFixedThreadPool(1);
-        service.submit(request);
+        service = Executors.newFixedThreadPool(1);
+        future = service.submit(request);
     }
 
     public void signal() {
@@ -29,6 +31,11 @@ public class Controller {
     }
 
     public void finish() {
+        service.shutdown();
         request.setFlag(false);
+    }
+
+    public boolean check() {
+        return future.isDone();
     }
 }

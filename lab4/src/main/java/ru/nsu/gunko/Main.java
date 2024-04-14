@@ -1,9 +1,10 @@
 package ru.nsu.gunko;
 
 import ru.nsu.gunko.model.*;
-import ru.nsu.gunko.model.factory.Factory;
 import ru.nsu.gunko.model.oth.*;
-import ru.nsu.gunko.model.oth.controller.Controller;
+import ru.nsu.gunko.model.factory.*;
+import ru.nsu.gunko.model.oth.Suppliers.*;
+import ru.nsu.gunko.model.oth.controller.*;
 
 import java.util.Map;
 
@@ -26,6 +27,28 @@ public class Main { //ToDo: a graphic
         Dealers dealers = new Dealers(map, storages, controller);
         dealers.start();
 
-        //preparer.end(suppliers, factory, dealers, controller);
+        synchronized (Thread.currentThread()) {
+            try {
+                Thread.currentThread().wait(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        preparer.end(suppliers, factory, dealers, controller);
+
+        while (true) {
+            if (preparer.checkDone(suppliers, factory, dealers, controller)) {
+                break;
+            } else {
+                synchronized (Thread.currentThread()) {
+                    try {
+                        Thread.currentThread().wait(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
     }
 }

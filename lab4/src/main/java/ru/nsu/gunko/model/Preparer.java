@@ -1,13 +1,13 @@
 package ru.nsu.gunko.model;
 
-import ru.nsu.gunko.model.factory.Factory;
-import ru.nsu.gunko.model.car.Car;
-import ru.nsu.gunko.model.oth.controller.Controller;
-import ru.nsu.gunko.model.parts.accessory.Accessory;
-import ru.nsu.gunko.model.parts.body.Body;
-import ru.nsu.gunko.model.parts.motor.Motor;
+import ru.nsu.gunko.model.car.*;
+import ru.nsu.gunko.model.factory.*;
+import ru.nsu.gunko.model.parts.body.*;
+import ru.nsu.gunko.model.parts.motor.*;
+import ru.nsu.gunko.model.parts.accessory.*;
 import ru.nsu.gunko.model.oth.Dealers;
-import ru.nsu.gunko.model.oth.Suppliers;
+import ru.nsu.gunko.model.oth.Suppliers.*;
+import ru.nsu.gunko.model.oth.controller.*;
 
 import java.io.*;
 import java.util.*;
@@ -44,5 +44,9 @@ public class Preparer {
         factory.finish();
         dealers.finish();
         controller.finish();
+    }
+
+    public boolean checkDone(Suppliers suppliers, Factory factory, Dealers dealers, Controller controller) {
+        return suppliers.check() && factory.check() && dealers.check() && controller.check();
     }
 }

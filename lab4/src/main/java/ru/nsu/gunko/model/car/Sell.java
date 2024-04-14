@@ -1,7 +1,7 @@
 package ru.nsu.gunko.model.car;
 
 import ru.nsu.gunko.model.Storages;
-import ru.nsu.gunko.model.oth.controller.Controller;
+import ru.nsu.gunko.model.oth.controller.*;
 
 public class Sell implements Runnable {
     private final Storages storages;
@@ -13,28 +13,30 @@ public class Sell implements Runnable {
     public Sell(Storages storages, Controller controller) {
         this.storages = storages;
         this.controller = controller;
-        beginTime = System.nanoTime();
+        beginTime = System.currentTimeMillis();
         flag = true;
         time = 0;
     }
 
     @Override
-    public void run() { //ToDo: sync and norm time
-        while (flag) {
+    public void run() {
+        while (flag || storages.check() || !storages.carStorage().isEmpty()) {
             try {
-                if (!storages.carStorage().isEmpty()) {
-                    String name = Thread.currentThread().getName();
-                    int num = Integer.parseInt(name.substring(name.length()-1));
+                synchronized (this) {
+                    if (!storages.carStorage().isEmpty()) {
+                        String name = Thread.currentThread().getName();
+                        int num = Integer.parseInt(name.substring(name.length() - 1));
 
-                    Car car = storages.carStorage().take();
-                    long timeR = System.nanoTime() - beginTime;
+                        Car car = this.storages.carStorage().take();
+                        long timeR = System.currentTimeMillis() - this.beginTime;
 
-                    System.out.println(
-                            timeR + ": Dealer " + num + ": Auto " + car.id() + " (Body: " + car.body().id() + ", Motor: " + car.motor().id() + ", Accessory: " + car.accessory().id()+")"
-                    );
+                        System.out.println(
+                                timeR + "ms: Dealer " + num + ": Auto " + car.id() + " (Body: " + car.body().id() + ", Motor: " + car.motor().id() + ", Accessory: " + car.accessory().id() + ")"
+                        );
+                    }
+
+                    this.controller.signal();
                 }
-
-                controller.signal();
 
                 synchronized (Thread.currentThread()) {
                     Thread.currentThread().wait(time);

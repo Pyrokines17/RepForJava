@@ -1,21 +1,24 @@
 package ru.nsu.gunko.model.oth.controller;
 
+import ru.nsu.gunko.model.Storages;
 import ru.nsu.gunko.model.factory.Factory;
 
 public class Request implements Runnable {
     private final Factory factory;
+    private final Storages storages;
     private boolean signal;
     private boolean flag;
 
-    public Request(Factory factory) {
+    public Request(Factory factory, Storages storages) {
         this.factory = factory;
+        this.storages = storages;
         signal = false;
         flag = true;
     }
 
     @Override
     public void run() {
-        while (flag) {
+        while (flag || storages.check() || !storages.carStorage().isEmpty()) {
             if (signal) {
                 synchronized (this) {
                     this.factory.signal();

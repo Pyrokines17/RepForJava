@@ -1,10 +1,10 @@
 package ru.nsu.gunko.model.factory;
 
+import ru.nsu.gunko.model.car.*;
 import ru.nsu.gunko.model.Storages;
-import ru.nsu.gunko.model.parts.accessory.Accessory;
-import ru.nsu.gunko.model.parts.body.Body;
-import ru.nsu.gunko.model.car.Car;
-import ru.nsu.gunko.model.parts.motor.Motor;
+import ru.nsu.gunko.model.parts.body.*;
+import ru.nsu.gunko.model.parts.motor.*;
+import ru.nsu.gunko.model.parts.accessory.*;
 
 public class Assembly implements Runnable {
     private final Storages storages;
@@ -21,7 +21,7 @@ public class Assembly implements Runnable {
 
     @Override
     public void run() {
-        while (flag) {
+        while (flag || storages.check()) {
             if (signal) {
                 synchronized (this) {
                     try {
