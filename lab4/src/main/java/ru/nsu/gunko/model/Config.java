@@ -1,4 +1,4 @@
-package ru.nsu.gunko;
+package ru.nsu.gunko.model;
 
 public enum Config {
     BODY_SIZE,

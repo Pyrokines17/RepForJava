@@ -1,42 +1,31 @@
 package ru.nsu.gunko;
 
-import ru.nsu.gunko.model.accessory.*;
-import ru.nsu.gunko.model.body.*;
-import ru.nsu.gunko.model.motor.*;
+import ru.nsu.gunko.model.*;
+import ru.nsu.gunko.model.factory.Factory;
+import ru.nsu.gunko.model.oth.*;
+import ru.nsu.gunko.model.oth.controller.Controller;
 
 import java.util.Map;
-import java.util.concurrent.*;
 
 public class Main { //ToDo: a graphic
     public static void main(String[] args) {
-        Map<String, Integer> map = Preparer.readLine(args[0]);
+        Preparer preparer = new Preparer();
 
-        int count = map.get(Config.BODY_SIZE.name());
+        Map<String, Integer> map = preparer.readLine(args[0]);
+        Storages storages = preparer.createStorages(map);
 
-        BlockingQueue<Body> bodyStorage = new ArrayBlockingQueue<>(count);
-        BlockingQueue<Motor> motorStorage = new ArrayBlockingQueue<>(map.get(Config.MOTOR_SIZE.name()));
+        Suppliers suppliers = new Suppliers(map);
+        suppliers.start(storages);
 
-        ExecutorService serOfBodyAndMotor = Executors.newFixedThreadPool(2);
+        Factory factory = new Factory(storages);
+        factory.start(map);
 
-        BodyPut bodyPut = new BodyPut(bodyStorage);
-        bodyPut.setTime(75);
-        serOfBodyAndMotor.submit(bodyPut);
+        Controller controller = new Controller(factory, storages, map);
+        controller.start();
 
-        MotorPut motorPut = new MotorPut(motorStorage);
-        motorPut.setTime(75);
-        serOfBodyAndMotor.submit(motorPut);
+        Dealers dealers = new Dealers(map, storages, controller);
+        dealers.start();
 
-        int countSuppliers = map.get(Config.SUPPLIERS.name());
-        ExecutorService serOfSuppliers = Executors.newFixedThreadPool(countSuppliers);
-
-        BlockingQueue<Accessory> accessoryStorage = new ArrayBlockingQueue<>(map.get(Config.ACCESSORY_SIZE.name()));
-        AccessoryPut accessoryPut = new AccessoryPut(accessoryStorage);
-        accessoryPut.setTime(75);
-
-        for (int i = 0; i < countSuppliers; ++i) {
-            serOfSuppliers.submit(accessoryPut);
-        }
-
-
+        //preparer.end(suppliers, factory, dealers, controller);
     }
 }

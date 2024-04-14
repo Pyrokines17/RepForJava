@@ -1,25 +1,26 @@
-package ru.nsu.gunko.model.accessory;
+package ru.nsu.gunko.model.parts.accessory;
 
 import java.util.concurrent.BlockingQueue;
 
 public class AccessoryPut implements Runnable {
     private final BlockingQueue<Accessory> queue;
+    private boolean flag;
     private int count;
     private int time;
 
     public AccessoryPut(BlockingQueue<Accessory> queue) {
         this.queue = queue;
+        flag = true;
         count = 0;
         time = 0;
     }
 
     @Override
     public void run() {
-        while (true) {
+        while (flag) {
             try {
-                queue.put(new Accessory(count));
-
                 synchronized (this) {
+                    this.queue.put(new Accessory(count));
                     ++this.count;
                 }
 
@@ -34,5 +35,9 @@ public class AccessoryPut implements Runnable {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
     }
 }
