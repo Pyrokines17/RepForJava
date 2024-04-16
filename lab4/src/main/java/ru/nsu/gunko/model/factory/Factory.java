@@ -1,7 +1,7 @@
 package ru.nsu.gunko.model.factory;
 
-import ru.nsu.gunko.model.Config;
-import ru.nsu.gunko.model.Storages;
+import ru.nsu.gunko.model.*;
+import ru.nsu.gunko.model.base.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -11,8 +11,8 @@ public class Factory {
     private final Assembly assembly;
     private final List<Future<?>> list;
 
-    public Factory(Storages storages) {
-        assembly = new Assembly(storages);
+    public Factory(Storages storages, Model model) {
+        assembly = new Assembly(storages, model);
         list = new ArrayList<>();
     }
 
@@ -32,6 +32,14 @@ public class Factory {
     public void finish() {
         service.shutdown();
         assembly.setFlag(false);
+
+        try {
+            if (!service.awaitTermination(3, TimeUnit.SECONDS)) {
+                service.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean check() {

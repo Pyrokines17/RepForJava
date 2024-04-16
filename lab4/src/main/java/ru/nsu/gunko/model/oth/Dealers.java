@@ -1,33 +1,30 @@
 package ru.nsu.gunko.model.oth;
 
-import ru.nsu.gunko.model.Config;
-import ru.nsu.gunko.model.Storages;
-import ru.nsu.gunko.model.car.Sell;
-import ru.nsu.gunko.model.oth.controller.*;
+import ru.nsu.gunko.model.*;
+import ru.nsu.gunko.model.car.*;
+import ru.nsu.gunko.model.base.*;
 
 import java.util.*;
 import java.util.concurrent.*;
 
 public class Dealers {
     private final Map<String, Integer> map;
-    private final Storages storages;
-    private final Controller controller;
-    private ExecutorService service;
     private final List<Future<?>> list;
+    private ExecutorService service;
+    private final Model model;
     private Sell sell;
 
-    public Dealers(Map<String, Integer> map, Storages storages, Controller controller) {
-        this.map = map;
-        this.storages = storages;
-        this.controller = controller;
+    public Dealers(Map<String, Integer> map, Model model) {
         list = new ArrayList<>();
+        this.model = model;
+        this.map = map;
     }
 
     public void start() {
         int countOfDealers = map.get(Config.DEALERS.name());
         service = Executors.newFixedThreadPool(countOfDealers);
 
-        sell = new Sell(storages, controller);
+        sell = new Sell(model);
         sell.setTime(75);
 
         for (int i = 0; i < countOfDealers; ++i) {
@@ -38,6 +35,14 @@ public class Dealers {
     public void finish() {
         service.shutdown();
         sell.setFlag(false);
+
+        try {
+            if (!service.awaitTermination(3, TimeUnit.SECONDS)) {
+                service.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean check() {
@@ -48,5 +53,9 @@ public class Dealers {
         }
 
         return true;
+    }
+
+    public Sell getSell() {
+        return sell;
     }
 }

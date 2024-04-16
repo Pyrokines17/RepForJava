@@ -1,54 +1,49 @@
 package ru.nsu.gunko;
 
+import ru.nsu.gunko.view.*;
 import ru.nsu.gunko.model.*;
-import ru.nsu.gunko.model.oth.*;
-import ru.nsu.gunko.model.factory.*;
-import ru.nsu.gunko.model.oth.Suppliers.*;
-import ru.nsu.gunko.model.oth.controller.*;
+import ru.nsu.gunko.model.base.*;
 
-import java.util.Map;
+import java.util.*;
 
-public class Main { //ToDo: a graphic
+public class Main {
     public static void main(String[] args) {
+        Window window = new Window();
         Preparer preparer = new Preparer();
 
         Map<String, Integer> map = preparer.readLine(args[0]);
         Storages storages = preparer.createStorages(map);
 
-        Suppliers suppliers = new Suppliers(map);
-        suppliers.start(storages);
+        Model model = new Model(map, storages);
+        window.setModel(model);
+        model.setModelListener(window);
 
-        Factory factory = new Factory(storages);
-        factory.start(map);
+        model.start(map, storages);
 
-        Controller controller = new Controller(factory, storages, map);
-        controller.start();
-
-        Dealers dealers = new Dealers(map, storages, controller);
-        dealers.start();
-
-        synchronized (Thread.currentThread()) {
-            try {
-                Thread.currentThread().wait(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        preparer.end(suppliers, factory, dealers, controller);
-
-        while (true) {
-            if (preparer.checkDone(suppliers, factory, dealers, controller)) {
-                break;
-            } else {
-                synchronized (Thread.currentThread()) {
-                    try {
-                        Thread.currentThread().wait(100);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+        while (window.getFlag()) {
+            synchronized (Thread.currentThread()) {
+                try {
+                    Thread.currentThread().wait(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }
+
+        preparer.end(model);
+
+        while (!preparer.checkDone(model)) {
+            synchronized (Thread.currentThread()) {
+                try {
+                    Thread.currentThread().wait(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        System.out.println("That's all");
+        window.setVisible(false);
+        window.dispose();
     }
 }

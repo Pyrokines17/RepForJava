@@ -1,16 +1,16 @@
 package ru.nsu.gunko.model.oth.Suppliers;
 
 import ru.nsu.gunko.model.*;
+import ru.nsu.gunko.model.base.*;
 import ru.nsu.gunko.model.parts.body.*;
 import ru.nsu.gunko.model.parts.motor.*;
 import ru.nsu.gunko.model.parts.accessory.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class Suppliers {
+    private final Model model;
     private final Map<String, Integer> map;
     private final List<Future<?>> list;
     private Future<?> futureOfBody;
@@ -18,7 +18,8 @@ public class Suppliers {
     private Services services;
     private Puts puts;
 
-    public Suppliers(Map<String, Integer> map) {
+    public Suppliers(Map<String, Integer> map, Model model) {
+        this.model = model;
         this.map = map;
         list = new ArrayList<>();
     }
@@ -26,18 +27,18 @@ public class Suppliers {
     public void start(Storages storages) {
         ExecutorService serOfBodyAndMotor = Executors.newFixedThreadPool(2);
 
-        BodyPut bodyPut = new BodyPut(storages.bodyStorage());
+        BodyPut bodyPut = new BodyPut(storages.bodyStorage(), model);
         bodyPut.setTime(75);
         futureOfBody = serOfBodyAndMotor.submit(bodyPut);
 
-        MotorPut motorPut = new MotorPut(storages.motorStorage());
+        MotorPut motorPut = new MotorPut(storages.motorStorage(), model);
         motorPut.setTime(75);
         futureOfMotor = serOfBodyAndMotor.submit(motorPut);
 
         int countSuppliers = map.get(Config.SUPPLIERS.name());
         ExecutorService serOfSuppliers = Executors.newFixedThreadPool(countSuppliers);
 
-        AccessoryPut accessoryPut = new AccessoryPut(storages.accessoryStorage());
+        AccessoryPut accessoryPut = new AccessoryPut(storages.accessoryStorage(), model);
         accessoryPut.setTime(75);
 
         for (int i = 0; i < countSuppliers; ++i) {
@@ -55,6 +56,18 @@ public class Suppliers {
 
         services.serviceOfAccessory().shutdown();
         puts.bodyPut().setFlag(false);
+
+        try {
+            if (!services.serviceOfBodyAndMotor().awaitTermination(3, TimeUnit.SECONDS)) {
+                services.serviceOfBodyAndMotor().shutdownNow();
+            }
+
+            if (!services.serviceOfAccessory().awaitTermination(3, TimeUnit.SECONDS)) {
+                services.serviceOfAccessory().shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean check() {

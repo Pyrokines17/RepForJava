@@ -5,10 +5,11 @@ import ru.nsu.gunko.model.parts.body.*;
 import ru.nsu.gunko.model.parts.motor.*;
 import ru.nsu.gunko.model.parts.accessory.*;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.*;
 
 public record Storages(BlockingQueue<Body> bodyStorage, BlockingQueue<Motor> motorStorage,
                        BlockingQueue<Accessory> accessoryStorage, BlockingQueue<Car> carStorage) {
+
     public boolean check() {
         return !bodyStorage.isEmpty() && !motorStorage.isEmpty() && !accessoryStorage.isEmpty();
     }

@@ -3,20 +3,20 @@ package ru.nsu.gunko.model.oth.controller;
 import ru.nsu.gunko.model.*;
 import ru.nsu.gunko.model.factory.*;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class Controller {
-    private final Storages storages;
     private final Map<String, Integer> map;
+    private final Storages storages;
     private final Request request;
     private ExecutorService service;
     private Future<?> future;
 
     public Controller(Factory factory, Storages storages, Map<String, Integer> map) {
+        request = new Request(factory, storages);
         this.storages = storages;
         this.map = map;
-        request = new Request(factory, storages);
     }
 
     public void start() {
@@ -33,6 +33,14 @@ public class Controller {
     public void finish() {
         service.shutdown();
         request.setFlag(false);
+
+        try {
+            if (!service.awaitTermination(3, TimeUnit.SECONDS)) {
+                service.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean check() {

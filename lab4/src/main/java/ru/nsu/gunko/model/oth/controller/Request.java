@@ -1,17 +1,17 @@
 package ru.nsu.gunko.model.oth.controller;
 
-import ru.nsu.gunko.model.Storages;
-import ru.nsu.gunko.model.factory.Factory;
+import ru.nsu.gunko.model.*;
+import ru.nsu.gunko.model.factory.*;
 
 public class Request implements Runnable {
-    private final Factory factory;
     private final Storages storages;
+    private final Factory factory;
     private boolean signal;
     private boolean flag;
 
     public Request(Factory factory, Storages storages) {
-        this.factory = factory;
         this.storages = storages;
+        this.factory = factory;
         signal = false;
         flag = true;
     }

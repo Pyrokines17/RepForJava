@@ -1,13 +1,10 @@
 package ru.nsu.gunko.model;
 
 import ru.nsu.gunko.model.car.*;
-import ru.nsu.gunko.model.factory.*;
+import ru.nsu.gunko.model.base.*;
 import ru.nsu.gunko.model.parts.body.*;
 import ru.nsu.gunko.model.parts.motor.*;
 import ru.nsu.gunko.model.parts.accessory.*;
-import ru.nsu.gunko.model.oth.Dealers;
-import ru.nsu.gunko.model.oth.Suppliers.*;
-import ru.nsu.gunko.model.oth.controller.*;
 
 import java.io.*;
 import java.util.*;
@@ -19,6 +16,7 @@ public class Preparer {
         BlockingQueue<Motor> motorStorage = new ArrayBlockingQueue<>(map.get(Config.MOTOR_SIZE.name()));
         BlockingQueue<Accessory> accessoryStorage = new ArrayBlockingQueue<>(map.get(Config.ACCESSORY_SIZE.name()));
         BlockingQueue<Car> carStorage = new ArrayBlockingQueue<>(map.get(Config.AUTO_SIZE.name()));
+
         return new Storages(bodyStorage, motorStorage, accessoryStorage, carStorage);
     }
 
@@ -39,14 +37,15 @@ public class Preparer {
         return map;
     }
 
-    public void end(Suppliers suppliers, Factory factory, Dealers dealers, Controller controller) {
-        suppliers.finish();
-        factory.finish();
-        dealers.finish();
-        controller.finish();
+    public void end(Model model) {
+        model.getSuppliers().finish();
+        model.getFactory().finish();
+        model.getDealers().finish();
+        model.getController().finish();
     }
 
-    public boolean checkDone(Suppliers suppliers, Factory factory, Dealers dealers, Controller controller) {
-        return suppliers.check() && factory.check() && dealers.check() && controller.check();
+    public boolean checkDone(Model model) {
+        return model.getSuppliers().check() && model.getFactory().check() &&
+                model.getDealers().check() && model.getController().check();
     }
 }
