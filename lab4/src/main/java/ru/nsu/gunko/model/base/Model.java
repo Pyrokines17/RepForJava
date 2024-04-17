@@ -12,8 +12,7 @@ public class Model {
     private ModelListener modelListener;
     private State state;
     private Storages storages;
-    private int count;
-    private int used;
+
     private final Map<String, Integer> settings;
     private final Suppliers suppliers;
     private final Factory factory;
@@ -45,7 +44,7 @@ public class Model {
         }
     }
 
-    public void setState(State state) {
+    public synchronized void setState(State state) {
         this.state = state;
     }
 
@@ -53,47 +52,31 @@ public class Model {
         this.modelListener = modelListener;
     }
 
-    public State getState() {
+    public synchronized State getState() {
         return state;
     }
 
-    public Suppliers getSuppliers() {
+    public synchronized Suppliers getSuppliers() {
         return suppliers;
     }
 
-    public Factory getFactory() {
+    public synchronized Factory getFactory() {
         return factory;
     }
 
-    public Dealers getDealers() {
+    public synchronized Dealers getDealers() {
         return dealers;
     }
 
-    public Controller getController() {
+    public synchronized Controller getController() {
         return controller;
     }
 
-    public Storages getStorages() {
+    public synchronized Storages getStorages() {
         return storages;
     }
 
-    public int getCount() {
-        return count;
-    }
-
-    public int getUsed() {
-        return used;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public void setUsed(int used) {
-        this.used = used;
-    }
-
-    public Map<String, Integer> getSettings() {
+    public synchronized Map<String, Integer> getSettings() {
         return settings;
     }
 }

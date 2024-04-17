@@ -51,4 +51,8 @@ public class Factory {
 
         return true;
     }
+
+    public Assembly getAssembly() {
+        return assembly;
+    }
 }

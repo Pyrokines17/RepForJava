@@ -42,7 +42,6 @@ public class Main {
             }
         }
 
-        System.out.println("That's all");
         window.setVisible(false);
         window.dispose();
     }

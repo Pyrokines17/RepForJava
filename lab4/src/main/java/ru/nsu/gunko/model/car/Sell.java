@@ -3,12 +3,16 @@ package ru.nsu.gunko.model.car;
 import ru.nsu.gunko.model.*;
 import ru.nsu.gunko.model.base.*;
 
+import java.util.logging.*;
+
 public class Sell implements Runnable {
+    private final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private final long beginTime;
     private final Model model;
+
     private String string;
     private boolean flag;
-    private int time;
+    private double time;
 
     public Sell(Model model) {
         beginTime = System.currentTimeMillis();
@@ -34,7 +38,7 @@ public class Sell implements Runnable {
                         if (model.getSettings().get(Config.LOGS.name()).equals(1)) {
                             model.setState(State.WRITE_SELL);
                             model.notifyUnsafe(0);
-                            System.out.println(string);
+                            logger.log(Level.INFO, string);
                         }
                     }
 
@@ -42,7 +46,7 @@ public class Sell implements Runnable {
                 }
 
                 synchronized (Thread.currentThread()) {
-                    Thread.currentThread().wait(time);
+                    Thread.currentThread().wait((long) time);
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -54,7 +58,7 @@ public class Sell implements Runnable {
         return string;
     }
 
-    public void setTime(int time) {
+    public void setTime(double time) {
         this.time = time;
     }
 

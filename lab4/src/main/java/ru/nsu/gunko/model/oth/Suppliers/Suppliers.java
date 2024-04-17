@@ -13,6 +13,7 @@ public class Suppliers {
     private final Model model;
     private final Map<String, Integer> map;
     private final List<Future<?>> list;
+
     private Future<?> futureOfBody;
     private Future<?> futureOfMotor;
     private Services services;
@@ -78,5 +79,9 @@ public class Suppliers {
         }
 
         return futureOfBody.isDone() && futureOfMotor.isDone();
+    }
+
+    public Puts getPuts() {
+        return puts;
     }
 }

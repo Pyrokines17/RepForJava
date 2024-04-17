@@ -8,12 +8,12 @@ import ru.nsu.gunko.model.parts.motor.*;
 import ru.nsu.gunko.model.parts.accessory.*;
 
 public class Assembly implements Runnable {
-    private final int ID = 4;
     private final Storages storages;
     private final Model model;
     private boolean signal;
     private boolean flag;
     private int count;
+    private int size;
 
     public Assembly(Storages storages, Model model) {
         this.storages = storages;
@@ -21,6 +21,7 @@ public class Assembly implements Runnable {
         signal = false;
         flag = true;
         count = 0;
+        size = 0;
     }
 
     @Override
@@ -29,21 +30,24 @@ public class Assembly implements Runnable {
             if (signal) {
                 synchronized (this) {
                     try {
-                        Body body = this.storages.bodyStorage().take();
-                        Motor motor = this.storages.motorStorage().take();
-                        Accessory accessory = this.storages.accessoryStorage().take();
+                        synchronized (storages) {
+                            Body body = storages.bodyStorage().take();
+                            Motor motor = storages.motorStorage().take();
+                            Accessory accessory = storages.accessoryStorage().take();
 
-                        Car car = new Car(body, motor, accessory, count);
-                        this.storages.carStorage().put(car);
+                            Car car = new Car(body, motor, accessory, count);
+                            storages.carStorage().put(car);
+                            size = storages.carStorage().size();
+                        }
 
                         this.signal = false;
                         ++this.count;
 
-                        this.model.setCount(this.storages.carStorage().size());
-                        this.model.setUsed(count);
-
-                        this.model.setState(State.CHANGE_STAT);
-                        this.model.notifyUnsafe(ID);
+                        synchronized (model) {
+                            int ID = 4;
+                            model.setState(State.CHANGE_STAT);
+                            model.notifyUnsafe(ID);
+                        }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -66,5 +70,13 @@ public class Assembly implements Runnable {
 
     public void setFlag(boolean flag) {
         this.flag = flag;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public int getSize() {
+        return size;
     }
 }

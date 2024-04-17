@@ -20,8 +20,8 @@ public class Request implements Runnable {
     public void run() {
         while (flag || storages.check() || !storages.carStorage().isEmpty()) {
             if (signal) {
-                synchronized (this) {
-                    this.factory.signal();
+                synchronized (factory) {
+                    factory.signal();
                 }
             }
 

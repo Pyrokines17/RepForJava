@@ -1,6 +1,11 @@
 package ru.nsu.gunko.view;
 
+import ru.nsu.gunko.controller.*;
 import ru.nsu.gunko.model.base.*;
+import ru.nsu.gunko.model.factory.Assembly;
+import ru.nsu.gunko.model.parts.accessory.AccessoryPut;
+import ru.nsu.gunko.model.parts.body.BodyPut;
+import ru.nsu.gunko.model.parts.motor.MotorPut;
 
 import java.awt.*;
 import java.util.*;
@@ -9,10 +14,12 @@ import javax.swing.text.*;
 import java.awt.event.*;
 
 public class Window extends JFrame implements ModelListener {
-    private final Map<Integer, JTextPane> map;
+    private final Map<Integer, JLabel> map;
     private final Map<Integer, String> names;
     private final JTextPane textPane;
+    private final JPanel secondPart;
     private final JPanel stat;
+
     private boolean flag;
     private Model model;
 
@@ -26,23 +33,22 @@ public class Window extends JFrame implements ModelListener {
         JPanel panel = new JPanel();
         textPane = new JTextPane();
         stat = new JPanel();
-
-
         JScrollPane pane = new JScrollPane(textPane);
-        setPreferredSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize()));
 
-        pane.setPreferredSize(new Dimension(getPreferredSize().width/4, getPreferredSize().height/2));
-        stat.setPreferredSize( new Dimension(getPreferredSize().width/8, getPreferredSize().height/8));
+        setPreferredSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize()));
+        pane.setPreferredSize(new Dimension(getPreferredSize().width/4, getPreferredSize().height/3));
 
         textPane.getDocument().putProperty(DefaultEditorKit.EndOfLineStringProperty, "\n");
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         setResizable(false);
+
+        pane.getVerticalScrollBar().addAdjustmentListener(e -> e.getAdjustable().setValue(e.getAdjustable().getMaximum()));
         
         panel.add(pane);
-        JPanel secondPart = new JPanel();
-        initSecondPart(secondPart);
+        secondPart = new JPanel();
         panel.add(secondPart);
 
+        secondPart.setPreferredSize(new Dimension(getPreferredSize().width/4, getPreferredSize().height/3));
         getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER));
 
         initStat();
@@ -51,12 +57,15 @@ public class Window extends JFrame implements ModelListener {
         SwingUtilities.invokeLater(() -> {
             setSize(getPreferredSize().width/2, getPreferredSize().height/2);
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
             addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     flag = false;
                 }
             });
+
+            setLocationRelativeTo(null);
             setVisible(true);
         });
     }
@@ -71,7 +80,30 @@ public class Window extends JFrame implements ModelListener {
                 break;
             }
             case CHANGE_STAT: {
-                map.get(id).setText("Count/Used of "+names.get(id)+model.getCount()+"/"+model.getUsed());
+                SwingUtilities.invokeLater(() -> {
+                    switch (id) {
+                        case 1: {
+                            BodyPut put = model.getSuppliers().getPuts().bodyPut();
+                            map.get(id).setText("Count/Used of "+names.get(id)+put.getSize()+"/"+put.getCount());
+                            break;
+                        }
+                        case 2: {
+                            MotorPut put = model.getSuppliers().getPuts().motorPut();
+                            map.get(id).setText("Count/Used of "+names.get(id)+put.getSize()+"/"+put.getCount());
+                            break;
+                        }
+                        case 3: {
+                            AccessoryPut put = model.getSuppliers().getPuts().accessoryPut();
+                            map.get(id).setText("Count/Used of "+names.get(id)+put.getSize()+"/"+put.getCount());
+                            break;
+                        }
+                        case 4: {
+                            Assembly assembly = model.getFactory().getAssembly();
+                            map.get(id).setText("Count/Used of "+names.get(id)+assembly.getSize()+"/"+assembly.getCount());
+                            break;
+                        }
+                    }
+                });
                 model.setState(State.NOTHING);
                 break;
             }
@@ -83,6 +115,7 @@ public class Window extends JFrame implements ModelListener {
 
     public void setModel(Model model) {
         this.model = model;
+        initSecondPart();
     }
 
     public boolean getFlag() {
@@ -90,61 +123,43 @@ public class Window extends JFrame implements ModelListener {
     }
 
     private void initNames() {
+        names.put(0, "sell: ");
         names.put(1, "body: ");
         names.put(2, "motor: ");
         names.put(3, "accessory: ");
         names.put(4, "car: ");
     }
 
-    private void initSecondPart(JPanel panel) {
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JPanel buf = new JPanel(); JPanel buf1 = new JPanel();
-        buf.setLayout(new BoxLayout(buf, BoxLayout.Y_AXIS));
+    private void initSecondPart() {
+        secondPart.setLayout(new BoxLayout(secondPart, BoxLayout.Y_AXIS));
 
         for (int i = 0; i < 4; ++i) {
             JPanel line = new JPanel();
             line.setLayout(new BoxLayout(line, BoxLayout.X_AXIS));
-            JSlider slider = new JSlider(0, 100);
+            JSlider slider = new JSlider(1, 100);
 
             JLabel label = new JLabel();
-            label.setText(names.get(i+1));
+            label.setText(names.get(i));
+            slider.addChangeListener(new SwingController(model, i, slider));
 
             slider.setPaintTrack(true);
             slider.setPaintTicks(true);
 
             slider.setMajorTickSpacing(10);
             slider.setMinorTickSpacing(1);
-            line.add(slider); line.add(label);
+            line.add(label); line.add(slider);
 
-            buf.add(line);
+            stat.add(line);
         }
 
-        JPanel lineOfSell = new JPanel();
-        lineOfSell.setLayout(new BoxLayout(lineOfSell, BoxLayout.X_AXIS));
-        JSlider slider = new JSlider(0, 100);
-
-        JLabel labelOfSell = new JLabel();
-        labelOfSell.setText("Sell");
-
-        slider.setPaintTrack(true);
-        slider.setPaintTicks(true);
-
-        slider.setMajorTickSpacing(10);
-        slider.setMinorTickSpacing(1);
-        lineOfSell.add(slider); lineOfSell.add(labelOfSell);
-
-        buf1.add(lineOfSell);
-
-        Dimension dimension = new Dimension(getPreferredSize().width/8, getPreferredSize().height/8);
-        buf.setPreferredSize(dimension); buf1.setPreferredSize(dimension);
-        panel.add(buf); panel.add(stat); panel.add(buf1);
+        secondPart.add(stat);
     }
 
     private void initStat() {
         stat.setLayout(new BoxLayout(stat, BoxLayout.Y_AXIS));
         
         for (int i = 0; i < 4; ++i) {
-            JTextPane pane = new JTextPane();
+            JLabel pane = new JLabel();
             map.put(i+1, pane);
             stat.add(pane);
         }

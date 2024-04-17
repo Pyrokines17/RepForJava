@@ -5,18 +5,19 @@ import ru.nsu.gunko.model.base.*;
 import java.util.concurrent.*;
 
 public class MotorPut implements Runnable {
-    private final int ID = 2;
     private final BlockingQueue<Motor> queue;
     private final Model model;
     private boolean flag;
     private int count;
-    private int time;
+    private int size;
+    private double time;
 
     public MotorPut(BlockingQueue<Motor> queue, Model model) {
         this.queue = queue;
         this.model = model;
         flag = true;
         count = 0;
+        size = 0;
         time = 0;
     }
 
@@ -25,18 +26,22 @@ public class MotorPut implements Runnable {
         while (flag) {
             try {
                 synchronized (this) {
-                    this.queue.put(new Motor(count));
+                    synchronized (queue) {
+                        queue.put(new Motor(count));
+                        size = queue.size();
+                    }
+
                     ++this.count;
 
-                    this.model.setCount(queue.size());
-                    this.model.setUsed(count);
-
-                    this.model.setState(State.CHANGE_STAT);
-                    this.model.notifyUnsafe(ID);
+                    synchronized (model) {
+                        int ID = 2;
+                        model.setState(State.CHANGE_STAT);
+                        model.notifyUnsafe(ID);
+                    }
                 }
 
                 synchronized (Thread.currentThread()) {
-                    Thread.currentThread().wait(time);
+                    Thread.currentThread().wait((long) time);
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -44,11 +49,19 @@ public class MotorPut implements Runnable {
         }
     }
 
-    public void setTime(int time) {
+    public void setTime(double time) {
         this.time = time;
     }
 
     public void setFlag(boolean flag) {
         this.flag = flag;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public int getSize() {
+        return size;
     }
 }
