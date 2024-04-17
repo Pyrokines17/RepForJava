@@ -2,11 +2,11 @@ package ru.nsu.gunko.view;
 
 import ru.nsu.gunko.model.base.*;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
+import java.awt.event.*;
 
 public class Window extends JFrame implements ModelListener {
     private final Map<Integer, JTextPane> map;
@@ -26,18 +26,30 @@ public class Window extends JFrame implements ModelListener {
         JPanel panel = new JPanel();
         textPane = new JTextPane();
         stat = new JPanel();
-        JScrollPane pane = new JScrollPane(panel);
+
+
+        JScrollPane pane = new JScrollPane(textPane);
+        setPreferredSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize()));
+
+        pane.setPreferredSize(new Dimension(getPreferredSize().width/4, getPreferredSize().height/2));
+        stat.setPreferredSize( new Dimension(getPreferredSize().width/8, getPreferredSize().height/8));
 
         textPane.getDocument().putProperty(DefaultEditorKit.EndOfLineStringProperty, "\n");
-        setExtendedState(MAXIMIZED_BOTH);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        setResizable(false);
+        
+        panel.add(pane);
+        JPanel secondPart = new JPanel();
+        initSecondPart(secondPart);
+        panel.add(secondPart);
 
-        panel.add(textPane);
-        panel.add(stat);
+        getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER));
+
         initStat();
-        add(pane);
+        add(panel);
 
         SwingUtilities.invokeLater(() -> {
-            setSize(400, 300);
+            setSize(getPreferredSize().width/2, getPreferredSize().height/2);
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             addWindowListener(new WindowAdapter() {
                 @Override
@@ -84,9 +96,53 @@ public class Window extends JFrame implements ModelListener {
         names.put(4, "car: ");
     }
 
+    private void initSecondPart(JPanel panel) {
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel buf = new JPanel(); JPanel buf1 = new JPanel();
+        buf.setLayout(new BoxLayout(buf, BoxLayout.Y_AXIS));
+
+        for (int i = 0; i < 4; ++i) {
+            JPanel line = new JPanel();
+            line.setLayout(new BoxLayout(line, BoxLayout.X_AXIS));
+            JSlider slider = new JSlider(0, 100);
+
+            JLabel label = new JLabel();
+            label.setText(names.get(i+1));
+
+            slider.setPaintTrack(true);
+            slider.setPaintTicks(true);
+
+            slider.setMajorTickSpacing(10);
+            slider.setMinorTickSpacing(1);
+            line.add(slider); line.add(label);
+
+            buf.add(line);
+        }
+
+        JPanel lineOfSell = new JPanel();
+        lineOfSell.setLayout(new BoxLayout(lineOfSell, BoxLayout.X_AXIS));
+        JSlider slider = new JSlider(0, 100);
+
+        JLabel labelOfSell = new JLabel();
+        labelOfSell.setText("Sell");
+
+        slider.setPaintTrack(true);
+        slider.setPaintTicks(true);
+
+        slider.setMajorTickSpacing(10);
+        slider.setMinorTickSpacing(1);
+        lineOfSell.add(slider); lineOfSell.add(labelOfSell);
+
+        buf1.add(lineOfSell);
+
+        Dimension dimension = new Dimension(getPreferredSize().width/8, getPreferredSize().height/8);
+        buf.setPreferredSize(dimension); buf1.setPreferredSize(dimension);
+        panel.add(buf); panel.add(stat); panel.add(buf1);
+    }
+
     private void initStat() {
         stat.setLayout(new BoxLayout(stat, BoxLayout.Y_AXIS));
-
+        
         for (int i = 0; i < 4; ++i) {
             JTextPane pane = new JTextPane();
             map.put(i+1, pane);
