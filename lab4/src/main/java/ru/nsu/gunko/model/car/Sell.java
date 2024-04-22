@@ -23,7 +23,7 @@ public class Sell implements Runnable {
 
     @Override
     public void run() {
-        while (flag || model.getStorages().check() || !model.getStorages().carStorage().isEmpty()) {
+        while (flag) {
             try {
                 synchronized (model) {
                     if (!model.getStorages().carStorage().isEmpty()) {
@@ -42,8 +42,6 @@ public class Sell implements Runnable {
                             logger.log(Level.INFO, string);
                         }
                     }
-
-                    model.getController().signal();
                 }
 
                 synchronized (Thread.currentThread()) {

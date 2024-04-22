@@ -23,7 +23,7 @@ public class Suppliers {
     public Suppliers(Map<String, Integer> map, Model model) {
         this.model = model;
         this.map = map;
-        list = new ArrayList<>();
+        this.list = new ArrayList<>();
     }
 
     public void start(Storages storages) {
@@ -31,11 +31,11 @@ public class Suppliers {
         //ExecutorService serOfBodyAndMotor = new CustomPool(2, new LinkedBlockingQueue<>());
 
         BodyPut bodyPut = new BodyPut(storages.bodyStorage(), model);
-        bodyPut.setTime(75);
+        bodyPut.setTime(50);
         futureOfBody = serOfBodyAndMotor.submit(bodyPut);
 
         MotorPut motorPut = new MotorPut(storages.motorStorage(), model);
-        motorPut.setTime(75);
+        motorPut.setTime(50);
         futureOfMotor = serOfBodyAndMotor.submit(motorPut);
 
         int countSuppliers = map.get(Config.SUPPLIERS.name());
@@ -43,7 +43,7 @@ public class Suppliers {
         //ExecutorService serOfSuppliers = new CustomPool(countSuppliers, new LinkedBlockingQueue<>());
 
         AccessoryPut accessoryPut = new AccessoryPut(storages.accessoryStorage(), model);
-        accessoryPut.setTime(75);
+        accessoryPut.setTime(50);
 
         for (int i = 0; i < countSuppliers; ++i) {
             list.add(serOfSuppliers.submit(accessoryPut));

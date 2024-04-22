@@ -1,24 +1,22 @@
 package ru.nsu.gunko.model.oth.controller;
 
-import ru.nsu.gunko.model.*;
 import ru.nsu.gunko.model.factory.*;
 
 public class Request implements Runnable {
-    private final Storages storages;
     private final Factory factory;
     private boolean signal;
     private boolean flag;
+    private int time;
 
-    public Request(Factory factory, Storages storages) {
-        this.storages = storages;
+    public Request(Factory factory) {
         this.factory = factory;
-        signal = false;
-        flag = true;
+        this.signal = false;
+        this.flag = true;
     }
 
     @Override
     public void run() {
-        while (flag || storages.check() || !storages.carStorage().isEmpty()) {
+        while (flag) {
             if (signal) {
                 synchronized (factory) {
                     factory.signal();
@@ -27,7 +25,7 @@ public class Request implements Runnable {
 
             synchronized (Thread.currentThread()) {
                 try {
-                    Thread.currentThread().wait(100);
+                    Thread.currentThread().wait(time);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -39,7 +37,11 @@ public class Request implements Runnable {
         this.flag = flag;
     }
 
-    public void setSignal(boolean signal) {
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public synchronized void setSignal(boolean signal) {
         this.signal = signal;
     }
 }

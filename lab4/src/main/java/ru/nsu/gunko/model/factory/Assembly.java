@@ -3,6 +3,7 @@ package ru.nsu.gunko.model.factory;
 import ru.nsu.gunko.model.*;
 import ru.nsu.gunko.model.car.*;
 import ru.nsu.gunko.model.base.*;
+
 import ru.nsu.gunko.model.parts.body.*;
 import ru.nsu.gunko.model.parts.motor.*;
 import ru.nsu.gunko.model.parts.accessory.*;
@@ -10,10 +11,13 @@ import ru.nsu.gunko.model.parts.accessory.*;
 public class Assembly implements Runnable {
     private final Storages storages;
     private final Model model;
+
     private boolean signal;
     private boolean flag;
+
     private int count;
     private int size;
+    private int time;
 
     public Assembly(Storages storages, Model model) {
         this.storages = storages;
@@ -26,7 +30,7 @@ public class Assembly implements Runnable {
 
     @Override
     public void run() {
-        while (flag || storages.check()) {
+        while (flag) {
             if (signal) {
                 synchronized (this) {
                     try {
@@ -38,6 +42,7 @@ public class Assembly implements Runnable {
                             Car car = new Car(body, motor, accessory, count);
                             storages.carStorage().put(car);
                             size = storages.carStorage().size();
+                            model.getController().signal();
                         }
 
                         this.signal = false;
@@ -56,7 +61,7 @@ public class Assembly implements Runnable {
 
             synchronized (Thread.currentThread()) {
                 try {
-                    Thread.currentThread().wait(100);
+                    Thread.currentThread().wait(time);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -64,12 +69,16 @@ public class Assembly implements Runnable {
         }
     }
 
-    public void setSignal(boolean signal) {
+    public synchronized void setSignal(boolean signal) {
         this.signal = signal;
     }
 
     public void setFlag(boolean flag) {
         this.flag = flag;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
     }
 
     public int getCount() {

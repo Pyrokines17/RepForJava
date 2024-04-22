@@ -38,7 +38,7 @@ public class Model {
         dealers.start();
     }
 
-    public void notifyUnsafe(int id) {
+    public synchronized void notifyUnsafe(int id) {
         if (modelListener != null) {
             modelListener.onModelChanged(id);
         }
@@ -48,7 +48,7 @@ public class Model {
         this.state = state;
     }
 
-    public void setModelListener(ModelListener modelListener) {
+    public synchronized void setModelListener(ModelListener modelListener) {
         this.modelListener = modelListener;
     }
 

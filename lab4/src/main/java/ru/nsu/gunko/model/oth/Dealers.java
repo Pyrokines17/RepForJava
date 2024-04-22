@@ -16,7 +16,7 @@ public class Dealers {
     private Sell sell;
 
     public Dealers(Map<String, Integer> map, Model model) {
-        list = new ArrayList<>();
+        this.list = new ArrayList<>();
         this.model = model;
         this.map = map;
     }
@@ -27,7 +27,7 @@ public class Dealers {
         //service = new CustomPool(countOfDealers, new LinkedBlockingQueue<>());
 
         sell = new Sell(model);
-        sell.setTime(75);
+        sell.setTime(50);
 
         for (int i = 0; i < countOfDealers; ++i) {
             list.add(service.submit(sell));

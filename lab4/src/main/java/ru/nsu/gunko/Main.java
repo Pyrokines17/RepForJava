@@ -19,6 +19,7 @@ public class Main {
         model.setModelListener(window);
 
         model.start(map, storages);
+        model.getController().signal();
 
         while (window.getFlag()) {
             synchronized (Thread.currentThread()) {

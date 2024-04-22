@@ -16,18 +16,19 @@ public class Controller {
     private Future<?> future;
 
     public Controller(Factory factory, Storages storages, Map<String, Integer> map) {
-        request = new Request(factory, storages);
+        this.request = new Request(factory);
+        this.request.setTime(100);
         this.storages = storages;
         this.map = map;
     }
 
     public void start() {
-        //service = Executors.newFixedThreadPool(1);
-        service = new CustomPool(1, new LinkedBlockingQueue<>());
+        service = Executors.newFixedThreadPool(1);
+        //service = new CustomPool(1, new LinkedBlockingQueue<>());
         future = service.submit(request);
     }
 
-    public void signal() {
+    public synchronized void signal() {
         if (storages.carStorage().size() != map.get(Config.AUTO_SIZE.name())) {
             request.setSignal(true);
         }

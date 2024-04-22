@@ -14,6 +14,7 @@ public class Factory {
 
     public Factory(Storages storages, Model model) {
         assembly = new Assembly(storages, model);
+        assembly.setTime(100);
         list = new ArrayList<>();
     }
 
@@ -27,7 +28,7 @@ public class Factory {
         }
     }
 
-    public void signal() {
+    public synchronized void signal() {
         assembly.setSignal(true);
     }
 
