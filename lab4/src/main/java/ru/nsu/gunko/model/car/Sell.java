@@ -36,9 +36,11 @@ public class Sell implements Runnable {
                         string = timeR + "ms: Dealer " + num + ": Auto " + car.id() +
                                 " (Body: " + car.body().id() + ", Motor: " + car.motor().id() + ", Accessory: " + car.accessory().id() + ") ";
 
+                        model.getController().signal();
+
                         if (model.getSettings().get(Config.LOGS.name()).equals(1)) {
                             model.setState(State.WRITE_SELL);
-                            model.notifyUnsafe(0);
+                            model.notifyUnsafe();
                             logger.log(Level.INFO, string);
                         }
                     }

@@ -10,7 +10,6 @@ public class AccessoryPut implements Runnable {
     private final Model model;
     private boolean flag;
     private int count;
-    private int size;
     private double time;
 
     public AccessoryPut(BlockingQueue<Accessory> queue, Model model) {
@@ -18,7 +17,6 @@ public class AccessoryPut implements Runnable {
         this.model = model;
         flag = true;
         count = 0;
-        size = 0;
         time = 0;
     }
 
@@ -30,15 +28,13 @@ public class AccessoryPut implements Runnable {
                 synchronized (this) {
                     synchronized (queue) {
                         queue.put(new Accessory(count));
-                        size = queue.size();
                     }
 
                     ++this.count;
 
                     synchronized (model) {
-                        int ID = 3;
                         model.setState(State.CHANGE_STAT);
-                        model.notifyUnsafe(ID);
+                        model.notifyUnsafe();
                     }
                 }
 
@@ -61,9 +57,5 @@ public class AccessoryPut implements Runnable {
 
     public int getCount() {
         return count;
-    }
-
-    public int getSize() {
-        return size;
     }
 }

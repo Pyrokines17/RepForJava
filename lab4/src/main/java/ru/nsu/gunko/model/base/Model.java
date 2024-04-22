@@ -38,9 +38,9 @@ public class Model {
         dealers.start();
     }
 
-    public synchronized void notifyUnsafe(int id) {
+    public synchronized void notifyUnsafe() {
         if (modelListener != null) {
-            modelListener.onModelChanged(id);
+            modelListener.onModelChanged();
         }
     }
 

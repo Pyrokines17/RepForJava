@@ -3,20 +3,33 @@ package ru.nsu.gunko.threads;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class CustomPool implements ExecutorService { //ToDo: another logic of init thread's
+public class CustomPool implements ExecutorService {
     private final Queue<Runnable> tasks;
     private boolean isShutdown;
+    private final int maxSize;
+    private int curSize;
 
     public CustomPool(int size, Queue<Runnable> queue) {
         isShutdown = false;
         tasks = queue;
+        maxSize = size;
+        curSize = 0;
 
         for (int i = 0; i < size; ++i) {
-            new ThreadWorker().start();
+            new ThreadWorker(5000).start();
+            ++curSize;
         }
     }
 
     private class ThreadWorker extends Thread {
+        private final long timeoutMillis;
+        private long lastTaskTime;
+
+        public ThreadWorker(long timeoutMillis) {
+            this.timeoutMillis = timeoutMillis;
+            this.lastTaskTime = System.currentTimeMillis();
+        }
+
         @Override
         public void run() {
             while (!isShutdown) {
@@ -26,12 +39,18 @@ public class CustomPool implements ExecutorService { //ToDo: another logic of in
                     while (tasks.isEmpty()) {
                         try {
                             tasks.wait();
+
+                            if (System.currentTimeMillis()-lastTaskTime > timeoutMillis) {
+                                --curSize;
+                                return;
+                            }
                         } catch (InterruptedException exception) {
                             Thread.currentThread().interrupt();
                         }
                     }
 
                     task = tasks.poll();
+                    lastTaskTime = System.currentTimeMillis();
                 }
 
                 if (task != null) {
@@ -215,6 +234,10 @@ public class CustomPool implements ExecutorService { //ToDo: another logic of in
         synchronized (tasks) {
             tasks.add(runnable);
             tasks.notify();
+        }
+
+        if (curSize < maxSize) {
+            new ThreadWorker(5000).start();
         }
     }
 }

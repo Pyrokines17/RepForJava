@@ -41,22 +41,20 @@ public class Assembly implements Runnable {
 
                             Car car = new Car(body, motor, accessory, count);
                             storages.carStorage().put(car);
-                            size = storages.carStorage().size();
-                            model.getController().signal();
                         }
 
                         this.signal = false;
                         ++this.count;
-
-                        synchronized (model) {
-                            int ID = 4;
-                            model.setState(State.CHANGE_STAT);
-                            model.notifyUnsafe(ID);
-                        }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
+            }
+
+            size = storages.carStorage().size();
+            synchronized (model) {
+                model.setState(State.CHANGE_STAT);
+                model.notifyUnsafe();
             }
 
             synchronized (Thread.currentThread()) {

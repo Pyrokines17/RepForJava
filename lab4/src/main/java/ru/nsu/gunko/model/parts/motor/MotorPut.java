@@ -10,7 +10,6 @@ public class MotorPut implements Runnable {
     private final Model model;
     private boolean flag;
     private int count;
-    private int size;
     private double time;
 
     public MotorPut(BlockingQueue<Motor> queue, Model model) {
@@ -18,7 +17,6 @@ public class MotorPut implements Runnable {
         this.model = model;
         flag = true;
         count = 0;
-        size = 0;
         time = 0;
     }
 
@@ -30,15 +28,13 @@ public class MotorPut implements Runnable {
                 synchronized (this) {
                     synchronized (queue) {
                         queue.put(new Motor(count));
-                        size = queue.size();
                     }
 
                     ++this.count;
 
                     synchronized (model) {
-                        int ID = 2;
                         model.setState(State.CHANGE_STAT);
-                        model.notifyUnsafe(ID);
+                        model.notifyUnsafe();
                     }
                 }
 
@@ -61,9 +57,5 @@ public class MotorPut implements Runnable {
 
     public int getCount() {
         return count;
-    }
-
-    public int getSize() {
-        return size;
     }
 }

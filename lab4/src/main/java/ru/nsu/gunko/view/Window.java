@@ -3,17 +3,18 @@ package ru.nsu.gunko.view;
 import ru.nsu.gunko.controller.*;
 import ru.nsu.gunko.model.base.*;
 import ru.nsu.gunko.model.factory.*;
-import ru.nsu.gunko.model.parts.body.*;
-import ru.nsu.gunko.model.parts.motor.*;
-import ru.nsu.gunko.model.parts.accessory.*;
+import ru.nsu.gunko.model.oth.Suppliers.Puts;
 
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.event.*;
+import java.util.List;
+
 
 public class Window extends JFrame implements ModelListener {
+    private final List<SwingController> controllers;
     private final Map<Integer, JLabel> map;
     private final Map<Integer, String> names;
     private final JTextPane textPane;
@@ -25,6 +26,7 @@ public class Window extends JFrame implements ModelListener {
 
     public Window() {
         super("Factory");
+        controllers = new ArrayList<>();
         map = new HashMap<>();
         names = new HashMap<>();
         flag = true;
@@ -62,6 +64,10 @@ public class Window extends JFrame implements ModelListener {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     flag = false;
+
+                    for (SwingController controller : controllers) {
+                        controller.setFlag(false);
+                    }
                 }
             });
 
@@ -71,7 +77,7 @@ public class Window extends JFrame implements ModelListener {
     }
 
     @Override
-    public void onModelChanged(int id) {
+    public void onModelChanged() {
         switch (model.getState()) {
             case WRITE_SELL: {
                 String newString = textPane.getText() + model.getDealers().getSell().getString() + "\n";
@@ -81,28 +87,12 @@ public class Window extends JFrame implements ModelListener {
             }
             case CHANGE_STAT: {
                 SwingUtilities.invokeLater(() -> {
-                    switch (id) {
-                        case 1: {
-                            BodyPut put = model.getSuppliers().getPuts().bodyPut();
-                            map.get(id).setText("Count/Used of "+names.get(id)+put.getSize()+"/"+put.getCount());
-                            break;
-                        }
-                        case 2: {
-                            MotorPut put = model.getSuppliers().getPuts().motorPut();
-                            map.get(id).setText("Count/Used of "+names.get(id)+put.getSize()+"/"+put.getCount());
-                            break;
-                        }
-                        case 3: {
-                            AccessoryPut put = model.getSuppliers().getPuts().accessoryPut();
-                            map.get(id).setText("Count/Used of "+names.get(id)+put.getSize()+"/"+put.getCount());
-                            break;
-                        }
-                        case 4: {
-                            Assembly assembly = model.getFactory().getAssembly();
-                            map.get(id).setText("Count/Used of "+names.get(id)+assembly.getSize()+"/"+assembly.getCount());
-                            break;
-                        }
-                    }
+                    Puts puts = model.getSuppliers().getPuts();
+                    Assembly assembly = model.getFactory().getAssembly();
+                    map.get(1).setText("Count/Used of "+names.get(1)+model.getStorages().bodyStorage().size()+"/"+puts.bodyPut().getCount());
+                    map.get(2).setText("Count/Used of "+names.get(2)+model.getStorages().motorStorage().size()+"/"+puts.motorPut().getCount());
+                    map.get(3).setText("Count/Used of "+names.get(3)+model.getStorages().accessoryStorage().size()+"/"+puts.accessoryPut().getCount());
+                    map.get(4).setText("Count/Used of "+names.get(4)+assembly.getSize()+"/"+assembly.getCount());
                 });
                 model.setState(State.NOTHING);
                 break;
@@ -140,7 +130,9 @@ public class Window extends JFrame implements ModelListener {
 
             JLabel label = new JLabel();
             label.setText(names.get(i));
-            slider.addChangeListener(new SwingController(model, i, slider));
+            SwingController curControl = new SwingController(model, i, slider);
+            slider.addChangeListener(curControl);
+            controllers.add(curControl);
 
             slider.setPaintTrack(true);
             slider.setPaintTicks(true);
