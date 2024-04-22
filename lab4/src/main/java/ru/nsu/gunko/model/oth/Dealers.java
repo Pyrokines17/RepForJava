@@ -3,6 +3,7 @@ package ru.nsu.gunko.model.oth;
 import ru.nsu.gunko.model.*;
 import ru.nsu.gunko.model.car.*;
 import ru.nsu.gunko.model.base.*;
+import ru.nsu.gunko.threads.CustomPool;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -23,6 +24,7 @@ public class Dealers {
     public void start() {
         int countOfDealers = map.get(Config.DEALERS.name());
         service = Executors.newFixedThreadPool(countOfDealers);
+        //service = new CustomPool(countOfDealers, new LinkedBlockingQueue<>());
 
         sell = new Sell(model);
         sell.setTime(75);
@@ -37,7 +39,7 @@ public class Dealers {
         sell.setFlag(false);
 
         try {
-            if (!service.awaitTermination(3, TimeUnit.SECONDS)) {
+            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
                 service.shutdownNow();
             }
         } catch (InterruptedException e) {

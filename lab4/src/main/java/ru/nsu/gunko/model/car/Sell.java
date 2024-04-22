@@ -33,7 +33,8 @@ public class Sell implements Runnable {
                         Car car = model.getStorages().carStorage().take();
                         long timeR = System.currentTimeMillis() - this.beginTime;
 
-                        string = timeR + "ms: Dealer " + num + ": Auto " + car.id() + " (Body: " + car.body().id() + ", Motor: " + car.motor().id() + ", Accessory: " + car.accessory().id() + ") ";
+                        string = timeR + "ms: Dealer " + num + ": Auto " + car.id() +
+                                " (Body: " + car.body().id() + ", Motor: " + car.motor().id() + ", Accessory: " + car.accessory().id() + ") ";
 
                         if (model.getSettings().get(Config.LOGS.name()).equals(1)) {
                             model.setState(State.WRITE_SELL);

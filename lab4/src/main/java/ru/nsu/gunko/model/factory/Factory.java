@@ -2,6 +2,7 @@ package ru.nsu.gunko.model.factory;
 
 import ru.nsu.gunko.model.*;
 import ru.nsu.gunko.model.base.*;
+import ru.nsu.gunko.threads.CustomPool;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -19,6 +20,7 @@ public class Factory {
     public void start(Map<String, Integer> map) {
         int countOfThreads = map.get(Config.WORKERS.name());
         service = Executors.newFixedThreadPool(countOfThreads);
+        //service = new CustomPool(countOfThreads, new LinkedBlockingQueue<>());
 
         for (int i = 0; i < countOfThreads; ++i) {
             list.add(service.submit(assembly));

@@ -5,6 +5,7 @@ import ru.nsu.gunko.model.base.*;
 import ru.nsu.gunko.model.parts.body.*;
 import ru.nsu.gunko.model.parts.motor.*;
 import ru.nsu.gunko.model.parts.accessory.*;
+import ru.nsu.gunko.threads.CustomPool;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -27,6 +28,7 @@ public class Suppliers {
 
     public void start(Storages storages) {
         ExecutorService serOfBodyAndMotor = Executors.newFixedThreadPool(2);
+        //ExecutorService serOfBodyAndMotor = new CustomPool(2, new LinkedBlockingQueue<>());
 
         BodyPut bodyPut = new BodyPut(storages.bodyStorage(), model);
         bodyPut.setTime(75);
@@ -38,6 +40,7 @@ public class Suppliers {
 
         int countSuppliers = map.get(Config.SUPPLIERS.name());
         ExecutorService serOfSuppliers = Executors.newFixedThreadPool(countSuppliers);
+        //ExecutorService serOfSuppliers = new CustomPool(countSuppliers, new LinkedBlockingQueue<>());
 
         AccessoryPut accessoryPut = new AccessoryPut(storages.accessoryStorage(), model);
         accessoryPut.setTime(75);

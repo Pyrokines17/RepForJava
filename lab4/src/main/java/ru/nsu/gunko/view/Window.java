@@ -2,10 +2,10 @@ package ru.nsu.gunko.view;
 
 import ru.nsu.gunko.controller.*;
 import ru.nsu.gunko.model.base.*;
-import ru.nsu.gunko.model.factory.Assembly;
-import ru.nsu.gunko.model.parts.accessory.AccessoryPut;
-import ru.nsu.gunko.model.parts.body.BodyPut;
-import ru.nsu.gunko.model.parts.motor.MotorPut;
+import ru.nsu.gunko.model.factory.*;
+import ru.nsu.gunko.model.parts.body.*;
+import ru.nsu.gunko.model.parts.motor.*;
+import ru.nsu.gunko.model.parts.accessory.*;
 
 import java.awt.*;
 import java.util.*;
