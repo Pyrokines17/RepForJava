@@ -1,5 +1,6 @@
 package ru.nsu.gunko.model.parts.motor;
 
+import ru.nsu.gunko.model.Storages;
 import ru.nsu.gunko.model.base.*;
 
 import java.util.concurrent.*;
@@ -23,7 +24,8 @@ public class MotorPut implements Runnable {
 
     @Override
     public void run() {
-        while (flag) {
+        Storages storages = model.getStorages();
+        while (flag || queue.size() < storages.bodyStorage().size() || queue.size() < storages.accessoryStorage().size()) {
             try {
                 synchronized (this) {
                     synchronized (queue) {

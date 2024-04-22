@@ -27,8 +27,7 @@ public class Suppliers {
     }
 
     public void start(Storages storages) {
-        ExecutorService serOfBodyAndMotor = Executors.newFixedThreadPool(2);
-        //ExecutorService serOfBodyAndMotor = new CustomPool(2, new LinkedBlockingQueue<>());
+        ExecutorService serOfBodyAndMotor = new CustomPool(2, new LinkedBlockingQueue<>());
 
         BodyPut bodyPut = new BodyPut(storages.bodyStorage(), model);
         bodyPut.setTime(50);
@@ -39,8 +38,7 @@ public class Suppliers {
         futureOfMotor = serOfBodyAndMotor.submit(motorPut);
 
         int countSuppliers = map.get(Config.SUPPLIERS.name());
-        ExecutorService serOfSuppliers = Executors.newFixedThreadPool(countSuppliers);
-        //ExecutorService serOfSuppliers = new CustomPool(countSuppliers, new LinkedBlockingQueue<>());
+        ExecutorService serOfSuppliers = new CustomPool(countSuppliers, new LinkedBlockingQueue<>());
 
         AccessoryPut accessoryPut = new AccessoryPut(storages.accessoryStorage(), model);
         accessoryPut.setTime(50);
@@ -62,11 +60,11 @@ public class Suppliers {
         puts.bodyPut().setFlag(false);
 
         try {
-            if (!services.serviceOfBodyAndMotor().awaitTermination(3, TimeUnit.SECONDS)) {
+            if (!services.serviceOfBodyAndMotor().awaitTermination(5, TimeUnit.SECONDS)) {
                 services.serviceOfBodyAndMotor().shutdownNow();
             }
 
-            if (!services.serviceOfAccessory().awaitTermination(3, TimeUnit.SECONDS)) {
+            if (!services.serviceOfAccessory().awaitTermination(5, TimeUnit.SECONDS)) {
                 services.serviceOfAccessory().shutdownNow();
             }
         } catch (InterruptedException e) {

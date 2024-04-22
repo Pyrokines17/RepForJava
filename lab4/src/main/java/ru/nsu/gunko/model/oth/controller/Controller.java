@@ -1,6 +1,7 @@
 package ru.nsu.gunko.model.oth.controller;
 
 import ru.nsu.gunko.model.*;
+import ru.nsu.gunko.model.base.Model;
 import ru.nsu.gunko.model.factory.*;
 import ru.nsu.gunko.threads.CustomPool;
 
@@ -15,16 +16,15 @@ public class Controller {
     private ExecutorService service;
     private Future<?> future;
 
-    public Controller(Factory factory, Storages storages, Map<String, Integer> map) {
-        this.request = new Request(factory);
+    public Controller(Factory factory, Storages storages, Map<String, Integer> map, Model model) {
+        this.request = new Request(factory, model);
         this.request.setTime(100);
         this.storages = storages;
         this.map = map;
     }
 
     public void start() {
-        service = Executors.newFixedThreadPool(1);
-        //service = new CustomPool(1, new LinkedBlockingQueue<>());
+        service = new CustomPool(1, new LinkedBlockingQueue<>());
         future = service.submit(request);
     }
 
@@ -39,7 +39,7 @@ public class Controller {
         request.setFlag(false);
 
         try {
-            if (!service.awaitTermination(3, TimeUnit.SECONDS)) {
+            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
                 service.shutdownNow();
             }
         } catch (InterruptedException e) {

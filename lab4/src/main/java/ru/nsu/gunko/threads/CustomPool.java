@@ -3,7 +3,7 @@ package ru.nsu.gunko.threads;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class CustomPool implements ExecutorService { //ToDo: another logic of init thread's (and find bug with end)
+public class CustomPool implements ExecutorService { //ToDo: another logic of init thread's
     private final Queue<Runnable> tasks;
     private boolean isShutdown;
 

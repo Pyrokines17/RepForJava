@@ -30,7 +30,7 @@ public class Assembly implements Runnable {
 
     @Override
     public void run() {
-        while (flag) {
+        while (flag || storages.check()) {
             if (signal) {
                 synchronized (this) {
                     try {

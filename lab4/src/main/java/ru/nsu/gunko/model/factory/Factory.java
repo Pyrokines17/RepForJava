@@ -20,8 +20,7 @@ public class Factory {
 
     public void start(Map<String, Integer> map) {
         int countOfThreads = map.get(Config.WORKERS.name());
-        service = Executors.newFixedThreadPool(countOfThreads);
-        //service = new CustomPool(countOfThreads, new LinkedBlockingQueue<>());
+        service = new CustomPool(countOfThreads, new LinkedBlockingQueue<>());
 
         for (int i = 0; i < countOfThreads; ++i) {
             list.add(service.submit(assembly));
@@ -37,7 +36,7 @@ public class Factory {
         assembly.setFlag(false);
 
         try {
-            if (!service.awaitTermination(3, TimeUnit.SECONDS)) {
+            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
                 service.shutdownNow();
             }
         } catch (InterruptedException e) {

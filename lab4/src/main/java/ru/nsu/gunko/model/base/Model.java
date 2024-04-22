@@ -22,7 +22,7 @@ public class Model {
     public Model(Map<String, Integer> map, Storages storages) {
         suppliers = new Suppliers(map, this);
         factory = new Factory(storages, this);
-        controller = new Controller(factory, storages, map);
+        controller = new Controller(factory, storages, map, this);
         dealers = new Dealers(map, this);
 
         settings = map;

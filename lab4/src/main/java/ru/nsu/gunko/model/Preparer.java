@@ -40,8 +40,8 @@ public class Preparer {
     public void end(Model model) {
         model.getSuppliers().finish();
         model.getFactory().finish();
-        model.getDealers().finish();
         model.getController().finish();
+        model.getDealers().finish();
     }
 
     public boolean checkDone(Model model) {
