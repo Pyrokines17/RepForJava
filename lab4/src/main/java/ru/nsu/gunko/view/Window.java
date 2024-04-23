@@ -17,6 +17,8 @@ public class Window extends JFrame implements ModelListener {
     private final List<SwingController> controllers;
     private final Map<Integer, JLabel> map;
     private final Map<Integer, String> names;
+    private final List<JLabel> labels;
+
     private final JTextPane textPane;
     private final JPanel secondPart;
     private final JPanel stat;
@@ -31,6 +33,7 @@ public class Window extends JFrame implements ModelListener {
         names = new HashMap<>();
         flag = true;
         initNames();
+        labels = new ArrayList<>();
 
         JPanel panel = new JPanel();
         textPane = new JTextPane();
@@ -80,8 +83,10 @@ public class Window extends JFrame implements ModelListener {
     public void onModelChanged() {
         switch (model.getState()) {
             case WRITE_SELL: {
-                String newString = textPane.getText() + model.getDealers().getSell().getString() + "\n";
-                textPane.setText(newString);
+                SwingUtilities.invokeLater(() -> {
+                    String newString = textPane.getText() + model.getDealers().getSell().getString() + "\n";
+                    textPane.setText(newString);
+                });
                 model.setState(State.NOTHING);
                 break;
             }
@@ -123,25 +128,34 @@ public class Window extends JFrame implements ModelListener {
     private void initSecondPart() {
         secondPart.setLayout(new BoxLayout(secondPart, BoxLayout.Y_AXIS));
 
+        stat.add(new JLabel("\n"));
+
         for (int i = 0; i < 4; ++i) {
             JPanel line = new JPanel();
             line.setLayout(new BoxLayout(line, BoxLayout.X_AXIS));
-            JSlider slider = new JSlider(1, 100);
+            JSlider slider = new JSlider(0, 100);
 
             JLabel label = new JLabel();
             label.setText(names.get(i));
-            SwingController curControl = new SwingController(model, i, slider);
+
+            SwingController curControl = new SwingController(model, i, slider, labels);
             slider.addChangeListener(curControl);
             controllers.add(curControl);
 
             slider.setPaintTrack(true);
             slider.setPaintTicks(true);
+            slider.setPaintLabels(true);
 
             slider.setMajorTickSpacing(10);
             slider.setMinorTickSpacing(1);
             line.add(label); line.add(slider);
 
             stat.add(line);
+
+            JLabel jLabel = new JLabel("Speed: 50%");
+            labels.add(jLabel); line.add(jLabel);
+
+            stat.add(new JLabel("\n"));
         }
 
         secondPart.add(stat);

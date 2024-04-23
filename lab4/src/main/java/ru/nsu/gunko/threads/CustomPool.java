@@ -236,8 +236,9 @@ public class CustomPool implements ExecutorService {
             tasks.notify();
         }
 
-        if (curSize < maxSize) {
+        if (curSize < maxSize && !tasks.isEmpty()) {
             new ThreadWorker(5000).start();
+            ++curSize;
         }
     }
 }
