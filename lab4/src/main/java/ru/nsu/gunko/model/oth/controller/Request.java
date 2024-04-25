@@ -4,44 +4,42 @@ import ru.nsu.gunko.model.base.Model;
 import ru.nsu.gunko.model.factory.*;
 
 public class Request implements Runnable {
-    private final Model model;
     private final Factory factory;
     private boolean signal;
     private boolean flag;
-    private int time;
+    private final Model model;
 
     public Request(Factory factory, Model model) {
-        this.model = model;
         this.factory = factory;
         this.signal = false;
         this.flag = true;
+        this.model = model;
     }
 
     @Override
     public void run() {
-        while (flag || model.getStorages().check() || !model.getStorages().carStorage().isEmpty()) {
+        while (flag) {
             if (signal) {
-                synchronized (factory) {
+                synchronized (model.getFactory()) {
                     factory.signal();
+                    factory.notify();
                 }
             }
 
-            synchronized (Thread.currentThread()) {
+            synchronized (model.getController()) {
                 try {
-                    Thread.currentThread().wait(time);
+                    model.getController().wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
         }
+
+        model.notifyAll();
     }
 
     public void setFlag(boolean flag) {
         this.flag = flag;
-    }
-
-    public void setTime(int time) {
-        this.time = time;
     }
 
     public synchronized void setSignal(boolean signal) {

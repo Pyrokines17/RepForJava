@@ -14,13 +14,13 @@ public class Factory {
 
     public Factory(Storages storages, Model model) {
         assembly = new Assembly(storages, model);
-        assembly.setTime(100);
         list = new ArrayList<>();
     }
 
     public void start(Map<String, Integer> map) {
         int countOfThreads = map.get(Config.WORKERS.name());
-        service = new CustomPool(countOfThreads, new LinkedBlockingQueue<>());
+        service = Executors.newFixedThreadPool(countOfThreads);
+        //service = new CustomPool(countOfThreads, new LinkedBlockingQueue<>());
 
         for (int i = 0; i < countOfThreads; ++i) {
             list.add(service.submit(assembly));

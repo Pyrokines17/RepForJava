@@ -23,11 +23,12 @@ public class Window extends JFrame implements ModelListener {
     private final JPanel secondPart;
     private final JPanel stat;
 
+    private final Model model;
     private boolean flag;
-    private Model model;
 
-    public Window() {
+    public Window(Model model) {
         super("Factory");
+        this.model = model;
         controllers = new ArrayList<>();
         map = new HashMap<>();
         names = new HashMap<>();
@@ -71,12 +72,18 @@ public class Window extends JFrame implements ModelListener {
                     for (SwingController controller : controllers) {
                         controller.setFlag(false);
                     }
+
+                    synchronized (model) {
+                        model.notifyAll();
+                    }
                 }
             });
 
             setLocationRelativeTo(null);
             setVisible(true);
         });
+
+        initSecondPart();
     }
 
     @Override
@@ -106,11 +113,6 @@ public class Window extends JFrame implements ModelListener {
                 break;
             }
         }
-    }
-
-    public void setModel(Model model) {
-        this.model = model;
-        initSecondPart();
     }
 
     public boolean getFlag() {

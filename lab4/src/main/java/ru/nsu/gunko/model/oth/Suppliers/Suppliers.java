@@ -15,9 +15,7 @@ public class Suppliers {
     private final Map<String, Integer> map;
     private final List<Future<?>> list;
 
-    private Future<?> futureOfBody;
-    private Future<?> futureOfMotor;
-    private Services services;
+    private ExecutorService serOfSuppliers;
     private Puts puts;
 
     public Suppliers(Map<String, Integer> map, Model model) {
@@ -27,45 +25,37 @@ public class Suppliers {
     }
 
     public void start(Storages storages) {
-        ExecutorService serOfBodyAndMotor = new CustomPool(2, new LinkedBlockingQueue<>());
-
-        BodyPut bodyPut = new BodyPut(storages.bodyStorage(), model);
-        bodyPut.setTime(50);
-        futureOfBody = serOfBodyAndMotor.submit(bodyPut);
-
-        MotorPut motorPut = new MotorPut(storages.motorStorage(), model);
-        motorPut.setTime(50);
-        futureOfMotor = serOfBodyAndMotor.submit(motorPut);
-
         int countSuppliers = map.get(Config.SUPPLIERS.name());
-        ExecutorService serOfSuppliers = new CustomPool(countSuppliers, new LinkedBlockingQueue<>());
+        serOfSuppliers = Executors.newFixedThreadPool(countSuppliers);
+        //serOfSuppliers = new CustomPool(countSuppliers*3, new LinkedBlockingQueue<>());
 
         AccessoryPut accessoryPut = new AccessoryPut(storages.accessoryStorage(), model);
-        accessoryPut.setTime(50);
+        MotorPut motorPut = new MotorPut(storages.motorStorage(), model);
+        BodyPut bodyPut = new BodyPut(storages.bodyStorage(), model);
 
-        for (int i = 0; i < countSuppliers; ++i) {
+        accessoryPut.setTime(50);
+        motorPut.setTime(50);
+        bodyPut.setTime(50);
+
+        for (int i = 0; i < countSuppliers-2; ++i) {
             list.add(serOfSuppliers.submit(accessoryPut));
         }
 
-        services = new Services(serOfBodyAndMotor, serOfSuppliers);
+        list.add(serOfSuppliers.submit(motorPut));
+        list.add(serOfSuppliers.submit(bodyPut));
+
         puts = new Puts(bodyPut, motorPut, accessoryPut);
     }
 
     public void finish() {
-        services.serviceOfBodyAndMotor().shutdown();
+        serOfSuppliers.shutdown();
         puts.accessoryPut().setFlag(false);
         puts.motorPut().setFlag(false);
-
-        services.serviceOfAccessory().shutdown();
         puts.bodyPut().setFlag(false);
 
         try {
-            if (!services.serviceOfBodyAndMotor().awaitTermination(5, TimeUnit.SECONDS)) {
-                services.serviceOfBodyAndMotor().shutdownNow();
-            }
-
-            if (!services.serviceOfAccessory().awaitTermination(5, TimeUnit.SECONDS)) {
-                services.serviceOfAccessory().shutdownNow();
+            if (!serOfSuppliers.awaitTermination(5, TimeUnit.SECONDS)) {
+                serOfSuppliers.shutdownNow();
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -79,7 +69,7 @@ public class Suppliers {
             }
         }
 
-        return futureOfBody.isDone() && futureOfMotor.isDone();
+        return true;
     }
 
     public Puts getPuts() {

@@ -9,8 +9,4 @@ import java.util.concurrent.*;
 
 public record Storages(BlockingQueue<Body> bodyStorage, BlockingQueue<Motor> motorStorage,
                        BlockingQueue<Accessory> accessoryStorage, BlockingQueue<Car> carStorage) {
-
-    public boolean check() {
-        return !bodyStorage.isEmpty() && !motorStorage.isEmpty() && !accessoryStorage.isEmpty();
-    }
 }

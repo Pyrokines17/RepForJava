@@ -1,6 +1,5 @@
 package ru.nsu.gunko.model.parts.body;
 
-import ru.nsu.gunko.model.Storages;
 import ru.nsu.gunko.model.base.*;
 
 import java.util.UUID;
@@ -9,6 +8,7 @@ import java.util.concurrent.*;
 public class BodyPut implements Runnable {
     private final BlockingQueue<Body> queue;
     private final Model model;
+
     private boolean flag;
     private int count;
     private double time;
@@ -16,6 +16,7 @@ public class BodyPut implements Runnable {
     public BodyPut(BlockingQueue<Body> queue, Model model) {
         this.queue = queue;
         this.model = model;
+
         flag = true;
         count = 0;
         time = 0;
@@ -23,8 +24,7 @@ public class BodyPut implements Runnable {
 
     @Override
     public void run() {
-        Storages storages = model.getStorages();
-        while (flag || queue.size() < storages.motorStorage().size() || queue.size() < storages.accessoryStorage().size()) {
+        while (flag) {
             try {
                 synchronized (this) {
                     synchronized (queue) {
@@ -46,6 +46,8 @@ public class BodyPut implements Runnable {
                 throw new RuntimeException(e);
             }
         }
+
+        model.notifyAll();
     }
 
     public void setTime(double time) {

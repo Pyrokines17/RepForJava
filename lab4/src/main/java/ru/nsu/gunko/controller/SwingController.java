@@ -24,7 +24,7 @@ public class SwingController implements ChangeListener {
 
     @Override
     public void stateChanged(ChangeEvent changeEvent) {
-        double SPEED = 400;
+        double SPEED = 200;
         double bufValue = 10000;
         double value = SPEED*slider.getValue()/100;
 

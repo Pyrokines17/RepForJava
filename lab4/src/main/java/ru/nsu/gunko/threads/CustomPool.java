@@ -3,7 +3,7 @@ package ru.nsu.gunko.threads;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class CustomPool implements ExecutorService {
+public class CustomPool implements ExecutorService { //ToDo: fix customPool
     private final Queue<Runnable> tasks;
     private boolean isShutdown;
     private final int maxSize;

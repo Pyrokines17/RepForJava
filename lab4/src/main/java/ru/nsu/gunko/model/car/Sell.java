@@ -23,7 +23,7 @@ public class Sell implements Runnable {
 
     @Override
     public void run() {
-        while (flag || model.getStorages().check() || !model.getStorages().carStorage().isEmpty()) {
+        while (flag) {
             try {
                 synchronized (model) {
                     if (!model.getStorages().carStorage().isEmpty()) {
@@ -36,14 +36,17 @@ public class Sell implements Runnable {
                         string = timeR + "ms: Dealer " + num + ":\n Auto " + car.id() +
                                 " \n(Body: " + car.body().id() + ",\n Motor: " + car.motor().id() + ",\n Accessory: " + car.accessory().id() + ") ";
 
-                        model.getController().signal();
-
                         if (model.getSettings().get(Config.LOGS.name()).equals(1)) {
                             model.setState(State.WRITE_SELL);
                             model.notifyUnsafe();
                             logger.log(Level.INFO, string);
                         }
                     }
+                }
+
+                synchronized (model.getController()) {
+                    model.getController().signal();
+                    model.getController().notifyAll();
                 }
 
                 synchronized (Thread.currentThread()) {
@@ -53,6 +56,8 @@ public class Sell implements Runnable {
                 throw new RuntimeException(e);
             }
         }
+
+        model.notifyAll();
     }
 
     public String getString() {

@@ -1,6 +1,5 @@
 package ru.nsu.gunko.model.parts.accessory;
 
-import ru.nsu.gunko.model.Storages;
 import ru.nsu.gunko.model.base.*;
 
 import java.util.UUID;
@@ -23,8 +22,7 @@ public class AccessoryPut implements Runnable {
 
     @Override
     public void run() {
-        Storages storages = model.getStorages();
-        while (flag || queue.size() < storages.bodyStorage().size() || queue.size() < storages.motorStorage().size()) {
+        while (flag) {
             try {
                 synchronized (this) {
                     synchronized (queue) {
@@ -46,6 +44,8 @@ public class AccessoryPut implements Runnable {
                 throw new RuntimeException(e);
             }
         }
+
+        model.notifyAll();
     }
 
     public void setTime(double time) {

@@ -23,7 +23,8 @@ public class Dealers {
 
     public void start() {
         int countOfDealers = map.get(Config.DEALERS.name());
-        service = new CustomPool(countOfDealers, new LinkedBlockingQueue<>());
+        service = Executors.newFixedThreadPool(countOfDealers);
+        //service = new CustomPool(countOfDealers, new LinkedBlockingQueue<>());
 
         sell = new Sell(model);
         sell.setTime(50);

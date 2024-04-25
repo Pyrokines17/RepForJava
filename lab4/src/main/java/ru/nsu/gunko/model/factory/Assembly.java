@@ -19,7 +19,6 @@ public class Assembly implements Runnable {
 
     private int count;
     private int size;
-    private int time;
 
     public Assembly(Storages storages, Model model) {
         this.storages = storages;
@@ -32,7 +31,7 @@ public class Assembly implements Runnable {
 
     @Override
     public void run() {
-        while (flag || storages.check()) {
+        while (flag) {
             if (signal) {
                 synchronized (this) {
                     try {
@@ -51,22 +50,24 @@ public class Assembly implements Runnable {
                         throw new RuntimeException(e);
                     }
                 }
+
+                size = storages.carStorage().size();
+                synchronized (model) {
+                    model.setState(State.CHANGE_STAT);
+                    model.notifyUnsafe();
+                }
             }
 
-            size = storages.carStorage().size();
-            synchronized (model) {
-                model.setState(State.CHANGE_STAT);
-                model.notifyUnsafe();
-            }
-
-            synchronized (Thread.currentThread()) {
+            synchronized (model.getFactory()) {
                 try {
-                    Thread.currentThread().wait(time);
+                    model.getFactory().wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
         }
+
+        model.notifyAll();
     }
 
     public synchronized void setSignal(boolean signal) {
@@ -75,10 +76,6 @@ public class Assembly implements Runnable {
 
     public void setFlag(boolean flag) {
         this.flag = flag;
-    }
-
-    public void setTime(int time) {
-        this.time = time;
     }
 
     public int getCount() {
