@@ -2,4 +2,6 @@ package ru.nsu.gunko.model.parts.motor;
 
 import ru.nsu.gunko.model.parts.*;
 
-public record Motor(int id) implements Part { }
+import java.util.UUID;
+
+public record Motor(UUID id) implements Part { }

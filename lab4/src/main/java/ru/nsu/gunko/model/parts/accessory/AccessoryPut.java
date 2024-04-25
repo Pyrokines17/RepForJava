@@ -3,6 +3,7 @@ package ru.nsu.gunko.model.parts.accessory;
 import ru.nsu.gunko.model.Storages;
 import ru.nsu.gunko.model.base.*;
 
+import java.util.UUID;
 import java.util.concurrent.*;
 
 public class AccessoryPut implements Runnable {
@@ -27,7 +28,7 @@ public class AccessoryPut implements Runnable {
             try {
                 synchronized (this) {
                     synchronized (queue) {
-                        queue.put(new Accessory(count));
+                        queue.put(new Accessory(UUID.randomUUID()));
                     }
 
                     ++this.count;

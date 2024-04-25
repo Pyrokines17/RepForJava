@@ -8,6 +8,8 @@ import ru.nsu.gunko.model.parts.body.*;
 import ru.nsu.gunko.model.parts.motor.*;
 import ru.nsu.gunko.model.parts.accessory.*;
 
+import java.util.UUID;
+
 public class Assembly implements Runnable {
     private final Storages storages;
     private final Model model;
@@ -39,7 +41,7 @@ public class Assembly implements Runnable {
                             Motor motor = storages.motorStorage().take();
                             Accessory accessory = storages.accessoryStorage().take();
 
-                            Car car = new Car(body, motor, accessory, count);
+                            Car car = new Car(body, motor, accessory, UUID.randomUUID());
                             storages.carStorage().put(car);
                         }
 

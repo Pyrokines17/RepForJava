@@ -3,6 +3,7 @@ package ru.nsu.gunko.model.parts.body;
 import ru.nsu.gunko.model.Storages;
 import ru.nsu.gunko.model.base.*;
 
+import java.util.UUID;
 import java.util.concurrent.*;
 
 public class BodyPut implements Runnable {
@@ -27,7 +28,7 @@ public class BodyPut implements Runnable {
             try {
                 synchronized (this) {
                     synchronized (queue) {
-                        queue.put(new Body(count));
+                        queue.put(new Body(UUID.randomUUID()));
                     }
 
                     ++this.count;

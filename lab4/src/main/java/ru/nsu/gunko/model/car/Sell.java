@@ -33,8 +33,8 @@ public class Sell implements Runnable {
                         Car car = model.getStorages().carStorage().take();
                         long timeR = System.currentTimeMillis() - this.beginTime;
 
-                        string = timeR + "ms: Dealer " + num + ": Auto " + car.id() +
-                                " (Body: " + car.body().id() + ", Motor: " + car.motor().id() + ", Accessory: " + car.accessory().id() + ") ";
+                        string = timeR + "ms: Dealer " + num + ":\n Auto " + car.id() +
+                                " \n(Body: " + car.body().id() + ",\n Motor: " + car.motor().id() + ",\n Accessory: " + car.accessory().id() + ") ";
 
                         model.getController().signal();
 

@@ -2,4 +2,6 @@ package ru.nsu.gunko.model.parts.body;
 
 import ru.nsu.gunko.model.parts.*;
 
-public record Body(int id) implements Part { }
+import java.util.UUID;
+
+public record Body(UUID id) implements Part { }

@@ -3,6 +3,7 @@ package ru.nsu.gunko.model.parts.motor;
 import ru.nsu.gunko.model.Storages;
 import ru.nsu.gunko.model.base.*;
 
+import java.util.UUID;
 import java.util.concurrent.*;
 
 public class MotorPut implements Runnable {
@@ -27,7 +28,7 @@ public class MotorPut implements Runnable {
             try {
                 synchronized (this) {
                     synchronized (queue) {
-                        queue.put(new Motor(count));
+                        queue.put(new Motor(UUID.randomUUID()));
                     }
 
                     ++this.count;
