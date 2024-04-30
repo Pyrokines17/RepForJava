@@ -26,8 +26,8 @@ public class Suppliers {
 
     public void start(Storages storages) {
         int countSuppliers = map.get(Config.SUPPLIERS.name());
-        serOfSuppliers = Executors.newFixedThreadPool(countSuppliers);
-        //serOfSuppliers = new CustomPool(countSuppliers*3, new LinkedBlockingQueue<>());
+        //serOfSuppliers = Executors.newFixedThreadPool(countSuppliers);
+        serOfSuppliers = new CustomPool(countSuppliers, new LinkedBlockingQueue<>());
 
         AccessoryPut accessoryPut = new AccessoryPut(storages.accessoryStorage(), model);
         MotorPut motorPut = new MotorPut(storages.motorStorage(), model);

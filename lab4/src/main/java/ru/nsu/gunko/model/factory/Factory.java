@@ -19,8 +19,8 @@ public class Factory {
 
     public void start(Map<String, Integer> map) {
         int countOfThreads = map.get(Config.WORKERS.name());
-        service = Executors.newFixedThreadPool(countOfThreads);
-        //service = new CustomPool(countOfThreads, new LinkedBlockingQueue<>());
+        //service = Executors.newFixedThreadPool(countOfThreads);
+        service = new CustomPool(countOfThreads, new LinkedBlockingQueue<>());
 
         for (int i = 0; i < countOfThreads; ++i) {
             list.add(service.submit(assembly));
