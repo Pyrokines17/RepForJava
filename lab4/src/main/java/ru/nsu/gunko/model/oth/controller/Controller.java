@@ -14,7 +14,6 @@ public class Controller {
     private final Request request;
 
     private ExecutorService service;
-    private Future<?> future;
 
     public Controller(Factory factory, Storages storages, Map<String, Integer> map, Model model) {
         this.request = new Request(factory, model);
@@ -25,7 +24,7 @@ public class Controller {
     public void start() {
         //service = Executors.newFixedThreadPool(1);
         service = new CustomPool(1, new LinkedBlockingQueue<>());
-        future = service.submit(request);
+        service.submit(request);
     }
 
     public synchronized void signal() {
@@ -35,19 +34,13 @@ public class Controller {
     }
 
     public void finish() {
-        service.shutdown();
         request.setFlag(false);
+        service.shutdownNow();
 
         try {
-            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
-                service.shutdownNow();
-            }
+            service.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public boolean check() {
-        return future.isDone();
     }
 }

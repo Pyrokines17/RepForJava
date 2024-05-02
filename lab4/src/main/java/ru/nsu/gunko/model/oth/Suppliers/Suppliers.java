@@ -48,28 +48,16 @@ public class Suppliers {
     }
 
     public void finish() {
-        serOfSuppliers.shutdown();
         puts.accessoryPut().setFlag(false);
         puts.motorPut().setFlag(false);
         puts.bodyPut().setFlag(false);
+        serOfSuppliers.shutdownNow();
 
         try {
-            if (!serOfSuppliers.awaitTermination(5, TimeUnit.SECONDS)) {
-                serOfSuppliers.shutdownNow();
-            }
+            serOfSuppliers.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public boolean check() {
-        for (Future<?> future : list) {
-            if (!future.isDone()) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public Puts getPuts() {

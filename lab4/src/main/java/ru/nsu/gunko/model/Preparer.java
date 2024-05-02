@@ -43,9 +43,4 @@ public class Preparer {
         model.getController().finish();
         model.getDealers().finish();
     }
-
-    public boolean checkDone(Model model) {
-        return model.getSuppliers().check() && model.getFactory().check() &&
-                model.getDealers().check() && model.getController().check();
-    }
 }

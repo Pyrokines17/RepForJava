@@ -67,7 +67,9 @@ public class Assembly implements Runnable {
             }
         }
 
-        model.notifyAll();
+        synchronized (model.getSync()) {
+            model.getSync().notifyAll();
+        }
     }
 
     public synchronized void setSignal(boolean signal) {

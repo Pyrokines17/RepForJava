@@ -36,15 +36,6 @@ public class Main {
         }
 
         preparer.end(model);
-
-        while (!preparer.checkDone(model)) {
-            try {
-                model.wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
         window.setVisible(false);
         window.dispose();
     }

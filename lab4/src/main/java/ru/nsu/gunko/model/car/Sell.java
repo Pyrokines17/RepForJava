@@ -57,7 +57,9 @@ public class Sell implements Runnable {
             }
         }
 
-        model.notifyAll();
+        synchronized (model.getSync()) {
+            model.getSync().notifyAll();
+        }
     }
 
     public String getString() {

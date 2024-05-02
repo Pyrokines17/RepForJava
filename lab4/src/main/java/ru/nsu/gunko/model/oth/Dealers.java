@@ -35,26 +35,14 @@ public class Dealers {
     }
 
     public void finish() {
-        service.shutdown();
         sell.setFlag(false);
+        service.shutdownNow();
 
         try {
-            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
-                service.shutdownNow();
-            }
+            service.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public boolean check() {
-        for (Future<?> future : list) {
-            if (!future.isDone()) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public Sell getSell() {

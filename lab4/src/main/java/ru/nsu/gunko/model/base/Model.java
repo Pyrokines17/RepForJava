@@ -13,6 +13,7 @@ public class Model {
     private State state;
     private Storages storages;
 
+    private final Object sync = new Object();
     private final Map<String, Integer> settings;
     private final Suppliers suppliers;
     private final Factory factory;
@@ -78,5 +79,9 @@ public class Model {
 
     public synchronized Map<String, Integer> getSettings() {
         return settings;
+    }
+
+    public synchronized Object getSync() {
+        return sync;
     }
 }

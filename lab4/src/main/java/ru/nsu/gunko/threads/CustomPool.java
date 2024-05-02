@@ -12,7 +12,7 @@ public class CustomPool implements ExecutorService {
     private final int sizeOfPool;
     private final BlockingQueue<Runnable> tasks;
 
-    private final static int THR_TIME = 1000;
+    private final static int THR_TIME = 100;
     private volatile boolean isShutdown = false;
 
     public CustomPool(int size, BlockingQueue<Runnable> queue) {
@@ -61,19 +61,24 @@ public class CustomPool implements ExecutorService {
 
         List<Future<T>> futures = prepare(collection);
 
+        lock.lock();
         try {
-            for (Future<T> future : futures) {
-                if (!future.isDone()) {
-                    try {
-                        future.get();
-                    } catch (ExecutionException | CancellationException ignored) {
+            try {
+                for (Future<T> future : futures) {
+                    if (!future.isDone()) {
+                        try {
+                            future.get();
+                        } catch (ExecutionException | CancellationException ignored) {
+                        }
                     }
+                }
+            } finally {
+                for (Future<T> future : futures) {
+                    future.cancel(true);
                 }
             }
         } finally {
-            for (Future<T> future : futures) {
-                future.cancel(true);
-            }
+            lock.unlock();
         }
 
         return futures;
@@ -89,25 +94,30 @@ public class CustomPool implements ExecutorService {
 
         List<Future<T>> futures = prepare(collection);
 
+        lock.lock();
         try {
-            for (Future<T> future : futures) {
-                try {
-                    long timeLeft = endTime - System.currentTimeMillis();
+            try {
+                for (Future<T> future : futures) {
+                    try {
+                        long timeLeft = endTime - System.currentTimeMillis();
 
-                    if (!future.isDone()) {
-                        try {
-                            future.get(timeLeft, TimeUnit.MILLISECONDS);
-                        } catch (TimeoutException e) {
-                            break;
+                        if (!future.isDone()) {
+                            try {
+                                future.get(timeLeft, TimeUnit.MILLISECONDS);
+                            } catch (TimeoutException e) {
+                                break;
+                            }
                         }
+                    } catch (ExecutionException | CancellationException ignored) {
                     }
-                } catch (ExecutionException | CancellationException ignored) {
+                }
+            } finally {
+                for (Future<T> future : futures) {
+                    future.cancel(true);
                 }
             }
         } finally {
-            for (Future<T> future : futures) {
-                future.cancel(true);
-            }
+            lock.unlock();
         }
 
         return futures;
@@ -123,16 +133,21 @@ public class CustomPool implements ExecutorService {
 
         List<Future<T>> futures = prepare(collection);
 
+        lock.lock();
         try {
-            for (Future<T> future : futures) {
-                if (future.isDone()) {
-                    return future.get();
+            try {
+                for (Future<T> future : futures) {
+                    if (future.isDone()) {
+                        return future.get();
+                    }
+                }
+            } finally {
+                for (Future<T> future : futures) {
+                    future.cancel(true);
                 }
             }
         } finally {
-            for (Future<T> future : futures) {
-                future.cancel(true);
-            }
+            lock.unlock();
         }
 
         throw new RuntimeException();
@@ -148,18 +163,23 @@ public class CustomPool implements ExecutorService {
 
         List<Future<T>> futures = prepare(collection);
 
+        lock.lock();
         try {
-            for (Future<T> future : futures) {
-                long timeLeft = endTime - System.currentTimeMillis();
+            try {
+                for (Future<T> future : futures) {
+                    long timeLeft = endTime - System.currentTimeMillis();
 
-                if (timeLeft > 0) {
-                    return future.get(timeLeft, TimeUnit.MILLISECONDS);
+                    if (timeLeft > 0) {
+                        return future.get(timeLeft, TimeUnit.MILLISECONDS);
+                    }
+                }
+            } finally {
+                for (Future<T> future : futures) {
+                    future.cancel(true);
                 }
             }
         } finally {
-            for (Future<T> future : futures) {
-                future.cancel(true);
-            }
+            lock.unlock();
         }
 
         throw new TimeoutException();
@@ -168,8 +188,13 @@ public class CustomPool implements ExecutorService {
     private <T> List<Future<T>> prepare(Collection<? extends Callable<T>> collection) {
         List<Future<T>> futures = new ArrayList<>();
 
-        for (Callable<T> callable : collection) {
-            futures.add(submit(callable));
+        lock.lock();
+        try {
+            for (Callable<T> callable : collection) {
+                futures.add(submit(callable));
+            }
+        } finally {
+            lock.unlock();
         }
 
         return futures;
@@ -184,8 +209,13 @@ public class CustomPool implements ExecutorService {
     public List<Runnable> shutdownNow() {
         isShutdown = true;
 
-        for (ThreadWorker worker : workers) {
-            worker.interrupt();
+        lock.lock();
+        try {
+            for (ThreadWorker worker : workers) {
+                worker.interrupt();
+            }
+        } finally {
+            lock.unlock();
         }
 
         return new ArrayList<>(tasks);
@@ -198,17 +228,7 @@ public class CustomPool implements ExecutorService {
 
     @Override
     public boolean isTerminated() {
-        if (!isShutdown) {
-            return false;
-        }
-
-        for (ThreadWorker worker : workers) {
-            if (worker.isAlive()) {
-                return false;
-            }
-        }
-
-        return true;
+        return isShutdown && workers.isEmpty();
     }
 
     @Override
@@ -291,10 +311,15 @@ public class CustomPool implements ExecutorService {
             throw new RejectedExecutionException();
         }
 
-        if (!tasks.isEmpty() && workers.size() < sizeOfPool) {
-            ThreadWorker worker = new ThreadWorker();
-            worker.start();
-            workers.add(worker);
+        lock.lock();
+        try {
+            if (!tasks.isEmpty() && workers.size() < sizeOfPool) {
+                ThreadWorker worker = new ThreadWorker();
+                worker.start();
+                workers.add(worker);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 }

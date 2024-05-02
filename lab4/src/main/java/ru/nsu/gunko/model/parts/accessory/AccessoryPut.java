@@ -45,7 +45,9 @@ public class AccessoryPut implements Runnable {
             }
         }
 
-        model.notifyAll();
+        synchronized (model.getSync()) {
+            model.getSync().notifyAll();
+        }
     }
 
     public void setTime(double time) {
