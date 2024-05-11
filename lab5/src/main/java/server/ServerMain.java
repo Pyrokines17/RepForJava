@@ -1,9 +1,10 @@
 package server;
 
 import java.io.*;
-import java.nio.ByteBuffer;
+import java.nio.*;
 import java.sql.*;
 import java.util.*;
+import java.nio.charset.*;
 import java.nio.channels.*;
 import java.util.logging.*;
 
@@ -45,7 +46,7 @@ public class ServerMain {
             throw new RuntimeException(e);
         }
 
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        ByteBuffer bufForMes;
 
         while (true) {
             selector.select();
@@ -58,7 +59,11 @@ public class ServerMain {
                 if (key.isAcceptable()) {
                     serverPreparer.acceptConnection(key, selector);
                 } else if (key.isReadable()) {
-                    serverPreparer.readFromClient(key, buffer);
+                    bufForMes = serverPreparer.readFromClient(key);
+
+                    if (bufForMes != null) {
+                        System.out.println(Charset.defaultCharset().decode(bufForMes));
+                    }
                 }
 
                 keyIterator.remove();

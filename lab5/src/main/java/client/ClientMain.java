@@ -1,5 +1,6 @@
 package client;
 
+import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.nio.*;
 import java.net.*;
@@ -7,15 +8,20 @@ import java.nio.channels.*;
 
 public class ClientMain {
     public static void main(String[] args) throws IOException {
+        XMLCreate xmlCreate = new XMLCreate();
+        ClientPreparer preparer = new ClientPreparer();
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.connect(new InetSocketAddress("localhost", 8008));
 
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
-        String message = "Hello from client";
+        String message;
 
-        buffer.clear();
-        buffer.put(message.getBytes());
-        buffer.flip();
+        try {
+            message = xmlCreate.getLogin("pyro", "wasd");
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        ByteBuffer buffer = preparer.getFinalBuf(message);
 
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);

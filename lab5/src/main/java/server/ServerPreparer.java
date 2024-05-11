@@ -72,21 +72,29 @@ public class ServerPreparer {
         socketChannel.register(selector, SelectionKey.OP_READ);
     }
 
-    public void readFromClient(SelectionKey key, ByteBuffer buffer)
+    public ByteBuffer readFromClient(SelectionKey key)
             throws IOException {
 
-        buffer.clear();
+        byte[] bytes = new byte[4];
         SocketChannel socketChannel = (SocketChannel)key.channel();
-        int bytesRead = socketChannel.read(buffer);
+        int bytesRead = socketChannel.read(ByteBuffer.wrap(bytes));
 
         if (bytesRead == -1) {
             socketChannel.close();
             key.cancel();
-            return;
+            return null;
         }
 
-        buffer.flip();
-        String message = new String(buffer.array(), 0, bytesRead);
-        System.out.println(message);
+        ByteBuffer bufForMes = ByteBuffer.allocate(ByteBuffer.wrap(bytes).getInt());
+        int bytesReadForMes = socketChannel.read(bufForMes);
+
+        if (bytesReadForMes == -1) {
+            socketChannel.close();
+            key.cancel();
+            return null;
+        }
+
+        bufForMes.flip();
+        return bufForMes;
     }
 }
