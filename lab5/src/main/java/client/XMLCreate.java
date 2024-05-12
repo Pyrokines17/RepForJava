@@ -2,7 +2,7 @@ package client;
 
 import xml.*;
 import java.io.*;
-import javax.xml.bind.*;
+import jakarta.xml.bind.*;
 
 public class XMLCreate {
 
@@ -12,12 +12,14 @@ public class XMLCreate {
         login.setUsername(username);
         login.setPassword(password);
 
+        StringWriter writer = new StringWriter();
+
         JAXBContext context = JAXBContext.newInstance(Login.class);
         Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        marshaller.marshal(login, new File("./login.xml"));
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(login, writer);
 
-        return "finish";
+        return writer.toString();
     }
 
 }

@@ -1,9 +1,9 @@
 package client;
 
-import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.nio.*;
 import java.net.*;
+import jakarta.xml.bind.*;
 import java.nio.channels.*;
 
 public class ClientMain {
