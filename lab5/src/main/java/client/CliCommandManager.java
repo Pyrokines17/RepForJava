@@ -1,10 +1,10 @@
 package client;
 
 import xml.*;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
+import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.nio.charset.StandardCharsets;
 
 public class CliCommandManager {
     private final XMLCreate xmlCreate;
@@ -12,6 +12,7 @@ public class CliCommandManager {
     private final SocketChannel socketChannel;
 
     private ByteBuffer buffer;
+    private ByteBuffer answer;
     private String message;
 
     public CliCommandManager(SocketChannel socketChannel) {
@@ -27,6 +28,9 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
+
+        answer = preparer.getAnswer(socketChannel);
+        System.out.println(StandardCharsets.UTF_8.decode(answer));
     }
 
     public void list() throws IOException {
@@ -36,6 +40,8 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
+
+        answer = preparer.getAnswer(socketChannel);
     }
 
     public void logout() throws IOException {
@@ -45,6 +51,8 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
+
+        answer = preparer.getAnswer(socketChannel);
     }
 
     public void clientMes(String message) throws IOException {
@@ -54,5 +62,7 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
+
+        answer = preparer.getAnswer(socketChannel);
     }
 }

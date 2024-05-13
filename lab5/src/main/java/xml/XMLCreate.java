@@ -130,7 +130,7 @@ public class XMLCreate {
     }
 
     public String getError() {
-        Error error = new Error();
+        Error error = new Error("sth mes");
 
         try {
             JAXBContext context = JAXBContext.newInstance(Error.class);

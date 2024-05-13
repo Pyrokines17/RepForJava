@@ -64,7 +64,11 @@ public class ServerMain {
                     bufForMes = serverPreparer.readFromClient(key);
 
                     if (bufForMes != null) {
-                        serCommandManager.parse(bufForMes);
+                        if (serCommandManager.parse(bufForMes)) {
+                            serCommandManager.sendSuccess(key);
+                        } else {
+                            serCommandManager.sendError(key);
+                        }
                     }
                 }
 

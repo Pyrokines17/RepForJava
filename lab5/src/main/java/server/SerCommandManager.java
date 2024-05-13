@@ -1,17 +1,20 @@
 package server;
 
+import xml.*;
 import java.io.*;
 import java.nio.*;
-import java.nio.charset.Charset;
 import java.sql.*;
 import java.util.*;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import xml.commands.*;
 import jakarta.xml.bind.*;
+import java.nio.charset.*;
+import java.nio.channels.*;
+import org.springframework.security.crypto.bcrypt.*;
+
 
 public class SerCommandManager {
     private final Connection connectionWithPostgres;
+    private final XMLCreate xmlCreate;
 
     private final static String GET_COUNT_SQL = "SELECT COUNT(*) FROM accounts;";
     private final static String INSERT_USERS_SQL = "INSERT INTO accounts" +
@@ -20,30 +23,24 @@ public class SerCommandManager {
 
     public SerCommandManager(Connection connectionWithPostgres) {
         this.connectionWithPostgres = connectionWithPostgres;
+        this.xmlCreate = new XMLCreate();
     }
 
-    public void parse(ByteBuffer bufForMes) {
+    public boolean parse(ByteBuffer bufForMes) {
         String xmlString = new String(bufForMes.array(), Charset.defaultCharset());
         String[] parts = xmlString.split("\n");
         String name = parts[1].split("\"")[1];
 
-        switch (name) {
-            case "login":
-                login(bufForMes);
-                break;
-            case "list":
-                list();
-                break;
-            case "message":
-                message(bufForMes);
-                break;
-            case "logout":
-                logout();
-                break;
-        }
+        return switch (name) {
+            case "login" -> login(bufForMes);
+            case "list" -> list();
+            case "message" -> message(bufForMes);
+            case "logout" -> logout();
+            default -> false;
+        };
     }
 
-    private void login(ByteBuffer bufForMes) {
+    private boolean login(ByteBuffer bufForMes) {
         try {
             JAXBContext context = JAXBContext.newInstance(Login.class);
             Login login = (Login) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(bufForMes.array()));
@@ -58,21 +55,23 @@ public class SerCommandManager {
 
             System.out.println(preparedStatement);
             preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException | JAXBException e) {
             e.getLocalizedMessage();
+            return false;
         }
     }
 
-    private void list() {
-
+    private boolean list() {
+        return true;
     }
 
-    private void message(ByteBuffer bufForMes) {
-
+    private boolean message(ByteBuffer bufForMes) {
+        return true;
     }
 
-    private void logout() {
-
+    private boolean logout() {
+        return true;
     }
 
     private int getCount() throws SQLException {
@@ -90,5 +89,33 @@ public class SerCommandManager {
     private String generateHash(String password) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.encode(password);
+    }
+
+    public void sendSuccess(SelectionKey key) throws IOException {
+        SocketChannel socketChannel = (SocketChannel)key.channel();
+        String xmlString = xmlCreate.getSuccess();
+        writeAnswer(xmlString, socketChannel);
+    }
+
+    public void sendError(SelectionKey key) throws IOException {
+        SocketChannel socketChannel = (SocketChannel)key.channel();
+        String xmlString = xmlCreate.getError();
+        writeAnswer(xmlString, socketChannel);
+    }
+
+    private void writeAnswer(String xmlString, SocketChannel socketChannel)
+            throws IOException {
+
+        int len = 4 + xmlString.getBytes().length;
+        ByteBuffer buffer = ByteBuffer.allocate(len);
+
+        buffer.clear();
+        buffer.putInt(xmlString.length());
+        buffer.put(xmlString.getBytes());
+        buffer.flip();
+
+        while (buffer.hasRemaining()) {
+            socketChannel.write(buffer);
+        }
     }
 }
