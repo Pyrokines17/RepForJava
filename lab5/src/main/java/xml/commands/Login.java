@@ -1,4 +1,4 @@
-package xml;
+package xml.commands;
 
 import jakarta.xml.bind.annotation.*;
 
@@ -9,10 +9,11 @@ public class Login {
     private String username;
     private String password;
 
-    public Login() {}
+    public Login() {
+        this.name = "login";
+    }
 
     public Login(String username, String password) {
-        super();
         this.name = "login";
         this.username = username;
         this.password = password;

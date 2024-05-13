@@ -1,9 +1,5 @@
 package server;
 
-import jakarta.xml.bind.JAXBContext;
-
-import jakarta.xml.bind.JAXBException;
-import xml.*;
 import java.io.*;
 import java.nio.*;
 import java.sql.*;
@@ -13,7 +9,7 @@ import java.util.logging.*;
 
 public class ServerMain {
 
-    public static void main (String[] args) throws IOException, JAXBException, SQLException {
+    public static void main (String[] args) throws IOException {
         PostgresHandler postgresHandler = new PostgresHandler();
         ServerSettings serverSettings = new ServerSettings();
         ServerPreparer serverPreparer = new ServerPreparer();
@@ -49,11 +45,10 @@ public class ServerMain {
             throw new RuntimeException(e);
         }
 
-        String INSERT_USERS_SQL = "INSERT INTO accounts" +
-                "  (user_id, username, password, email, created_at, last_login) VALUES " +
-                " (?, ?, ?, ?, ?, ?);";
-
+        SerCommandManager serCommandManager = new SerCommandManager(connectionWithPostgres);
         ByteBuffer bufForMes;
+
+        //noinspection InfiniteLoopStatement
 
         while (true) {
             selector.select();
@@ -69,19 +64,7 @@ public class ServerMain {
                     bufForMes = serverPreparer.readFromClient(key);
 
                     if (bufForMes != null) {
-                        JAXBContext context = JAXBContext.newInstance(Login.class);
-                        Login login = (Login)context.createUnmarshaller().unmarshal(new ByteArrayInputStream(bufForMes.array()));
-                        PreparedStatement preparedStatement = connectionWithPostgres.prepareStatement(INSERT_USERS_SQL);
-
-                        preparedStatement.setInt(1, 1);
-                        preparedStatement.setString(2, login.getUsername());
-                        preparedStatement.setString(3, login.getPassword());
-                        preparedStatement.setString(4, "teste1@teste.com");
-                        preparedStatement.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
-                        preparedStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
-
-                        System.out.println(preparedStatement);
-                        preparedStatement.executeUpdate();
+                        serCommandManager.parse(bufForMes);
                     }
                 }
 
