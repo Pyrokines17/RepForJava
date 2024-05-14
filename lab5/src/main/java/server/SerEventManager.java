@@ -63,6 +63,28 @@ public class SerEventManager {
         }
     }
 
+    public void broadCast(String message, ConcurrentHashMap<SelectionKey, Login> activeUsers) {
+        int len = 4 + message.getBytes().length;
+        ByteBuffer buffer = ByteBuffer.allocate(len);
+
+        buffer.clear();
+        buffer.putInt(message.length());
+        buffer.put(message.getBytes());
+        buffer.flip();
+
+        for (SelectionKey key : activeUsers.keySet()) {
+            try {
+                SocketChannel socketChannel = (SocketChannel)key.channel();
+                while (buffer.hasRemaining()) {
+                    socketChannel.write(buffer);
+                }
+                buffer.rewind();
+            } catch (IOException e) {
+                e.getLocalizedMessage();
+            }
+        }
+    }
+
     public void setError(String error) {
         this.error = error;
     }

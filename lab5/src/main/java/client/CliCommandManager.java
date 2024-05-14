@@ -11,7 +11,6 @@ public class CliCommandManager {
     private final SocketChannel socketChannel;
 
     private ByteBuffer buffer;
-    private String answer;
     private String message;
 
     public CliCommandManager(SocketChannel socketChannel) {
@@ -27,9 +26,6 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
-
-        answer = preparer.getAnswer(socketChannel);
-        System.out.println(answer);
     }
 
     public void list() throws IOException {
@@ -39,9 +35,6 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
-
-        answer = preparer.getAnswer(socketChannel);
-        System.out.println(answer);
     }
 
     public void logout() throws IOException {
@@ -51,9 +44,6 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
-
-        answer = preparer.getAnswer(socketChannel);
-        System.out.println(answer);
     }
 
     public void clientMes(String message) throws IOException {
@@ -63,8 +53,5 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
-
-        answer = preparer.getAnswer(socketChannel);
-        System.out.println(answer);
     }
 }

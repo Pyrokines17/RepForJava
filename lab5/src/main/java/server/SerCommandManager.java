@@ -5,6 +5,7 @@ import java.nio.*;
 import java.sql.*;
 
 import server.sql.*;
+import xml.XMLCreate;
 import xml.commands.*;
 import jakarta.xml.bind.*;
 
@@ -16,6 +17,7 @@ import static server.sql.SQLConst.*;
 
 public class SerCommandManager {
     private final SQLWorker sqlWorker;
+    private final XMLCreate xmlCreate;
     private final SerEventManager serEventManager;
     private final Connection connectionWithPostgres;
 
@@ -25,6 +27,7 @@ public class SerCommandManager {
     public SerCommandManager(Connection connectionWithPostgres) {
         this.connectionWithPostgres = connectionWithPostgres;
         this.serEventManager = new SerEventManager();
+        this.xmlCreate = new XMLCreate();
         this.sqlWorker = new SQLWorker();
     }
 
@@ -59,7 +62,7 @@ public class SerCommandManager {
                 }
                 break;
             case "message":
-                if (key.attachment() != null && message(bufForMes)) {
+                if (key.attachment() != null && message(bufForMes, key)) {
                     serEventManager.sendSuccess(key);
                 } else {
                     if (key.attachment() == null) {
@@ -110,6 +113,7 @@ public class SerCommandManager {
 
             key.attach(login);
             activeUsers.put(key, login);
+            serEventManager.broadCast(xmlCreate.getUserlogin(login.getUsername()), activeUsers);
             Logger.getGlobal().info("User " + login.getUsername() + " logged in");
 
             return true;
@@ -124,11 +128,12 @@ public class SerCommandManager {
         return true;
     }
 
-    private boolean message(ByteBuffer bufForMes) {
+    private boolean message(ByteBuffer bufForMes, SelectionKey key) {
         try {
+            Login login = activeUsers.get(key);
             JAXBContext context = JAXBContext.newInstance(ClientMes.class);
             ClientMes clientMes = (ClientMes)context.createUnmarshaller().unmarshal(new ByteArrayInputStream(bufForMes.array()));
-            System.out.println(clientMes.getMessage());
+            serEventManager.broadCast(xmlCreate.getServerMes(login.getUsername(), clientMes.getMessage()), activeUsers);
 
             return true;
         } catch (JAXBException e) {
@@ -152,6 +157,7 @@ public class SerCommandManager {
         }
 
         key.attach(null);
+        serEventManager.broadCast(xmlCreate.getUserlogout(login.getUsername()), activeUsers);
         Logger.getGlobal().info("User " + activeUsers.get(key).getUsername() + " logged out");
 
         activeUsers.remove(key);

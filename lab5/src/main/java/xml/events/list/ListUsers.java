@@ -1,10 +1,8 @@
 package xml.events.list;
 
-import jakarta.xml.bind.annotation.*;
-import xml.commands.Login;
-
 import java.util.*;
-
+import xml.commands.Login;
+import jakarta.xml.bind.annotation.*;
 
 @XmlRootElement(name = "users")
 public class ListUsers {

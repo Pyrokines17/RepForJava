@@ -2,12 +2,11 @@ package server.sql;
 
 import java.sql.*;
 import java.util.*;
-import java.util.logging.*;
-
 import xml.commands.*;
+
+import java.util.logging.*;
 import static server.sql.SQLConst.*;
 import org.springframework.security.crypto.bcrypt.*;
-
 
 public class SQLWorker {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

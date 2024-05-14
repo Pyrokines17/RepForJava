@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 public class ServerMain {
     private static final int TIMEOUT_TIME = 60000;
 
-    public static void main (String[] args) throws IOException {
+    public static void main (String[] args) throws IOException { //ToDo: add norm exception handling and save some messages
         PostgresHandler postgresHandler = new PostgresHandler();
         ServerSettings serverSettings = new ServerSettings();
         ServerPreparer serverPreparer = new ServerPreparer();
