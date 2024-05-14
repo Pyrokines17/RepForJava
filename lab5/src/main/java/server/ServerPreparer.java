@@ -1,10 +1,10 @@
 package server;
 
-import server.sql.PostgresHandler;
-
 import java.io.*;
 import java.net.*;
 import java.nio.*;
+
+import server.sql.*;
 import java.nio.channels.*;
 
 public class ServerPreparer {

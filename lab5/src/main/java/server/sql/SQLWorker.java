@@ -5,14 +5,16 @@ import java.util.*;
 import java.util.logging.*;
 
 import xml.commands.*;
+import static server.sql.SQLConst.*;
 import org.springframework.security.crypto.bcrypt.*;
 
+
 public class SQLWorker {
-    private final static String GET_COUNT_SQL = "SELECT COUNT(*) FROM accounts;";
-    private final static String GET_PASSWORD_SQL = "SELECT password FROM accounts WHERE username = ?;";
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public boolean checkUser(PreparedStatement checkUser, Login login) throws SQLException {
+    public boolean checkUser(PreparedStatement checkUser, Login login)
+            throws SQLException {
+
         checkUser.setString(1, login.getUsername());
         ResultSet resultSet = checkUser.executeQuery();
         resultSet.next();
@@ -21,11 +23,14 @@ public class SQLWorker {
         return count > 0;
     }
 
-    public String getPassword(Connection connectionWithSQL, Login login) throws SQLException {
-        PreparedStatement getPassword = connectionWithSQL.prepareStatement(GET_PASSWORD_SQL);
+    public String getPassword(Connection connectionWithSQL, Login login)
+            throws SQLException {
+
+        PreparedStatement getPassword = connectionWithSQL.prepareStatement(getGetPasswordSql());
         getPassword.setString(1, login.getUsername());
         ResultSet resultSet = getPassword.executeQuery();
         resultSet.next();
+
         return resultSet.getString(1);
     }
 
@@ -42,15 +47,29 @@ public class SQLWorker {
         preparedStatement.executeUpdate();
     }
 
-    private int getCount(Connection connectionWithPostgres) throws SQLException {
-        PreparedStatement preparedStatement = connectionWithPostgres.prepareStatement(GET_COUNT_SQL);
+    public void updateLastLogin(PreparedStatement preparedStatement, Login login)
+            throws SQLException {
+
+        preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+        preparedStatement.setString(2, login.getUsername());
+        preparedStatement.executeUpdate();
+    }
+
+    private int getCount(Connection connectionWithPostgres)
+            throws SQLException {
+
+        PreparedStatement preparedStatement = connectionWithPostgres.prepareStatement(getGetCountSql());
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.next();
+
         return resultSet.getInt(1);
     }
 
     private String generateEmail() {
-        String uniqueID = String.format("%s_%s", UUID.randomUUID().toString().substring(0, 5), System.currentTimeMillis() % 1000);
+        String uniqueID = String.format("%s_%s",
+                UUID.randomUUID().toString().substring(0, 5),
+                System.currentTimeMillis() % 1000);
+
         return String.format("%s@%s", uniqueID, "gmail.com");
     }
 

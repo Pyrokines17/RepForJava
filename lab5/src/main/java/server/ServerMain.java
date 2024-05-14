@@ -1,15 +1,17 @@
 package server;
 
-import server.sql.PostgresHandler;
-
 import java.io.*;
 import java.nio.*;
 import java.sql.*;
 import java.util.*;
+import server.sql.*;
+
 import java.nio.channels.*;
 import java.util.logging.*;
+import java.util.concurrent.*;
 
 public class ServerMain {
+    private static final int TIMEOUT_TIME = 60000;
 
     public static void main (String[] args) throws IOException {
         PostgresHandler postgresHandler = new PostgresHandler();
@@ -48,7 +50,10 @@ public class ServerMain {
         }
 
         SerCommandManager serCommandManager = new SerCommandManager(connectionWithPostgres);
+        ConcurrentHashMap<SelectionKey, Long> lastHeartbeat = serCommandManager.getLastHeartbeat();
+
         ByteBuffer bufForMes;
+        long currentTime;
 
         //noinspection InfiniteLoopStatement
 
@@ -60,17 +65,30 @@ public class ServerMain {
             while (keyIterator.hasNext()) {
                 SelectionKey key = keyIterator.next();
 
-                if (key.isAcceptable()) {
-                    serverPreparer.acceptConnection(key, selector);
-                } else if (key.isReadable()) {
-                    bufForMes = serverPreparer.readFromClient(key);
+                try {
+                    if (key.isAcceptable()) {
+                        serverPreparer.acceptConnection(key, selector);
+                    } else if (key.isReadable()) {
+                        bufForMes = serverPreparer.readFromClient(key);
 
-                    if (bufForMes != null) {
-                        serCommandManager.parse(bufForMes, key);
+                        if (bufForMes != null) {
+                            lastHeartbeat.put(key, System.currentTimeMillis());
+                            serCommandManager.parse(bufForMes, key);
+                        }
                     }
+                } catch (IOException e) {
+                    serCommandManager.logout(key);
                 }
 
                 keyIterator.remove();
+            }
+
+            currentTime = System.currentTimeMillis();
+
+            for (SelectionKey key : lastHeartbeat.keySet()) {
+                if (currentTime - lastHeartbeat.get(key) > TIMEOUT_TIME) {
+                    serCommandManager.logout(key);
+                }
             }
         }
     }
