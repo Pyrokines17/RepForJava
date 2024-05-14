@@ -40,9 +40,17 @@ public class ClientMain {
                     commandManager.logout();
                     break;
                 case "clientMes":
+                    if (parts.length != 2) {
+                        throw new IllegalArgumentException("Usage: clientMes-<message>");
+                    }
+
                     commandManager.clientMes(parts[1]);
                     break;
                 case "login":
+                    if (parts.length != 3) {
+                        throw new IllegalArgumentException("Usage: login-<username>-<password>");
+                    }
+
                     commandManager.login(parts[1], parts[2]);
                     break;
                 default:

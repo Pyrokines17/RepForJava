@@ -7,7 +7,9 @@ import jakarta.xml.bind.annotation.*;
 public class Error {
     private String message;
 
-    public Error() {}
+    public Error() {
+        this.message = null;
+    }
 
     public Error(String message) {
         this.message = message;

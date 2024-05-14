@@ -1,5 +1,7 @@
 package server;
 
+import server.sql.PostgresHandler;
+
 import java.io.*;
 import java.nio.*;
 import java.sql.*;
@@ -64,11 +66,7 @@ public class ServerMain {
                     bufForMes = serverPreparer.readFromClient(key);
 
                     if (bufForMes != null) {
-                        if (serCommandManager.parse(bufForMes)) {
-                            serCommandManager.sendSuccess(key);
-                        } else {
-                            serCommandManager.sendError(key);
-                        }
+                        serCommandManager.parse(bufForMes, key);
                     }
                 }
 

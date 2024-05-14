@@ -1,15 +1,17 @@
 package xml;
 
 import java.io.*;
-import jakarta.xml.bind.*;
-import xml.events.Error;
 import xml.events.*;
 import xml.commands.*;
+import xml.events.Error;
+import xml.events.list.*;
+import jakarta.xml.bind.*;
 
 public class XMLCreate {
     StringWriter writer = new StringWriter();
 
     public String getLogin(String username, String password) {
+        writer.getBuffer().setLength(0);
         Login login = new Login(username, password);
 
         try {
@@ -25,6 +27,7 @@ public class XMLCreate {
     }
 
     public String getList() {
+        writer.getBuffer().setLength(0);
         List list = new List();
 
         try {
@@ -40,6 +43,7 @@ public class XMLCreate {
     }
 
     public String getClientMes(String message) {
+        writer.getBuffer().setLength(0);
         ClientMes clientMessage = new ClientMes(message);
 
         try {
@@ -55,6 +59,7 @@ public class XMLCreate {
     }
 
     public String getLogout() {
+        writer.getBuffer().setLength(0);
         Logout logout = new Logout();
 
         try {
@@ -70,6 +75,7 @@ public class XMLCreate {
     }
 
     public String getUserlogout(String username) {
+        writer.getBuffer().setLength(0);
         Userlogout userlogout = new Userlogout(username);
 
         try {
@@ -85,6 +91,7 @@ public class XMLCreate {
     }
 
     public String getUserlogin(String username) {
+        writer.getBuffer().setLength(0);
         Userlogin userlogin = new Userlogin(username);
 
         try {
@@ -100,6 +107,7 @@ public class XMLCreate {
     }
 
     public String getServerMes(String username, String message) {
+        writer.getBuffer().setLength(0);
         ServerMes serverMessage = new ServerMes(username, message);
 
         try {
@@ -115,6 +123,7 @@ public class XMLCreate {
     }
 
     public String getSuccess() {
+        writer.getBuffer().setLength(0);
         Success success = new Success();
 
         try {
@@ -129,14 +138,31 @@ public class XMLCreate {
         return writer.toString();
     }
 
-    public String getError() {
-        Error error = new Error("sth mes");
+    public String getError(String errorMes) {
+        writer.getBuffer().setLength(0);
+        Error error = new Error(errorMes);
 
         try {
             JAXBContext context = JAXBContext.newInstance(Error.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(error, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getListSuccess(ListUsers listUsers) {
+        writer.getBuffer().setLength(0);
+        ListSuccess listSuccess = new ListSuccess(listUsers);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(ListSuccess.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(listSuccess, writer);
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }

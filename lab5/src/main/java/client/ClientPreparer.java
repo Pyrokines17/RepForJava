@@ -3,6 +3,7 @@ package client;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
+import java.nio.charset.StandardCharsets;
 
 public class ClientPreparer {
 
@@ -18,7 +19,7 @@ public class ClientPreparer {
         return buffer;
     }
 
-    public ByteBuffer getAnswer(SocketChannel socketChannel) throws IOException {
+    public String getAnswer(SocketChannel socketChannel) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(4);
         socketChannel.read(byteBuffer);
         byteBuffer.flip();
@@ -26,7 +27,12 @@ public class ClientPreparer {
         ByteBuffer answer = ByteBuffer.allocate(byteBuffer.getInt());
         socketChannel.read(answer);
         answer.flip();
-        return answer;
+
+        byteBuffer.clear();
+        String answerString = new String(answer.array(), StandardCharsets.UTF_8);
+        answer.clear();
+
+        return answerString;
     }
 
 }
