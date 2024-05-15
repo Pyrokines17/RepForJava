@@ -4,6 +4,7 @@ import xml.*;
 import java.io.*;
 import java.nio.*;
 
+import java.util.*;
 import xml.commands.*;
 import xml.events.list.*;
 import java.nio.channels.*;
@@ -25,7 +26,7 @@ public class SerEventManager {
         writeAnswer(xmlString, socketChannel);
     }
 
-    public void sendListSuccess(SelectionKey key, ConcurrentHashMap<SelectionKey, Login> activeUsers)
+    public void sendListSuccess(SelectionKey key, ConcurrentMap<SelectionKey, Login> activeUsers)
             throws IOException {
 
         SocketChannel socketChannel = (SocketChannel)key.channel();
@@ -63,7 +64,7 @@ public class SerEventManager {
         }
     }
 
-    public void broadCast(String message, ConcurrentHashMap<SelectionKey, Login> activeUsers) {
+    public void broadCast(String message, ConcurrentMap<SelectionKey, Login> activeUsers) {
         int len = 4 + message.getBytes().length;
         ByteBuffer buffer = ByteBuffer.allocate(len);
 
@@ -82,6 +83,17 @@ public class SerEventManager {
             } catch (IOException e) {
                 e.getLocalizedMessage();
             }
+        }
+    }
+
+    public void sendMessages(Queue<ConnectionOfMessages> bufferOfStr, SelectionKey key)
+            throws IOException {
+
+        SocketChannel socketChannel = (SocketChannel)key.channel();
+
+        for (ConnectionOfMessages connect : bufferOfStr) {
+            String xmlString = xmlCreate.getServerMes(connect.getSender(), connect.getMessage());
+            writeAnswer(xmlString, socketChannel);
         }
     }
 

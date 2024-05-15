@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.*;
 import java.sql.*;
 
+import java.util.*;
 import server.sql.*;
 import xml.XMLCreate;
 import xml.commands.*;
@@ -13,19 +14,24 @@ import java.nio.charset.*;
 import java.nio.channels.*;
 import java.util.logging.*;
 import java.util.concurrent.*;
+
 import static server.sql.SQLConst.*;
+import org.apache.commons.collections4.queue.*;
 
 public class SerCommandManager {
     private final SQLWorker sqlWorker;
     private final XMLCreate xmlCreate;
     private final SerEventManager serEventManager;
     private final Connection connectionWithPostgres;
+    private final Queue<ConnectionOfMessages> bufferOfStr;
 
-    private final ConcurrentHashMap<SelectionKey, Login> activeUsers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<SelectionKey, Long> lastHeartbeat = new ConcurrentHashMap<>();
+    private final ConcurrentMap<SelectionKey, Login> activeUsers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<SelectionKey, Long> lastHeartbeat = new ConcurrentHashMap<>();
+    private static final int BUFFER_SIZE = 10;
 
     public SerCommandManager(Connection connectionWithPostgres) {
         this.connectionWithPostgres = connectionWithPostgres;
+        this.bufferOfStr = new CircularFifoQueue<>(BUFFER_SIZE);
         this.serEventManager = new SerEventManager();
         this.xmlCreate = new XMLCreate();
         this.sqlWorker = new SQLWorker();
@@ -40,6 +46,7 @@ public class SerCommandManager {
             case "login":
                 if (key.attachment() == null && login(bufForMes, key)) {
                     serEventManager.sendSuccess(key);
+                    serEventManager.sendMessages(bufferOfStr, key);
                 } else {
                     if (key.attachment() != null ) {
                         serEventManager.setError("User already logged in");
@@ -54,8 +61,6 @@ public class SerCommandManager {
                 } else {
                     if (key.attachment() == null) {
                         serEventManager.setError("User not logged in");
-                    } else {
-                        serEventManager.setError("List failed");
                     }
 
                     serEventManager.sendError(key);
@@ -67,8 +72,6 @@ public class SerCommandManager {
                 } else {
                     if (key.attachment() == null) {
                         serEventManager.setError("User not logged in");
-                    } else {
-                        serEventManager.setError("Message failed");
                     }
 
                     serEventManager.sendError(key);
@@ -80,8 +83,6 @@ public class SerCommandManager {
                 } else {
                     if (key.attachment() == null) {
                         serEventManager.setError("User not logged in");
-                    } else {
-                        serEventManager.setError("Logout failed");
                     }
 
                     serEventManager.sendError(key);
@@ -118,7 +119,7 @@ public class SerCommandManager {
 
             return true;
         } catch (SQLException | JAXBException e) {
-            e.getLocalizedMessage();
+            serEventManager.setError(e.getLocalizedMessage());
             return false;
         }
     }
@@ -134,10 +135,11 @@ public class SerCommandManager {
             JAXBContext context = JAXBContext.newInstance(ClientMes.class);
             ClientMes clientMes = (ClientMes)context.createUnmarshaller().unmarshal(new ByteArrayInputStream(bufForMes.array()));
             serEventManager.broadCast(xmlCreate.getServerMes(login.getUsername(), clientMes.getMessage()), activeUsers);
+            bufferOfStr.add(new ConnectionOfMessages(clientMes.getMessage(), login.getUsername()));
 
             return true;
         } catch (JAXBException e) {
-            e.getLocalizedMessage();
+            serEventManager.setError(e.getLocalizedMessage());
             return false;
         }
     }
@@ -146,6 +148,7 @@ public class SerCommandManager {
         Login login = activeUsers.get(key);
 
         if (login == null) {
+            serEventManager.setError("User not logged in");
             return false;
         }
 
@@ -153,7 +156,8 @@ public class SerCommandManager {
             PreparedStatement preparedStatement = connectionWithPostgres.prepareStatement(getUpdateLastLogin());
             sqlWorker.updateLastLogin(preparedStatement, login);
         } catch (SQLException e) {
-            e.getLocalizedMessage();
+            serEventManager.setError(e.getLocalizedMessage());
+            return false;
         }
 
         key.attach(null);
@@ -166,7 +170,7 @@ public class SerCommandManager {
         return true;
     }
 
-    public ConcurrentHashMap<SelectionKey, Long> getLastHeartbeat() {
+    public ConcurrentMap<SelectionKey, Long> getLastHeartbeat() {
         return lastHeartbeat;
     }
 }

@@ -11,9 +11,9 @@ import java.util.logging.*;
 import java.util.concurrent.*;
 
 public class ServerMain {
-    private static final int TIMEOUT_TIME = 60000;
+    private static final int TIMEOUT_TIME = 120000;
 
-    public static void main (String[] args) throws IOException { //ToDo: add norm exception handling and save some messages
+    public static void main (String[] args) throws IOException {
         PostgresHandler postgresHandler = new PostgresHandler();
         ServerSettings serverSettings = new ServerSettings();
         ServerPreparer serverPreparer = new ServerPreparer();
@@ -50,7 +50,7 @@ public class ServerMain {
         }
 
         SerCommandManager serCommandManager = new SerCommandManager(connectionWithPostgres);
-        ConcurrentHashMap<SelectionKey, Long> lastHeartbeat = serCommandManager.getLastHeartbeat();
+        ConcurrentMap<SelectionKey, Long> lastHeartbeat = serCommandManager.getLastHeartbeat();
 
         ByteBuffer bufForMes;
         long currentTime;

@@ -35,29 +35,33 @@ public class ClientMain { //ToDo: do GUI (and maybe norm end of thread)
             line = reader.readLine();
             parts = line.split("-");
 
-            if (parts.length != 0) {
-                switch (parts[0]) {
-                    case "list":
-                        commandManager.list();
-                        break;
-                    case "logout":
-                        commandManager.logout();
-                        break;
-                    case "clientMes":
-                        if (parts.length != 2) {
-                            throw new IllegalArgumentException("Usage: clientMes-<message>");
-                        }
-                        commandManager.clientMes(parts[1]);
-                        break;
-                    case "login":
-                        if (parts.length != 3) {
-                            throw new IllegalArgumentException("Usage: login-<username>-<password>");
-                        }
-                        commandManager.login(parts[1], parts[2]);
-                        break;
-                    default:
-                        break;
+            try {
+                if (parts.length != 0) {
+                    switch (parts[0]) {
+                        case "list":
+                            commandManager.list();
+                            break;
+                        case "logout":
+                            commandManager.logout();
+                            break;
+                        case "clientMes":
+                            if (parts.length != 2) {
+                                throw new IllegalArgumentException("Usage: clientMes-<message>");
+                            }
+                            commandManager.clientMes(parts[1]);
+                            break;
+                        case "login":
+                            if (parts.length != 3) {
+                                throw new IllegalArgumentException("Usage: login-<username>-<password>");
+                            }
+                            commandManager.login(parts[1], parts[2]);
+                            break;
+                        default:
+                            break;
+                    }
                 }
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getLocalizedMessage());
             }
 
         } while (!parts[0].equals("exit"));
