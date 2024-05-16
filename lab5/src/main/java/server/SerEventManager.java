@@ -92,7 +92,7 @@ public class SerEventManager {
         SocketChannel socketChannel = (SocketChannel)key.channel();
 
         for (ConnectionOfMessages connect : bufferOfStr) {
-            String xmlString = xmlCreate.getServerMes(connect.getSender(), connect.getMessage());
+            String xmlString = xmlCreate.getServerMes(connect.sender(), connect.message());
             writeAnswer(xmlString, socketChannel);
         }
     }

@@ -1,17 +1,23 @@
 package client;
 
+import view.Notification;
+import view.Window;
+
+import javax.swing.*;
 import java.io.*;
 import java.nio.*;
 import java.util.*;
-import java.nio.charset.*;
 import java.nio.channels.*;
+import java.util.logging.Logger;
 
 public class Listener extends Thread {
     private final SocketChannel socketChannel;
+    private final Window window;
     private boolean flag;
 
-    public Listener(SocketChannel socketChannel) {
+    public Listener(SocketChannel socketChannel, Window window) {
         this.socketChannel = socketChannel;
+        this.window = window;
         this.flag = true;
     }
 
@@ -39,15 +45,31 @@ public class Listener extends Thread {
                         keyChannel.read(ByteBuffer.wrap(len));
                         buffer = ByteBuffer.allocate(ByteBuffer.wrap(len).getInt());
                         keyChannel.read(buffer); buffer.flip();
-                        System.out.println(Charset.defaultCharset().decode(buffer));
+
+                        String message = EventParser.parse(buffer.array());
+
+                        if (!message.equals("Success")) {
+                            if (window == null) {
+                                System.out.println(message);
+                            } else {
+                                if (message.contains("Message from")) {
+                                    window.updateChat(message);
+                                } else {
+                                    SwingUtilities.invokeLater(() ->
+                                            Notification.show("Notify", message));
+                                }
+                            }
+                        } else {
+                            Logger.getGlobal().info("Success");
+                        }
                     }
 
                     iter.remove();
                 }
             }
         } catch (IOException e) {
-            e.getLocalizedMessage();
-        }
+            System.err.println("Error: " + e.getMessage());
+        } catch (CancelledKeyException ignored) {}
     }
 
     public void stopListener() {

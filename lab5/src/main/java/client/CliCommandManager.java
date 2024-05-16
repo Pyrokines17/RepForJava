@@ -12,8 +12,10 @@ public class CliCommandManager {
 
     private ByteBuffer buffer;
     private String message;
+    private boolean flag;
 
     public CliCommandManager(SocketChannel socketChannel) {
+        this.flag = true;
         xmlCreate = new XMLCreate();
         preparer = new ClientPreparer();
         this.socketChannel = socketChannel;
@@ -53,5 +55,13 @@ public class CliCommandManager {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
+    }
+
+    public void stop() {
+        flag = false;
+    }
+
+    public boolean isFlag() {
+        return flag;
     }
 }

@@ -1,72 +1,119 @@
 package client;
 
+import controller.*;
+import view.Window;
+
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.nio.channels.*;
 
-public class ClientMain { //ToDo: do GUI (and maybe norm end of thread)
-    public static void main(String[] args) throws IOException {
-        SocketChannel socketChannel = SocketChannel.open();
+public class ClientMain {
+    public static void main(String[] args) {
+        SocketChannel socketChannel = null;
+        Listener listener = null;
+        Window window = null;
 
-        String hostname;
-        int port;
+        Controller controller;
+        boolean isWin = false;
 
-        if (args.length != 0 && args[0].equals("def")) {
-            hostname = "localhost";
-            port = 8008;
-        } else if (args.length == 2) {
-            hostname = args[0];
-            port = Integer.parseInt(args[1]);
-        } else {
-            throw new IllegalArgumentException("Usage: java -cp target/class client.ClientMain <hostname> <port>");
-        }
+        try {
+            socketChannel = SocketChannel.open();
+            CliCommandManager commandManager = new CliCommandManager(socketChannel);
 
-        socketChannel.connect(new InetSocketAddress(hostname, port));
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        CliCommandManager commandManager = new CliCommandManager(socketChannel);
+            String hostname;
+            int port;
 
-        Listener listener = new Listener(socketChannel);
-        listener.start();
-
-        String[] parts;
-        String line;
-
-        do {
-            line = reader.readLine();
-            parts = line.split("-");
-
-            try {
-                if (parts.length != 0) {
-                    switch (parts[0]) {
-                        case "list":
-                            commandManager.list();
-                            break;
-                        case "logout":
-                            commandManager.logout();
-                            break;
-                        case "clientMes":
-                            if (parts.length != 2) {
-                                throw new IllegalArgumentException("Usage: clientMes-<message>");
-                            }
-                            commandManager.clientMes(parts[1]);
-                            break;
-                        case "login":
-                            if (parts.length != 3) {
-                                throw new IllegalArgumentException("Usage: login-<username>-<password>");
-                            }
-                            commandManager.login(parts[1], parts[2]);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getLocalizedMessage());
+            if (args.length != 0 && args[0].equals("cli")) {
+                controller = new CliController();
+            } else if (args.length != 0 && args[0].equals("win")) {
+                controller = new WinController();
+                window = new Window(commandManager, controller);
+                isWin = true;
+            } else {
+                throw new IllegalArgumentException("Usage: java -cp target/class client.ClientMain <cli/win>");
             }
 
-        } while (!parts[0].equals("exit"));
+            List<String> settings = controller.getSettings();
 
-        listener.stopListener();
-        socketChannel.close();
+            if (isWin) {
+                hostname = window.getIp();
+                port = window.getPort();
+            } else {
+                hostname = settings.get(0);
+                port = Integer.parseInt(settings.get(1));
+            }
+
+            socketChannel.connect(new InetSocketAddress(hostname, port));
+            listener = new Listener(socketChannel, window);
+
+            listener.start();
+
+            String[] parts;
+            String line;
+
+            if (window == null) {
+                System.out.println("Enter command: list, logout, message-<message>, login-<username>-<password>, exit");
+            }
+
+            do {
+                line = controller.getLine();
+                parts = line.split("-");
+
+                try {
+                    if (parts.length != 0) {
+                        switch (parts[0]) {
+                            case "list":
+                                commandManager.list();
+                                break;
+                            case "logout":
+                                commandManager.logout();
+                                break;
+                            case "message":
+                                if (parts.length != 2) {
+                                    throw new IllegalArgumentException("Usage: message-<message>");
+                                }
+                                commandManager.clientMes(parts[1]);
+                                break;
+                            case "login":
+                                if (parts.length != 3) {
+                                    throw new IllegalArgumentException("Usage: login-<username>-<password>");
+                                }
+                                commandManager.login(parts[1], parts[2]);
+                                break;
+                            case "exit":
+                                commandManager.stop();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                } catch (IllegalArgumentException e) {
+                    System.err.println(e.getLocalizedMessage());
+                }
+
+            } while (commandManager.isFlag());
+
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println(e.getLocalizedMessage());
+        } finally {
+
+            if (listener != null) {
+                listener.stopListener();
+            }
+
+            if (socketChannel != null) {
+                try {
+                    socketChannel.close();
+                } catch (IOException e) {
+                    System.err.println(e.getLocalizedMessage());
+                }
+            }
+
+            if (window != null) {
+                window.dispose();
+            }
+
+        }
     }
 }
