@@ -2,8 +2,8 @@ package client;
 
 import java.io.*;
 import java.nio.*;
+import java.nio.charset.*;
 import java.nio.channels.*;
-import java.nio.charset.StandardCharsets;
 
 public class ClientPreparer {
 

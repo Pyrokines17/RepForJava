@@ -3,16 +3,19 @@ package server;
 import xml.*;
 import java.io.*;
 import java.nio.*;
-
 import java.util.*;
 import xml.commands.*;
+import java.nio.file.*;
 import xml.events.list.*;
+import xml.events.files.*;
 import java.nio.channels.*;
 import java.util.concurrent.*;
+import xml.events.files.Download;
 
 public class SerEventManager {
+    private final static String BASE = "src/main/java/server/files/";
+    private final XMLCreate xmlCreate;
     private String error = null;
-    XMLCreate xmlCreate;
 
     public SerEventManager() {
         xmlCreate = new XMLCreate();
@@ -99,5 +102,35 @@ public class SerEventManager {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public void sendFileSuccess(SelectionKey key, String uuid)
+        throws IOException {
+
+        SocketChannel socketChannel = (SocketChannel)key.channel();
+        FileSuccess fileSuccess = new FileSuccess(uuid);
+
+        String xmlString = xmlCreate.getFileSuccess(fileSuccess);
+        writeAnswer(xmlString, socketChannel);
+    }
+
+    public void sendDownload(SelectionKey key, String uuid, ConcurrentMap<String, String> files)
+            throws IOException {
+
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+        Download download = new Download();
+
+        Path path = Paths.get(BASE+files.get(uuid));
+        byte[] fileContent = Files.readAllBytes(path);
+        String encodedContent = Base64.getEncoder().encodeToString(fileContent);
+
+        download.setId(uuid);
+        download.setName(files.get(uuid));
+        download.setMimeType(Files.probeContentType(path));
+        download.setEncoding("base64");
+        download.setContent(encodedContent);
+
+        String xmlString = xmlCreate.getAnsDownload(download);
+        writeAnswer(xmlString, socketChannel);
     }
 }

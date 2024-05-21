@@ -64,4 +64,22 @@ public class CliCommandManager {
     public boolean isFlag() {
         return flag;
     }
+
+    public void sendFile(String part) throws IOException {
+        message = xmlCreate.getSend(part);
+        buffer = preparer.getFinalBuf(message);
+
+        while (buffer.hasRemaining()) {
+            socketChannel.write(buffer);
+        }
+    }
+
+    public void download(String uuid) throws IOException {
+        message = xmlCreate.getDownload(uuid);
+        buffer = preparer.getFinalBuf(message);
+
+        while (buffer.hasRemaining()) {
+            socketChannel.write(buffer);
+        }
+    }
 }

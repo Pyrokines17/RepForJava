@@ -3,11 +3,12 @@ package server;
 import java.io.*;
 import java.nio.*;
 import java.sql.*;
-
 import java.util.*;
+
 import server.sql.*;
 import xml.XMLCreate;
 import xml.commands.*;
+import java.nio.file.*;
 import jakarta.xml.bind.*;
 
 import java.nio.charset.*;
@@ -15,6 +16,7 @@ import java.nio.channels.*;
 import java.util.logging.*;
 import java.util.concurrent.*;
 
+import xml.commands.files.*;
 import static server.sql.SQLConst.*;
 import org.apache.commons.collections4.queue.*;
 
@@ -27,6 +29,9 @@ public class SerCommandManager {
 
     private final ConcurrentMap<SelectionKey, Login> activeUsers = new ConcurrentHashMap<>();
     private final ConcurrentMap<SelectionKey, Long> lastHeartbeat = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, String> files = new ConcurrentHashMap<>();
+
+    private static final String BASE = "src/main/java/server/files/";
     private static final int BUFFER_SIZE = 10;
 
     public SerCommandManager(Connection connectionWithPostgres) {
@@ -39,8 +44,17 @@ public class SerCommandManager {
 
     public void parse(ByteBuffer bufForMes, SelectionKey key) throws IOException {
         String xmlString = new String(bufForMes.array(), Charset.defaultCharset());
-        String[] parts = xmlString.split("\n");
-        String name = parts[1].split("\"")[1];
+        Scanner scanner = new Scanner(xmlString);
+        scanner.nextLine();
+        String line = scanner.nextLine();
+
+        if (line == null) {
+            serEventManager.setError("Empty message");
+            serEventManager.sendError(key);
+            return;
+        }
+
+        String name = line.split("\"")[1];
 
         switch (name) {
             case "login":
@@ -88,8 +102,72 @@ public class SerCommandManager {
                     serEventManager.sendError(key);
                 }
                 break;
+            case "upload":
+                String uuid;
+                if (key.attachment() != null && (uuid = upload(bufForMes, key)) != null) {
+                    serEventManager.sendFileSuccess(key, uuid);
+                } else {
+                    if (key.attachment() == null) {
+                        serEventManager.setError("User not logged in");
+                    }
+
+                    serEventManager.sendError(key);
+                }
+                break;
+            case "download":
+                String fileUuid;
+                if (key.attachment() != null && (fileUuid = download(bufForMes)) != null) {
+                    serEventManager.sendDownload(key, fileUuid, files);
+                } else {
+                    if (key.attachment() == null) {
+                        serEventManager.setError("User not logged in");
+                    }
+
+                    serEventManager.sendError(key);
+                }
+                break;
             default:
                 break;
+        }
+    }
+
+    private String download(ByteBuffer bufForMes) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(Download.class);
+            Download download = (Download) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(bufForMes.array()));
+
+            return download.getId();
+        } catch (JAXBException e) {
+            serEventManager.setError(e.getLocalizedMessage());
+            return null;
+        }
+    }
+
+    private String upload(ByteBuffer bufForMes, SelectionKey key) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(Upload.class);
+            Upload upload = (Upload) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(bufForMes.array()));
+
+            Path newFile = Paths.get(BASE, upload.getFileName());
+            Files.createFile(newFile);
+            Logger.getGlobal().info("File " + upload.getFileName() + " created");
+
+            byte[] decodedContent = Base64.getDecoder().decode(upload.getContent());
+            Files.write(newFile, decodedContent);
+            Logger.getGlobal().info("File " + upload.getFileName() + " uploaded");
+
+            UUID uuid = UUID.randomUUID();
+            String uuidString = uuid.toString().replace("-", "");
+            files.put(uuidString, upload.getFileName());
+            long size = Files.size(newFile);
+
+            serEventManager.broadCast(
+                    xmlCreate.getNewFile(uuidString, upload, key, size), activeUsers);
+
+            return uuidString;
+        } catch (JAXBException | IOException e) {
+            serEventManager.setError(e.getLocalizedMessage());
+            return null;
         }
     }
 

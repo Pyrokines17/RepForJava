@@ -1,4 +1,3 @@
 package server;
 
-public record ConnectionOfMessages(String message, String sender) {
-}
+public record ConnectionOfMessages(String message, String sender) { }

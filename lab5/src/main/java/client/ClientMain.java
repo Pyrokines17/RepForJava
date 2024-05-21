@@ -53,7 +53,7 @@ public class ClientMain {
             String line;
 
             if (window == null) {
-                System.out.println("Enter command: list, logout, message-<message>, login-<username>-<password>, exit");
+                System.out.println("Enter command: list, logout, message-<message>, login-<username>-<password>, send-<path>, download-<id>-<path>, help, exit");
             }
 
             do {
@@ -84,11 +84,27 @@ public class ClientMain {
                             case "exit":
                                 commandManager.stop();
                                 break;
+                            case "send":
+                                if (parts.length != 2) {
+                                    throw new IllegalArgumentException("Usage: send-<path>");
+                                }
+                                commandManager.sendFile(parts[1]);
+                                break;
+                            case "download":
+                                if (parts.length != 3) {
+                                    throw new IllegalArgumentException("Usage: download-<id>-<path>");
+                                }
+                                listener.setPath(parts[2]);
+                                commandManager.download(parts[1]);
+                                break;
+                            case "help":
+                                System.out.println("Enter command: list, logout, message-<message>, login-<username>-<password>, send-<path>, download-<id>-<path>, help, exit");
+                                break;
                             default:
                                 break;
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | IOException e) {
                     System.err.println(e.getLocalizedMessage());
                 }
 

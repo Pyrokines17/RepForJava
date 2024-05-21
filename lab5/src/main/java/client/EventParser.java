@@ -1,25 +1,30 @@
 package client;
 
+import view.Window;
 import xml.events.*;
 import xml.events.Error;
 import jakarta.xml.bind.*;
-import xml.events.list.*;
+import xml.events.files.*;
 import java.nio.charset.*;
+import xml.events.list.*;
+import java.nio.file.*;
+import java.util.*;
 import java.nio.*;
 import java.io.*;
 
-public class EventParser {
-    public static String parse(byte[] event) {
+public class EventParser { //ToDo: fix download
+    public static String parse(byte[] event, String path, Window window) {
         StringBuilder result = new StringBuilder();
         ByteBuffer buffer = ByteBuffer.wrap(event);
         JAXBContext context;
 
         String xmlString = new String(buffer.array(), Charset.defaultCharset());
-
-        String[] parts = xmlString.split("\n");
+        Scanner scanner = new Scanner(xmlString);
+        scanner.nextLine();
+        String firstLine = scanner.nextLine();
 
         try {
-            switch (parts[1]) {
+            switch (firstLine) {
                 case "<error>" -> {
                     context = JAXBContext.newInstance(Error.class);
                     Error error = (Error) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
@@ -27,13 +32,32 @@ public class EventParser {
                 }
                 case "<success></success>", "<success/>" -> result = new StringBuilder("Success");
                 case "<success>" -> {
-                    context = JAXBContext.newInstance(ListSuccess.class);
-                    ListSuccess success =
-                            (ListSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                    String secondLine = scanner.nextLine();
+                    if (secondLine.contains("users")) {
+                        context = JAXBContext.newInstance(ListSuccess.class);
+                        ListSuccess success =
+                                (ListSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
 
-                    result = new StringBuilder("Users: ");
-                    for (ListUser user : success.getUsers().getUsers()) {
-                        result.append(user.getUsername()).append("|");
+                        result = new StringBuilder("Users: ");
+                        for (ListUser user : success.getUsers().getUsers()) {
+                            result.append(user.getUsername()).append("|");
+                        }
+                    } else if (secondLine.contains("id") && scanner.nextLine().contains("/success")) {
+                        context = JAXBContext.newInstance(FileSuccess.class);
+                        FileSuccess success = (FileSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+
+                        result = new StringBuilder("Success: " + success.getMessage());
+                    } else {
+                        context = JAXBContext.newInstance(xml.events.files.Download.class);
+                        Download download = (Download) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+
+                        Path filePath = Path.of(path, download.getName());
+                        Files.createFile(filePath);
+
+                        byte[] decodedContent = Base64.getDecoder().decode(download.getContent());
+                        Files.write(filePath, decodedContent);
+
+                        return "Success";
                     }
                 }
                 case "<event name=\"message\">" -> {
@@ -45,15 +69,32 @@ public class EventParser {
                     context = JAXBContext.newInstance(Userlogin.class);
                     Userlogin user = (Userlogin)context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
                     result = new StringBuilder("User " + user.getUsername() + " logged in");
+
+                    if (window != null) {
+                        window.updateUsers(user.getUsername(), true);
+                    }
                 }
                 case "<event name=\"userlogout\">" -> {
                     context = JAXBContext.newInstance(Userlogout.class);
                     Userlogout userLogout = (Userlogout) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
                     result = new StringBuilder("User " + userLogout.getUsername() + " logged out");
+
+                    if (window != null) {
+                        window.updateUsers(userLogout.getUsername(), false);
+                    }
+                }
+                case "<event name=\"file\">" -> {
+                    context = JAXBContext.newInstance(NewFile.class);
+                    NewFile newFile = (NewFile) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                    result = new StringBuilder("New file: "+newFile.getFileName()+"; from: "+newFile.getFrom()+"; size: "+newFile.getSize()+"; mime: "+newFile.getMimeType()+"; id: "+newFile.getId());
+
+                    if (window != null) {
+                        window.updateFiles(result.toString());
+                    }
                 }
                 default -> result = new StringBuilder("Unknown event");
             }
-        } catch (JAXBException e) {
+        } catch (JAXBException | IOException e) {
             System.err.println(e.getLocalizedMessage());
         }
 

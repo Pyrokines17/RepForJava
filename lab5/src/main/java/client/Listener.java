@@ -1,8 +1,7 @@
 package client;
 
-import view.Notification;
+import view.*;
 import view.Window;
-
 import javax.swing.*;
 import java.io.*;
 import java.nio.*;
@@ -14,11 +13,17 @@ public class Listener extends Thread {
     private final SocketChannel socketChannel;
     private final Window window;
     private boolean flag;
+    private String path;
 
     public Listener(SocketChannel socketChannel, Window window) {
         this.socketChannel = socketChannel;
         this.window = window;
         this.flag = true;
+        this.path = null;
+
+        if (window != null) {
+            this.window.setListener(this);
+        }
     }
 
     @Override
@@ -46,7 +51,7 @@ public class Listener extends Thread {
                         buffer = ByteBuffer.allocate(ByteBuffer.wrap(len).getInt());
                         keyChannel.read(buffer); buffer.flip();
 
-                        String message = EventParser.parse(buffer.array());
+                        String message = EventParser.parse(buffer.array(), path, window);
 
                         if (!message.equals("Success")) {
                             if (window == null) {
@@ -70,6 +75,10 @@ public class Listener extends Thread {
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
         } catch (CancelledKeyException ignored) {}
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public void stopListener() {

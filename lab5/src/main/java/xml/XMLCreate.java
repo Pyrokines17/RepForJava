@@ -6,6 +6,10 @@ import xml.commands.*;
 import xml.events.Error;
 import xml.events.list.*;
 import jakarta.xml.bind.*;
+import java.nio.channels.*;
+import xml.commands.files.*;
+import xml.events.files.NewFile;
+import xml.events.files.FileSuccess;
 
 public class XMLCreate {
     StringWriter writer = new StringWriter();
@@ -163,6 +167,93 @@ public class XMLCreate {
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(listSuccess, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getSend(String path) throws IOException {
+        writer.getBuffer().setLength(0);
+        FileUploader uploader = new FileUploader();
+        Upload upload = uploader.prepareUpload(path);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(Upload.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(upload, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getFileSuccess(FileSuccess fileSuccess) {
+        writer.getBuffer().setLength(0);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(FileSuccess.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(fileSuccess, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getNewFile(String uuid, Upload upload, SelectionKey key, long size) {
+        writer.getBuffer().setLength(0);
+        NewFile newFile = new NewFile();
+        Login login = (Login) key.attachment();
+
+        newFile.setId(uuid);
+        newFile.setFrom(login.getUsername());
+        newFile.setFileName(upload.getFileName());
+        newFile.setSize(size);
+        newFile.setMimeType(upload.getMimeType());
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(NewFile.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(newFile, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getDownload(String uuid) {
+        writer.getBuffer().setLength(0);
+        Download download = new Download();
+        download.setId(uuid);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(Download.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(download, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getAnsDownload(xml.events.files.Download download) {
+        writer.getBuffer().setLength(0);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(xml.events.files.Download.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(download, writer);
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
