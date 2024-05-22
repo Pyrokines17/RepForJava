@@ -49,9 +49,12 @@ public class Listener extends Thread {
                         keyChannel = (SocketChannel)key.channel();
                         keyChannel.read(ByteBuffer.wrap(len));
                         buffer = ByteBuffer.allocate(ByteBuffer.wrap(len).getInt());
-                        keyChannel.read(buffer); buffer.flip();
 
-                        String message = EventParser.parse(buffer.array(), path, window);
+                        while (buffer.hasRemaining()) {
+                            keyChannel.read(buffer);
+                        } buffer.flip();
+
+                        String message = EventParser.parse(buffer, path, window);
 
                         if (!message.equals("Success")) {
                             if (window == null) {

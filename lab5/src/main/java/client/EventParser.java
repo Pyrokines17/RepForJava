@@ -12,13 +12,12 @@ import java.util.*;
 import java.nio.*;
 import java.io.*;
 
-public class EventParser { //ToDo: fix download
-    public static String parse(byte[] event, String path, Window window) {
+public class EventParser {
+    public static String parse(ByteBuffer event, String path, Window window) {
         StringBuilder result = new StringBuilder();
-        ByteBuffer buffer = ByteBuffer.wrap(event);
         JAXBContext context;
 
-        String xmlString = new String(buffer.array(), Charset.defaultCharset());
+        String xmlString = new String(event.array(), Charset.defaultCharset());
         Scanner scanner = new Scanner(xmlString);
         scanner.nextLine();
         String firstLine = scanner.nextLine();
@@ -27,7 +26,7 @@ public class EventParser { //ToDo: fix download
             switch (firstLine) {
                 case "<error>" -> {
                     context = JAXBContext.newInstance(Error.class);
-                    Error error = (Error) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                    Error error = (Error) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
                     result = new StringBuilder("Error: " + error.getMessage());
                 }
                 case "<success></success>", "<success/>" -> result = new StringBuilder("Success");
@@ -36,7 +35,7 @@ public class EventParser { //ToDo: fix download
                     if (secondLine.contains("users")) {
                         context = JAXBContext.newInstance(ListSuccess.class);
                         ListSuccess success =
-                                (ListSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                                (ListSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
 
                         result = new StringBuilder("Users: ");
                         for (ListUser user : success.getUsers().getUsers()) {
@@ -44,12 +43,12 @@ public class EventParser { //ToDo: fix download
                         }
                     } else if (secondLine.contains("id") && scanner.nextLine().contains("/success")) {
                         context = JAXBContext.newInstance(FileSuccess.class);
-                        FileSuccess success = (FileSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                        FileSuccess success = (FileSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
 
                         result = new StringBuilder("Success: " + success.getMessage());
                     } else {
                         context = JAXBContext.newInstance(xml.events.files.Download.class);
-                        Download download = (Download) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                        Download download = (Download) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
 
                         Path filePath = Path.of(path, download.getName());
                         Files.createFile(filePath);
@@ -62,12 +61,12 @@ public class EventParser { //ToDo: fix download
                 }
                 case "<event name=\"message\">" -> {
                     context = JAXBContext.newInstance(ServerMes.class);
-                    ServerMes message = (ServerMes) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                    ServerMes message = (ServerMes) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
                     result = new StringBuilder("Message from " + message.getFrom() + ": " + message.getMessage());
                 }
                 case "<event name=\"userlogin\">" -> {
                     context = JAXBContext.newInstance(Userlogin.class);
-                    Userlogin user = (Userlogin)context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                    Userlogin user = (Userlogin)context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
                     result = new StringBuilder("User " + user.getUsername() + " logged in");
 
                     if (window != null) {
@@ -76,7 +75,7 @@ public class EventParser { //ToDo: fix download
                 }
                 case "<event name=\"userlogout\">" -> {
                     context = JAXBContext.newInstance(Userlogout.class);
-                    Userlogout userLogout = (Userlogout) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                    Userlogout userLogout = (Userlogout) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
                     result = new StringBuilder("User " + userLogout.getUsername() + " logged out");
 
                     if (window != null) {
@@ -85,7 +84,7 @@ public class EventParser { //ToDo: fix download
                 }
                 case "<event name=\"file\">" -> {
                     context = JAXBContext.newInstance(NewFile.class);
-                    NewFile newFile = (NewFile) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event));
+                    NewFile newFile = (NewFile) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
                     result = new StringBuilder("New file: "+newFile.getFileName()+"; from: "+newFile.getFrom()+"; size: "+newFile.getSize()+"; mime: "+newFile.getMimeType()+"; id: "+newFile.getId());
 
                     if (window != null) {
