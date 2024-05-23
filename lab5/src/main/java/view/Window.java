@@ -58,7 +58,7 @@ public class Window extends JFrame {
         port = settingsDialog.getPort();
 
         setLocationRelativeTo(null);
-        setResizable(false);
+        setResizable(true);
         setVisible(true);
 
         this.addWindowListener(new java.awt.event.WindowAdapter() {
