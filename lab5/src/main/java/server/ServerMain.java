@@ -24,6 +24,12 @@ public class ServerMain {
 
             serverPreparer.parseConfig(args[0], postgresHandler, serverSettings);
 
+            System.out.println("Write port:");
+            BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
+            String portLine = read.readLine();
+
+            int port = Integer.parseInt(portLine);
+
             ServerSocketChannel serverSocketChannel;
             Connection connectionWithPostgres;
             Selector selector;
@@ -39,7 +45,7 @@ public class ServerMain {
                 Logger.getGlobal().info("Connected to Postgres");
 
                 serverSocketChannel = ServerSocketChannel.open();
-                serverPreparer.configureServer(serverSocketChannel, serverSettings);
+                serverPreparer.configureServer(serverSocketChannel, serverSettings, port);
                 Logger.getGlobal().info("Server configured");
 
                 selector = Selector.open();

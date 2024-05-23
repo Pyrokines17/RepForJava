@@ -57,11 +57,11 @@ public class ServerPreparer {
         }
     }
 
-    public void configureServer(ServerSocketChannel serverSocketChannel, ServerSettings serverSettings)
+    public void configureServer(ServerSocketChannel serverSocketChannel, ServerSettings serverSettings, int port)
             throws IOException {
 
         serverSocketChannel.configureBlocking(false);
-        serverSocketChannel.bind(new InetSocketAddress(serverSettings.getIp(), serverSettings.getPort()));
+        serverSocketChannel.bind(new InetSocketAddress(serverSettings.getIp(), port));
     }
 
     public void acceptConnection(SelectionKey key, Selector selector)

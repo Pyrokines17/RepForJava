@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.nio.channels.*;
+import java.util.logging.Logger;
 
 public class ClientMain {
     public static void main(String[] args) {
@@ -44,7 +45,10 @@ public class ClientMain {
                 port = Integer.parseInt(settings.get(1));
             }
 
-            socketChannel.connect(new InetSocketAddress(hostname, port));
+            if (socketChannel.connect(new InetSocketAddress(hostname, port))) {
+                Logger.getGlobal().info("Connected");
+            }
+
             listener = new Listener(socketChannel, window);
 
             listener.start();
