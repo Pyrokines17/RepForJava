@@ -12,6 +12,7 @@ import javax.swing.plaf.basic.*;
 
 public class Window extends JFrame {
     private final Map<String, String> filesID;
+    private final CustomListCell customListCell;
 
     private final DefaultListModel<String> usersModel;
     private final JList<String> usersList;
@@ -38,6 +39,9 @@ public class Window extends JFrame {
         usersList = new JList<>(usersModel);
         filesModel = new DefaultListModel<>();
         filesList = new JList<>(filesModel);
+
+        customListCell = new CustomListCell();
+        filesList.setCellRenderer(customListCell);
 
         filesID = new HashMap<>();
 
@@ -264,11 +268,36 @@ public class Window extends JFrame {
         key = subParts[2]+"-"+subParts1[2]+"b";
 
         filesID.put(key, parts[4].split(" ")[2]);
-
+        customListCell.filesInfo.put(key, file);
         filesModel.addElement(key);
     }
 
     public void setListener(Listener listener) {
         this.listener = listener;
+    }
+
+    public Map<String, String> getFilesInfo() {
+        return customListCell.getFilesInfo();
+    }
+
+    private static class CustomListCell extends DefaultListCellRenderer {
+        private final Map<String, String> filesInfo;
+
+        public CustomListCell() {
+            filesInfo = new HashMap<>();
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            String key = (String)value;
+            String info = filesInfo.get(key);
+            label.setToolTipText(info);
+            return label;
+        }
+
+        public Map<String, String> getFilesInfo() {
+            return filesInfo;
+        }
     }
 }
