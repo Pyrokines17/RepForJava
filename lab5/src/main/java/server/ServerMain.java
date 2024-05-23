@@ -105,7 +105,7 @@ public class ServerMain {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             System.err.println(e.getLocalizedMessage());
         }
     }
