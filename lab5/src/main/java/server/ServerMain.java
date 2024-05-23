@@ -23,12 +23,20 @@ public class ServerMain {
             }
 
             serverPreparer.parseConfig(args[0], postgresHandler, serverSettings);
-
-            System.out.println("Write port:");
             BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
-            String portLine = read.readLine();
 
-            int port = Integer.parseInt(portLine);
+            System.out.println("Write port or from config? (w/c)");
+
+            String choose = read.readLine();
+            int port;
+
+            if (choose.equals("w")) {
+                System.out.println("Write port:");
+                String portLine = read.readLine();
+                port = Integer.parseInt(portLine);
+            } else {
+                port = serverSettings.getPort();
+            }
 
             ServerSocketChannel serverSocketChannel;
             Connection connectionWithPostgres;
