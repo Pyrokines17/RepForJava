@@ -1,5 +1,6 @@
 package server.sql;
 
+import java.io.*;
 import java.sql.*;
 
 public class PostgresHandler {
@@ -9,8 +10,16 @@ public class PostgresHandler {
     private String username;
     private String password;
 
-    public Connection setConnection() throws ClassNotFoundException, SQLException {
+    public Connection setConnection() throws ClassNotFoundException, SQLException, IOException {
         DriverManager.registerDriver(new org.postgresql.Driver());
+        System.out.println("Write sql address or from config? (w/c)");
+
+        String choose = new BufferedReader(new InputStreamReader(System.in)).readLine();
+
+        if (choose.equals("w")) {
+            ip = new BufferedReader(new InputStreamReader(System.in)).readLine();
+        }
+
         String url = "jdbc:postgresql://"+ip+":"+port+"/"+name;
         return DriverManager.getConnection(url, username, password);
     }
