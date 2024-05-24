@@ -10,6 +10,7 @@ import java.nio.channels.*;
 import java.util.logging.Logger;
 
 public class ClientMain {
+
     public static void main(String[] args) {
         SocketChannel socketChannel = null;
         Listener listener = null;
@@ -56,8 +57,10 @@ public class ClientMain {
             String[] parts;
             String line;
 
+            String info = "Enter command: list, logout, message-<message>, login-<username>-<password>, send-<path>, download-<id>-<path>, filelist, help, exit";
+
             if (window == null) {
-                System.out.println("Enter command: list, logout, message-<message>, login-<username>-<password>, send-<path>, download-<id>-<path>, help, exit");
+                System.out.println(info);
             }
 
             do {
@@ -84,6 +87,8 @@ public class ClientMain {
                                     throw new IllegalArgumentException("Usage: login-<username>-<password>");
                                 }
                                 commandManager.login(parts[1], parts[2]);
+                                commandManager.fileList();
+                                commandManager.list();
                                 break;
                             case "exit":
                                 commandManager.stop();
@@ -102,7 +107,10 @@ public class ClientMain {
                                 commandManager.download(parts[1]);
                                 break;
                             case "help":
-                                System.out.println("Enter command: list, logout, message-<message>, login-<username>-<password>, send-<path>, download-<id>-<path>, help, exit");
+                                System.out.println(info);
+                                break;
+                            case "filelist":
+                                commandManager.fileList();
                                 break;
                             default:
                                 break;

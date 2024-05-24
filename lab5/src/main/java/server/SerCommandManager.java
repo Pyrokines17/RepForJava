@@ -126,9 +126,27 @@ public class SerCommandManager {
                     serEventManager.sendError(key);
                 }
                 break;
+            case "filelist":
+                if (key.attachment() != null && filelist()) {
+                    serEventManager.sendFileList(key, files);
+                } else {
+                    if (key.attachment() == null) {
+                        serEventManager.setError("User not logged in");
+                    }
+
+                    serEventManager.sendError(key);
+                }
+                break;
             default:
+                serEventManager.setError("Unknown command");
+                serEventManager.sendError(key);
                 break;
         }
+    }
+
+    private boolean filelist() {
+        Logger.getGlobal().info("List of files");
+        return true;
     }
 
     private String download(ByteBuffer bufForMes) {

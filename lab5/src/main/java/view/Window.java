@@ -42,7 +42,6 @@ public class Window extends JFrame {
 
         customListCell = new CustomListCell();
         filesList.setCellRenderer(customListCell);
-
         filesID = new HashMap<>();
 
         setSize(screenSize.width / 2, screenSize.height / 2);
@@ -61,15 +60,19 @@ public class Window extends JFrame {
         setResizable(true);
         setVisible(true);
 
-        this.addWindowListener(new java.awt.event.WindowAdapter() {
+        this.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+            public void windowClosing(WindowEvent windowEvent) {
                 if (JOptionPane.showConfirmDialog(null, "Are you sure you want to close this window?", "Close Window?",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                     controller.setCommand("exit");
                 }
             }
         });
+    }
+
+    public void initFiles() {
+        filesModel.addElement("Files: ");
     }
 
     public String getIp() {
@@ -94,24 +97,15 @@ public class Window extends JFrame {
         userInput.setWrapStyleWord(true);
         JButton sendButton = getSendButton(userInput);
 
-        JPanel southPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        constraints.weightx = 1;
-        constraints.weighty = 1;
-        constraints.fill = GridBagConstraints.BOTH;
-        southPanel.add(new JScrollPane(userInput), constraints);
-
-        constraints.weightx = 0;
-        constraints.weighty = 1;
-        constraints.fill = GridBagConstraints.BOTH;
-        southPanel.add(sendButton, constraints);
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.add(new JScrollPane(userInput), BorderLayout.CENTER);
+        southPanel.add(sendButton, BorderLayout.EAST);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, chatHistoryScrollPane, southPanel);
         splitPane.setResizeWeight(0.9);
         ((BasicSplitPaneUI)splitPane.getUI()).getDivider().setEnabled(false);
 
-        JPanel buttonsPanel = new JPanel(new GridLayout(3, 1));
+        JPanel buttonsPanel = new JPanel(new GridLayout(3, 2));
 
         buttonsPanel.add(getLoginButton());
         buttonsPanel.add(getListButton());
@@ -120,13 +114,110 @@ public class Window extends JFrame {
         buttonsPanel.add(getDownloadButton());
 
         JPanel westPanel = new JPanel(new GridLayout(2, 1));
+
         westPanel.add(new JScrollPane(usersList));
         westPanel.add(new JScrollPane(filesList));
+
+        JPanel settingsPanel = cusomizeUI();
 
         setLayout(new BorderLayout());
         add(splitPane, BorderLayout.CENTER);
         add(buttonsPanel, BorderLayout.EAST);
         add(westPanel, BorderLayout.WEST);
+        add(settingsPanel, BorderLayout.NORTH);
+    }
+
+    private JPanel cusomizeUI() {
+        JPanel settingsPanel = new JPanel();
+
+        JComboBox<String> fontStylesComboBox = getStringJComboBox();
+        settingsPanel.add(new JLabel("Font Style: "));
+        settingsPanel.add(fontStylesComboBox);
+
+        Integer[] fontSizes = {10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30};
+        JComboBox<Integer> fontSizesComboBox = new JComboBox<>(fontSizes);
+        fontSizesComboBox.addActionListener(e -> {
+            Integer selectedFontSize = (Integer)fontSizesComboBox.getSelectedItem();
+            Font font = chatHistory.getFont();
+
+            if (selectedFontSize != null) {
+                chatHistory.setFont(font.deriveFont((float)selectedFontSize));
+            }
+        });
+
+        settingsPanel.add(new JLabel("Font Size: "));
+        settingsPanel.add(fontSizesComboBox);
+
+        JComboBox<String> fontColorsComboBox = getjComboBox();
+        settingsPanel.add(new JLabel("Font Color: "));
+        settingsPanel.add(fontColorsComboBox);
+
+        JButton backgroundButton = new JButton("Background Color");
+        backgroundButton.addActionListener(e -> {
+            Color backgroundColor = JColorChooser.showDialog(null, "Choose Background Color", chatHistory.getBackground());
+            chatHistory.setBackground(backgroundColor);
+        });
+
+        settingsPanel.add(backgroundButton);
+
+        return settingsPanel;
+    }
+
+    private JComboBox<String> getjComboBox() {
+        String[] fontColors = {"Black", "Red", "Green", "Blue"};
+        JComboBox<String> fontColorsComboBox = new JComboBox<>(fontColors);
+        fontColorsComboBox.addActionListener(e -> {
+            String selectedFontColor = (String)fontColorsComboBox.getSelectedItem();
+
+            switch (selectedFontColor) {
+                case "Black":
+                    chatHistory.setForeground(Color.BLACK);
+                    break;
+                case "Red":
+                    chatHistory.setForeground(Color.RED);
+                    break;
+                case "Green":
+                    chatHistory.setForeground(Color.GREEN);
+                    break;
+                case "Blue":
+                    chatHistory.setForeground(Color.BLUE);
+                    break;
+                case null:
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + selectedFontColor);
+            }
+        });
+        return fontColorsComboBox;
+    }
+
+    private JComboBox<String> getStringJComboBox() {
+        String[] fontStyles = {"Normal", "Bold", "Italic", "Bold Italic"};
+        JComboBox<String> fontStylesComboBox = new JComboBox<>(fontStyles);
+        fontStylesComboBox.addActionListener(e -> {
+            String selectedFontStyle = (String)fontStylesComboBox.getSelectedItem();
+            Font font = chatHistory.getFont();
+
+            switch (selectedFontStyle) {
+                case "Normal":
+                    chatHistory.setFont(font.deriveFont(Font.PLAIN));
+                    break;
+                case "Bold":
+                    chatHistory.setFont(font.deriveFont(Font.BOLD));
+                    break;
+                case "Italic":
+                    chatHistory.setFont(font.deriveFont(Font.ITALIC));
+                    break;
+                case "Bold Italic":
+                    chatHistory.setFont(font.deriveFont(Font.BOLD | Font.ITALIC));
+                    break;
+                case null:
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + selectedFontStyle);
+            }
+        });
+        return fontStylesComboBox;
     }
 
     private JButton getLoginButton() {
@@ -137,6 +228,13 @@ public class Window extends JFrame {
             loginDialog.setSize(screenSize.width/8, screenSize.height/8);
             loginDialog.setResizable(false);
             loginDialog.setVisible(true);
+
+            try {
+                commandManager.list();
+                commandManager.fileList();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         return loginButton;
@@ -157,6 +255,15 @@ public class Window extends JFrame {
             }
         };
 
+        userInput.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER && (e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
+                    sendMessageAction.actionPerformed(null);
+                }
+            }
+        });
+
         sendButton.addActionListener(sendMessageAction);
         return sendButton;
     }
@@ -168,6 +275,7 @@ public class Window extends JFrame {
             try {
                 commandManager.logout();
                 usersModel.clear();
+                filesModel.clear();
                 chatHistory.setText("");
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -245,9 +353,13 @@ public class Window extends JFrame {
 
     public void updateUsers(String user, boolean add) {
         if (add) {
-            usersModel.addElement(user);
+            if (!usersModel.contains(user)) {
+                usersModel.addElement(user);
+            }
         } else {
-            usersModel.removeElement(user);
+            if (usersModel.contains(user)) {
+                usersModel.removeElement(user);
+            }
         }
     }
 
@@ -278,6 +390,10 @@ public class Window extends JFrame {
 
     public Map<String, String> getFilesInfo() {
         return customListCell.getFilesInfo();
+    }
+
+    public void clearUsers() {
+        usersModel.clear();
     }
 
     private static class CustomListCell extends DefaultListCellRenderer {

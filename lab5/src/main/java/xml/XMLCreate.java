@@ -4,6 +4,8 @@ import java.io.*;
 import xml.events.*;
 import xml.commands.*;
 import xml.events.Error;
+import xml.events.files.LFSuccess;
+import xml.events.files.ListFiles;
 import xml.events.list.*;
 import jakarta.xml.bind.*;
 import java.nio.channels.*;
@@ -254,6 +256,38 @@ public class XMLCreate {
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(download, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getFileList() {
+        writer.getBuffer().setLength(0);
+        FileList fileList = new FileList();
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(FileList.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(fileList, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getFLSuccess(ListFiles listFiles) {
+        writer.getBuffer().setLength(0);
+        LFSuccess lfSuccess = new LFSuccess(listFiles);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(LFSuccess.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(lfSuccess, writer);
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }

@@ -82,4 +82,13 @@ public class CliCommandManager {
             socketChannel.write(buffer);
         }
     }
+
+    public void fileList() throws IOException {
+        message = xmlCreate.getFileList();
+        buffer = preparer.getFinalBuf(message);
+
+        while (buffer.hasRemaining()) {
+            socketChannel.write(buffer);
+        }
+    }
 }

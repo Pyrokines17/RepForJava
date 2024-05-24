@@ -6,6 +6,9 @@ import java.nio.*;
 import java.util.*;
 import xml.commands.*;
 import java.nio.file.*;
+
+import xml.events.files.ListFile;
+import xml.events.files.ListFiles;
 import xml.events.list.*;
 import xml.events.files.*;
 import java.nio.channels.*;
@@ -131,6 +134,27 @@ public class SerEventManager {
         download.setContent(encodedContent);
 
         String xmlString = xmlCreate.getAnsDownload(download);
+        writeAnswer(xmlString, socketChannel);
+    }
+
+    public void sendFileList(SelectionKey key, ConcurrentMap<String, String> files)
+            throws IOException {
+
+        SocketChannel socketChannel = (SocketChannel)key.channel();
+        ListFiles listFiles = new ListFiles();
+
+        for (String uuid : files.keySet()) {
+            ListFile listFile = new ListFile();
+            Path path = Paths.get(BASE+files.get(uuid));
+            listFile.setFilename(files.get(uuid));
+            listFile.setId(uuid);
+            listFile.setFrom("server");
+            listFile.setSize(Files.size(path));
+            listFile.setMimeType(Files.probeContentType(path));
+            listFiles.addFile(listFile);
+        }
+
+        String xmlString = xmlCreate.getFLSuccess(listFiles);
         writeAnswer(xmlString, socketChannel);
     }
 }

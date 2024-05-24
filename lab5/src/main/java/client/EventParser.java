@@ -32,21 +32,32 @@ public class EventParser {
                 case "<success></success>", "<success/>" -> result = new StringBuilder("Success");
                 case "<success>" -> {
                     String secondLine = scanner.nextLine();
+                    String thirdLine = scanner.nextLine();
                     if (secondLine.contains("users")) {
                         context = JAXBContext.newInstance(ListSuccess.class);
                         ListSuccess success =
                                 (ListSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
 
                         result = new StringBuilder("Users: ");
+
+                        if (window != null) {
+                            window.clearUsers();
+                            window.updateUsers("Users:", true);
+                        }
+
                         for (ListUser user : success.getUsers().getUsers()) {
                             result.append(user.getUsername()).append("|");
+
+                            if (window != null) {
+                                window.updateUsers(user.getUsername(), true);
+                            }
                         }
-                    } else if (secondLine.contains("id") && scanner.nextLine().contains("/success")) {
+                    } else if (secondLine.contains("id") && thirdLine.contains("/success")) {
                         context = JAXBContext.newInstance(FileSuccess.class);
                         FileSuccess success = (FileSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
 
                         result = new StringBuilder("Success: " + success.getMessage());
-                    } else {
+                    } else if (secondLine.contains("id") && thirdLine.contains("name")) {
                         context = JAXBContext.newInstance(xml.events.files.Download.class);
                         Download download = (Download) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
 
@@ -57,6 +68,33 @@ public class EventParser {
                         Files.write(filePath, decodedContent);
 
                         return "Success: file download to "+filePath;
+                    } else if (secondLine.contains("files")) {
+                        context = JAXBContext.newInstance(LFSuccess.class);
+                        LFSuccess lfSuccess = (LFSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
+
+                        List<ListFile> listOfFiles = lfSuccess.getFiles().getFiles();
+                        result = new StringBuilder("You can download: \n");
+                        StringBuilder subResult = new StringBuilder();
+
+                        if (window != null) {
+                            window.initFiles();
+                        }
+
+                        if (listOfFiles != null) {
+                            for (ListFile bufFile : listOfFiles) {
+                                subResult.append("New file: ").append(bufFile.getFilename()).append("; from: ").append(bufFile.getFrom()).append("; size: ").append(bufFile.getSize()).append("; mime: ").append(bufFile.getMimeType()).append("; id: ").append(bufFile.getId());
+
+                                if (window != null) {
+                                    window.updateFiles(subResult.toString());
+                                }
+
+                                result.append(subResult).append("\n");
+                                subResult.setLength(0);
+                            }
+                        }
+
+                    } else {
+                        result = new StringBuilder("Unknown event");
                     }
                 }
                 case "<event name=\"message\">" -> {
