@@ -88,13 +88,8 @@ public class ServerPreparer {
 
         ByteBuffer bufForMes = ByteBuffer.allocate(ByteBuffer.wrap(bytes).getInt());
 
-        int bytesReadForMes;
-        while ((bytesReadForMes = socketChannel.read(bufForMes)) != 0) {
-            if (bytesReadForMes == -1) {
-                socketChannel.close();
-                key.cancel();
-                return null;
-            }
+        while (bufForMes.hasRemaining()) {
+            socketChannel.read(bufForMes);
         }
 
         bufForMes.flip();

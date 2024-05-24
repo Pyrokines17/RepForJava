@@ -56,7 +56,7 @@ public class EventParser {
                         byte[] decodedContent = Base64.getDecoder().decode(download.getContent());
                         Files.write(filePath, decodedContent);
 
-                        return "Success";
+                        return "Success: file download to "+filePath;
                     }
                 }
                 case "<event name=\"message\">" -> {
