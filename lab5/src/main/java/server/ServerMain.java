@@ -83,7 +83,7 @@ public class ServerMain {
                         if (key.isAcceptable()) {
                             serverPreparer.acceptConnection(key, selector);
                         } else if (key.isReadable()) {
-                            bufForMes = serverPreparer.readFromClient(key);
+                            bufForMes = serverPreparer.readFromClient(key, serCommandManager.getSerEventManager());
 
                             if (bufForMes != null) {
                                 lastHeartbeat.put(key, System.currentTimeMillis());

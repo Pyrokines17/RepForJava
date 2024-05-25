@@ -44,6 +44,10 @@ public class SerCommandManager {
         this.sqlWorker = new SQLWorker();
     }
 
+    public SerEventManager getSerEventManager() {
+        return serEventManager;
+    }
+
     public void parse(ByteBuffer bufForMes, SelectionKey key) throws IOException {
         String xmlString = new String(bufForMes.array(), Charset.defaultCharset());
         Scanner scanner = new Scanner(xmlString);

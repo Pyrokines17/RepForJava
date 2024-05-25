@@ -5,6 +5,7 @@ import java.net.*;
 import java.nio.*;
 import server.sql.*;
 import java.nio.channels.*;
+import java.util.logging.Logger;
 
 public class ServerPreparer {
 
@@ -73,7 +74,7 @@ public class ServerPreparer {
         socketChannel.register(selector, SelectionKey.OP_READ);
     }
 
-    public ByteBuffer readFromClient(SelectionKey key)
+    public ByteBuffer readFromClient(SelectionKey key, SerEventManager serEventManager)
             throws IOException {
 
         ByteBuffer lenMes = ByteBuffer.allocate(4);
@@ -83,8 +84,15 @@ public class ServerPreparer {
             socketChannel.read(lenMes);
         } lenMes.flip();
 
+        if (11 * 1024 * 1024 < lenMes.getInt()) {
+            serEventManager.setError("Message is too big");
+            serEventManager.sendError(key);
+            socketChannel.close();
+            return null;
+        }
+
         int length = lenMes.getInt();
-        System.out.println("Length: " + length);
+        Logger.getGlobal().info("Length of message will read: " + length);
         ByteBuffer bufForMes = ByteBuffer.allocate(length);
 
         while (bufForMes.hasRemaining()) {
