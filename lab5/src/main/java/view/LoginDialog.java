@@ -27,6 +27,7 @@ public class LoginDialog extends JDialog {
         submitButton.addActionListener(e -> {
             try {
                 window.getCommandManager().login(usernameField.getText(), new String(passwordField.getPassword()));
+                window.setUserName(usernameField.getText());
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

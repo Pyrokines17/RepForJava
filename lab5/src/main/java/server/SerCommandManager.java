@@ -29,8 +29,10 @@ public class SerCommandManager {
 
     private final ConcurrentMap<SelectionKey, Login> activeUsers = new ConcurrentHashMap<>();
     private final ConcurrentMap<SelectionKey, Long> lastHeartbeat = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Description> profiles = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, String> files = new ConcurrentHashMap<>();
 
+    private static final String AVATAR = "src/main/java/server/avatars/";
     private static final String BASE = "src/main/java/server/files/";
     private static final int BUFFER_SIZE = 10;
 
@@ -45,13 +47,16 @@ public class SerCommandManager {
     public void parse(ByteBuffer bufForMes, SelectionKey key) throws IOException {
         String xmlString = new String(bufForMes.array(), Charset.defaultCharset());
         Scanner scanner = new Scanner(xmlString);
-        scanner.nextLine();
         String line = scanner.nextLine();
 
         if (line == null) {
             serEventManager.setError("Empty message");
             serEventManager.sendError(key);
             return;
+        }
+
+        if (line.contains("version")) {
+            line = scanner.nextLine();
         }
 
         String name = line.split("\"")[1];
@@ -137,10 +142,86 @@ public class SerCommandManager {
                     serEventManager.sendError(key);
                 }
                 break;
+            case "showprofile":
+                String username;
+                if (key.attachment() != null && (username = showProfile(bufForMes)) != null) {
+                    serEventManager.sendProfile(key, username, profiles.get(username));
+                } else {
+                    if (key.attachment() == null) {
+                        serEventManager.setError("User not logged in");
+                    }
+
+                    serEventManager.sendError(key);
+                }
+                break;
+            case "saveprofile":
+                if (key.attachment() != null && saveProfile(bufForMes, key)) {
+                    serEventManager.sendSuccess(key);
+                } else {
+                    if (key.attachment() == null) {
+                        serEventManager.setError("User not logged in");
+                    }
+
+                    serEventManager.sendError(key);
+                }
+                break;
             default:
                 serEventManager.setError("Unknown command");
                 serEventManager.sendError(key);
                 break;
+        }
+    }
+
+    private boolean saveProfile(ByteBuffer bufForMes, SelectionKey key) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(SaveProfile.class);
+            SaveProfile saveProfile = (SaveProfile) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(bufForMes.array()));
+
+            try {
+                if (profiles.containsKey(saveProfile.getUsername())) {
+                    Path oldAva = Paths.get(AVATAR, profiles.get(saveProfile.getUsername()).getAvaPath());
+                    Files.delete(oldAva);
+                    Logger.getGlobal().info("Avatar " + profiles.get(saveProfile.getUsername()).getAvaPath() + " deleted");
+                    profiles.remove(saveProfile.getUsername());
+                }
+
+                Path newAva = Paths.get(AVATAR, saveProfile.getFilename());
+                Files.createFile(newAva);
+                Logger.getGlobal().info("Avatar " + saveProfile.getFilename() + " created");
+
+                byte[] decodedContent = Base64.getDecoder().decode(saveProfile.getContent());
+                Files.write(newAva, decodedContent);
+                Logger.getGlobal().info("Avatar " + saveProfile.getFilename() + " uploaded");
+
+                profiles.put(saveProfile.getUsername(), new Description(saveProfile.getStatus(), saveProfile.getFilename()));
+            } catch (IOException e) {
+                serEventManager.setError(e.getLocalizedMessage());
+                return false;
+            }
+
+            return true;
+        } catch (JAXBException e) {
+            serEventManager.setError(e.getLocalizedMessage());
+            return false;
+        }
+    }
+
+    private String showProfile(ByteBuffer bufForMes) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(ShowProfile.class);
+            ShowProfile showProfile = (ShowProfile) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(bufForMes.array()));
+
+            boolean cont = profiles.containsKey(showProfile.getUsername());
+
+            if (!cont) {
+                serEventManager.setError("User haven't profile");
+                return null;
+            }
+
+            return showProfile.getUsername();
+        } catch (JAXBException e) {
+            serEventManager.setError(e.getLocalizedMessage());
+            return null;
         }
     }
 

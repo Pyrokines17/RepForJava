@@ -7,6 +7,7 @@ import java.util.*;
 import xml.commands.*;
 import java.nio.file.*;
 
+import xml.events.Profile;
 import xml.events.files.ListFile;
 import xml.events.files.ListFiles;
 import xml.events.list.*;
@@ -16,6 +17,7 @@ import java.util.concurrent.*;
 import xml.events.files.Download;
 
 public class SerEventManager {
+    private final static String AVATAR = "src/main/java/server/avatars/";
     private final static String BASE = "src/main/java/server/files/";
     private final XMLCreate xmlCreate;
     private String error = null;
@@ -155,6 +157,19 @@ public class SerEventManager {
         }
 
         String xmlString = xmlCreate.getFLSuccess(listFiles);
+        writeAnswer(xmlString, socketChannel);
+    }
+
+    public void sendProfile(SelectionKey key, String name, Description description)
+            throws IOException {
+
+        SocketChannel socketChannel = (SocketChannel)key.channel();
+        Path path = Paths.get(AVATAR, description.getAvaPath());
+        byte[] fileContent = Files.readAllBytes(path);
+        String encodedContent = Base64.getEncoder().encodeToString(fileContent);
+        Profile profile = new Profile(name, description.getStatus(), description.getAvaPath(), "base64", encodedContent);
+
+        String xmlString = xmlCreate.getProfile(profile);
         writeAnswer(xmlString, socketChannel);
     }
 }

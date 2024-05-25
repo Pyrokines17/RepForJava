@@ -8,6 +8,7 @@ import controller.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.nio.file.Path;
+import com.vdurmont.emoji.*;
 import javax.swing.plaf.basic.*;
 
 public class Window extends JFrame {
@@ -28,6 +29,7 @@ public class Window extends JFrame {
     private final int port;
 
     private Listener listener;
+    private String userName;
 
     public Window(CliCommandManager commandManager, Controller controller) {
         setIconImage(new ImageIcon("src/main/resources/icon.png").getImage());
@@ -83,6 +85,10 @@ public class Window extends JFrame {
         return port;
     }
 
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     private void addComponents() {
         chatHistory = new JTextArea();
         chatHistory.setEditable(false);
@@ -101,6 +107,9 @@ public class Window extends JFrame {
         southPanel.add(new JScrollPane(userInput), BorderLayout.CENTER);
         southPanel.add(sendButton, BorderLayout.EAST);
 
+        JButton emojiButton = getEmojiButton(userInput);
+        southPanel.add(emojiButton, BorderLayout.WEST);
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, chatHistoryScrollPane, southPanel);
         splitPane.setResizeWeight(0.9);
         ((BasicSplitPaneUI)splitPane.getUI()).getDivider().setEnabled(false);
@@ -112,6 +121,7 @@ public class Window extends JFrame {
         buttonsPanel.add(getLogoutButton());
         buttonsPanel.add(getSendButton());
         buttonsPanel.add(getDownloadButton());
+        buttonsPanel.add(getProfileButton());
 
         JPanel westPanel = new JPanel(new GridLayout(2, 1));
 
@@ -161,6 +171,28 @@ public class Window extends JFrame {
         settingsPanel.add(backgroundButton);
 
         return settingsPanel;
+    }
+
+    private JButton getEmojiButton(JTextArea userInput) {
+        JButton emojiButton = new JButton("Emoji");
+        String[] emojis = {"\uD83D\uDE00", "\uD83D\uDE01", "\uD83D\uDE02", "\uD83D\uDE03", "\uD83D\uDE04"};
+
+        emojiButton.addActionListener(e -> {
+            String selectedEmoji = (String)JOptionPane.showInputDialog(
+                    null,
+                    "Choose an emoji",
+                    "Emoji",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    emojis,
+                    emojis[0]);
+
+            if (selectedEmoji != null) {
+                userInput.append(selectedEmoji);
+            }
+        });
+
+        return emojiButton;
     }
 
     private JComboBox<String> getjComboBox() {
@@ -247,7 +279,8 @@ public class Window extends JFrame {
             String message = userInput.getText();
             if (!message.trim().isEmpty()) {
                 try {
-                    commandManager.clientMes(message);
+                    String messageWithEmoji = EmojiParser.parseToAliases(message);
+                    commandManager.clientMes(messageWithEmoji);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -277,6 +310,7 @@ public class Window extends JFrame {
                 usersModel.clear();
                 filesModel.clear();
                 chatHistory.setText("");
+                userName = null;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -319,6 +353,33 @@ public class Window extends JFrame {
         });
 
         return sendFileButton;
+    }
+
+    private JButton getProfileButton() {
+        JButton profileButton = new JButton("Profile");
+
+        profileButton.addActionListener(e -> {
+            String name = usersList.getSelectedValue();
+
+            if (name != null) {
+                if (name.equals(userName)) {
+                    ProfileDialog profileDialog = new ProfileDialog(this, commandManager);
+                    profileDialog.setProfile(name, "", "src/main/resources/role-model.png");
+                    profileDialog.setSize(screenSize.width/8, screenSize.height/4);
+                    profileDialog.setVisible(true);
+                } else {
+                    try {
+                        commandManager.showProfile(name);
+                    } catch (IOException ee) {
+                        throw new RuntimeException(ee);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No name selected from the list", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        return profileButton;
     }
 
     private JButton getDownloadButton() {
@@ -368,7 +429,8 @@ public class Window extends JFrame {
     }
 
     public void updateChat(String message) {
-        chatHistory.append(message + "\n");
+        String messageWithEmoji = EmojiParser.parseToUnicode(message);
+        chatHistory.append(messageWithEmoji + "\n");
     }
 
     public void updateFiles(String file) {
@@ -382,6 +444,10 @@ public class Window extends JFrame {
         filesID.put(key, parts[4].split(" ")[2]);
         customListCell.filesInfo.put(key, file);
         filesModel.addElement(key);
+    }
+
+    public Dimension getScreenSize() {
+        return screenSize;
     }
 
     public void setListener(Listener listener) {

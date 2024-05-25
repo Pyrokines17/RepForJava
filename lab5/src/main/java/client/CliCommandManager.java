@@ -91,4 +91,22 @@ public class CliCommandManager {
             socketChannel.write(buffer);
         }
     }
+
+    public void showProfile(String name) throws IOException {
+        message = xmlCreate.getShowProfile(name);
+        buffer = preparer.getFinalBuf(message);
+
+        while (buffer.hasRemaining()) {
+            socketChannel.write(buffer);
+        }
+    }
+
+    public void saveProfile(String username, String status, String avatarPath) throws IOException {
+        message = xmlCreate.getSaveProfile(username, status, avatarPath);
+        buffer = preparer.getFinalBuf(message);
+
+        while (buffer.hasRemaining()) {
+            socketChannel.write(buffer);
+        }
+    }
 }

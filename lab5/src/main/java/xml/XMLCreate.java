@@ -9,6 +9,10 @@ import xml.events.files.ListFiles;
 import xml.events.list.*;
 import jakarta.xml.bind.*;
 import java.nio.channels.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Base64;
+
 import xml.commands.files.*;
 import xml.events.files.NewFile;
 import xml.events.files.FileSuccess;
@@ -288,6 +292,63 @@ public class XMLCreate {
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(lfSuccess, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getShowProfile(String name) {
+        writer.getBuffer().setLength(0);
+        ShowProfile showProfile = new ShowProfile(name);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(ShowProfile.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(showProfile, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getSaveProfile(String username, String status, String avatarPath) throws IOException {
+        writer.getBuffer().setLength(0);
+
+        Path path = Path.of(avatarPath);
+        File file = path.toFile();
+
+        String filename = file.getName();
+        String encoding = "base64";
+
+        byte[] fileContent = Files.readAllBytes(file.toPath());
+        String content = Base64.getEncoder().encodeToString(fileContent);
+
+        SaveProfile saveProfile = new SaveProfile(username, status, filename, encoding, content);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(SaveProfile.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(saveProfile, writer);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public String getProfile(Profile profile) {
+        writer.getBuffer().setLength(0);
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(Profile.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(profile, writer);
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }

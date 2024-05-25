@@ -1,19 +1,26 @@
 package client;
 
+import view.UserProfile;
 import view.Window;
 import xml.events.*;
 import xml.events.Error;
 import jakarta.xml.bind.*;
 import xml.events.files.*;
+
+import java.awt.*;
 import java.nio.charset.*;
 import xml.events.list.*;
+
+import javax.swing.*;
 import java.nio.file.*;
 import java.util.*;
 import java.nio.*;
 import java.io.*;
+import java.util.List;
 
 public class EventParser {
     public static String parse(ByteBuffer event, String path, Window window) {
+        String avatarPath = "src/main/java/client/avatars/";
         StringBuilder result = new StringBuilder();
         JAXBContext context;
 
@@ -55,7 +62,6 @@ public class EventParser {
                     } else if (secondLine.contains("id") && thirdLine.contains("/success")) {
                         context = JAXBContext.newInstance(FileSuccess.class);
                         FileSuccess success = (FileSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
-
                         result = new StringBuilder("Success: " + success.getMessage());
                     } else if (secondLine.contains("id") && thirdLine.contains("name")) {
                         context = JAXBContext.newInstance(xml.events.files.Download.class);
@@ -91,8 +97,29 @@ public class EventParser {
                                 result.append(subResult).append("\n");
                                 subResult.setLength(0);
                             }
+                        } else {
+                            result.append("Nothing to download");
                         }
 
+                    } else if (secondLine.contains("username")) {
+                        context = JAXBContext.newInstance(Profile.class);
+                        Profile profile = (Profile) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
+
+                        Path filePath = Path.of(avatarPath, profile.getFilename());
+                        Files.createFile(filePath);
+                        byte[] decodedContent = Base64.getDecoder().decode(profile.getContent());
+                        Files.write(filePath, decodedContent);
+                        ImageIcon imageIcon = new ImageIcon(
+                                new ImageIcon(filePath.toString()).getImage().getScaledInstance(75, 75, Image.SCALE_DEFAULT));
+
+                        UserProfile userProfile = new UserProfile(window);
+                        userProfile.setUserProfile(profile.getUsername(), profile.getStatus(), imageIcon);
+
+                        Dimension size = window.getScreenSize();
+                        userProfile.setSize(size.width / 8, size.height / 4);
+
+                        userProfile.setVisible(true);
+                        result = new StringBuilder("Success");
                     } else {
                         result = new StringBuilder("Unknown event");
                     }
