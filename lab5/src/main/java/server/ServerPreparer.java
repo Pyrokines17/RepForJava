@@ -84,14 +84,15 @@ public class ServerPreparer {
             socketChannel.read(lenMes);
         } lenMes.flip();
 
-        if (11 * 1024 * 1024 < lenMes.getInt()) {
+        int length = lenMes.getInt();
+
+        if (11 * 1024 * 1024 < length) {
             serEventManager.setError("Message is too big");
             serEventManager.sendError(key);
             socketChannel.close();
             return null;
         }
 
-        int length = lenMes.getInt();
         Logger.getGlobal().info("Length of message will read: " + length);
         ByteBuffer bufForMes = ByteBuffer.allocate(length);
 
