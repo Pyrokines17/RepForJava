@@ -11,7 +11,6 @@ import xml.commands.*;
 import java.nio.file.*;
 import jakarta.xml.bind.*;
 
-import java.nio.charset.*;
 import java.nio.channels.*;
 import java.util.logging.*;
 import java.util.concurrent.*;
@@ -19,6 +18,13 @@ import java.util.concurrent.*;
 import xml.commands.files.*;
 import static server.sql.SQLConst.*;
 import org.apache.commons.collections4.queue.*;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 public class SerCommandManager {
     private final SQLWorker sqlWorker;
@@ -31,6 +37,7 @@ public class SerCommandManager {
     private final ConcurrentMap<SelectionKey, Long> lastHeartbeat = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Description> profiles = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, String> files = new ConcurrentHashMap<>();
+    private final static XMLInputFactory factory = XMLInputFactory.newInstance();
 
     private static final String AVATAR = "src/main/java/server/avatars/";
     private static final String BASE = "src/main/java/server/files/";
@@ -49,21 +56,27 @@ public class SerCommandManager {
     }
 
     public void parse(ByteBuffer bufForMes, SelectionKey key) throws IOException {
-        String xmlString = new String(bufForMes.array(), Charset.defaultCharset());
-        Scanner scanner = new Scanner(xmlString);
-        String line = scanner.nextLine();
+        String name;
 
-        if (line == null) {
-            serEventManager.setError("Empty message");
+        try {
+            ByteArrayInputStream stream = new ByteArrayInputStream(bufForMes.array());
+            XMLEventReader reader = factory.createXMLEventReader(new InputStreamReader(stream));
+            XMLEvent xmlEvent = reader.nextEvent();
+
+            while (!xmlEvent.isStartElement()) {
+                xmlEvent = reader.nextEvent();
+            }
+
+            StartElement startElement = xmlEvent.asStartElement();
+
+            Iterator<Attribute> iterator = startElement.getAttributes();
+            Attribute attribute = iterator.next();
+            name = attribute.getValue();
+        } catch (XMLStreamException e) {
+            serEventManager.setError(e.getLocalizedMessage());
             serEventManager.sendError(key);
             return;
         }
-
-        if (line.contains("version")) {
-            line = scanner.nextLine();
-        }
-
-        String name = line.split("\"")[1];
 
         switch (name) {
             case "login":
