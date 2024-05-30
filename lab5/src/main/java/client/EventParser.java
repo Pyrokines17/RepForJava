@@ -73,7 +73,7 @@ public class EventParser {
                         byte[] decodedContent = Base64.getDecoder().decode(download.getContent());
                         Files.write(filePath, decodedContent);
 
-                        return "Success: file download to "+filePath;
+                        return "Success: file downloaded";
                     } else if (secondLine.contains("files")) {
                         context = JAXBContext.newInstance(LFSuccess.class);
                         LFSuccess lfSuccess = (LFSuccess) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
@@ -106,9 +106,15 @@ public class EventParser {
                         Profile profile = (Profile) context.createUnmarshaller().unmarshal(new ByteArrayInputStream(event.array()));
 
                         Path filePath = Path.of(avatarPath, profile.getFilename());
+
+                        if (Files.exists(filePath)) {
+                            Files.delete(filePath);
+                        }
+
                         Files.createFile(filePath);
                         byte[] decodedContent = Base64.getDecoder().decode(profile.getContent());
                         Files.write(filePath, decodedContent);
+
                         ImageIcon imageIcon = new ImageIcon(
                                 new ImageIcon(filePath.toString()).getImage().getScaledInstance(75, 75, Image.SCALE_DEFAULT));
 

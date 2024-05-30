@@ -74,7 +74,9 @@ public class Window extends JFrame {
     }
 
     public void initFiles() {
-        filesModel.addElement("Files: ");
+        if (!filesModel.contains("Files: ")) {
+            filesModel.addElement("Files: ");
+        }
     }
 
     public String getIp() {

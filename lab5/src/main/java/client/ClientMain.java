@@ -13,8 +13,8 @@ public class ClientMain {
 
     public static void main(String[] args) {
         SocketChannel socketChannel = null;
-        Listener listener = null;
         Window window = null;
+        Listener listener;
 
         Controller controller;
         boolean isWin = false;
@@ -122,13 +122,12 @@ public class ClientMain {
 
             } while (commandManager.isFlag());
 
+            listener.stopListener();
+            commandManager.logout();
+
         } catch (IOException | IllegalArgumentException e) {
             System.err.println(e.getLocalizedMessage());
         } finally {
-
-            if (listener != null) {
-                listener.stopListener();
-            }
 
             if (socketChannel != null) {
                 try {
